@@ -33,7 +33,7 @@ namespace CryptographyHelpers.IoC
                 try
                 {
                     ConstructorInfo constructor = servicesType[typeof(T)].GetConstructor(Array.Empty<Type>());
-                    Debug.Assert(constructor != null, "Cannot find a suitable constructor for " + typeof(T));
+                    Debug.Assert(constructor != null, $"Cannot find a suitable constructor for {typeof(T)}.");
                     T service = (T)constructor.Invoke(null);
                     instantiatedServices.Add(typeof(T), service);
 
