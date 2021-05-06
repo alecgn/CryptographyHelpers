@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <Authors>Alessandro Cagliostro Goncalves Neves</Authors>
+    <Description>CryptographyHelpers is a .NET 5 class library for text and files symmetric (AES_128_CBC / AES_192_CBC / AES_256_CBC / AES_128_GCM / AES_192_GCM / AES_256_GCM) authenticated encryption/decryption, text/files hashing (MD5, SHA1, SHA256, SHA384, SHA512, HMAC-MD5, HMAC-SHA1, HMAC-SHA256, HMAC-SHA384, HMAC-SHA512, PBKDF2, BCrypt and Argon2id) and text encoding/decoding (Base64 and Hexadecimal).</Description>
+    <Copyright>Alessandro Cagliostro Goncalves Neves, 2021</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/alecgn/CryptographyHelpers</PackageProjectUrl>
+    <PackageIcon>CryptographyHelpers.png</PackageIcon>
+    <RepositoryUrl>https://github.com/alecgn/CryptographyHelpers</RepositoryUrl>
+    <PackageTags>encryption decryption cryptography aes aes128 aes192 aes256 aes128cbc aes192cbc aes256cbc aes128gcm aes192gcm aes256gcm aescbc aesgcm aescbc128 aescbc192 aescbc256 aesgcm128 aesgcm192 aesgcm256 cbc gcm hash md5 sha1 sha256 sha384 sha512 hmacmd5 hmac-md5 hmacsha1 hmac-sha1 hmacsha256 hmac-sha256 hmacsha384 hmac-sha384 hmacsha512 hmac-sha512 pbkdf2 bcrypt argon2 argon2id c# c-sharp security password authentication authenticated base64 hex hexadecimal encode decode</PackageTags>
+    <AssemblyVersion>1.0.0</AssemblyVersion>
+    <FileVersion>1.0.0</FileVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="NuGetIcon\CryptographyHelpers.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+
+</Project>
