@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
@@ -20,6 +20,36 @@
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Resources\MessageStrings.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>MessageStrings.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Resources\RegexStrings.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>RegexStrings.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Resources\MessageStrings.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>MessageStrings.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\RegexStrings.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>RegexStrings.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>CryptographyHelpers.Tests</_Parameter1>
+    </AssemblyAttribute>
   </ItemGroup>
 
 </Project>
