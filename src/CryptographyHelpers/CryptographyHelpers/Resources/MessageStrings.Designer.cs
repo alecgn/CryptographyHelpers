@@ -70,11 +70,20 @@ namespace CryptographyHelpers.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Invalid input base64 string..
+        ///   Looks up a localized string similar to Invalid base64 input string..
         /// </summary>
         internal static string Strings_InvalidInputBase64String {
             get {
                 return ResourceManager.GetString("Strings.InvalidInputBase64String", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid hexadecimal input string..
+        /// </summary>
+        internal static string Strings_InvalidInputHexadecimalString {
+            get {
+                return ResourceManager.GetString("Strings.InvalidInputHexadecimalString", resourceCulture);
             }
         }
         

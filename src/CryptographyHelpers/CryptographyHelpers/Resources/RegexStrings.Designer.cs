@@ -68,5 +68,14 @@ namespace CryptographyHelpers.Resources {
                 return ResourceManager.GetString("Base64String", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to ^(0(?:x|X))?([0-9a-fA-F]+)$.
+        /// </summary>
+        internal static string HexadecimalString {
+            get {
+                return ResourceManager.GetString("HexadecimalString", resourceCulture);
+            }
+        }
     }
 }

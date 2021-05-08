@@ -1,11 +1,12 @@
-﻿using CryptographyHelpers.Resources;
-using CryptographyHelpers.Util;
+﻿using CryptographyHelpers.ByteArrays;
+using CryptographyHelpers.Resources;
+using CryptographyHelpers.Strings;
 using System;
 using System.Text.RegularExpressions;
 
 namespace CryptographyHelpers.Encoding
 {
-    public class Base64
+    public static class Base64
     {
         private static Regex _regexBase64String = null;
         private const int Base64ChunkSize = 4;
@@ -17,7 +18,7 @@ namespace CryptographyHelpers.Encoding
                 throw new ArgumentException(MessageStrings.Strings_InvalidInputString, nameof(plainString));
             }
 
-            var plainStringBytes = StringsUtil.GetUTF8Bytes(plainString);
+            var plainStringBytes = StringUtil.GetUTF8BytesFromString(plainString);
 
             return ToBase64String(plainStringBytes);
         }
@@ -46,7 +47,7 @@ namespace CryptographyHelpers.Encoding
 
             var byteArray = Convert.FromBase64String(base64String);
 
-            return System.Text.Encoding.UTF8.GetString(byteArray);
+            return ByteArrayUtil.GetStringFromUTF8Bytes(byteArray);
         }
 
         public static byte[] ToByteArray(string base64String)

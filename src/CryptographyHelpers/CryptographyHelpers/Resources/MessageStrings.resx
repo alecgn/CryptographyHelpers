@@ -121,7 +121,10 @@
     <value>Input byte array cannot be null or empty.</value>
   </data>
   <data name="Strings.InvalidInputBase64String" xml:space="preserve">
-    <value>Invalid input base64 string.</value>
+    <value>Invalid base64 input string.</value>
+  </data>
+  <data name="Strings.InvalidInputHexadecimalString" xml:space="preserve">
+    <value>Invalid hexadecimal input string.</value>
   </data>
   <data name="Strings.InvalidInputString" xml:space="preserve">
     <value>Input string cannot be null, empty or white-space(s).</value>

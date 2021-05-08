@@ -88,7 +88,7 @@ namespace CryptographyHelpers.Tests.Encoding
         [TestMethod]
         [DataRow(_invalidBase64String, false)]
         [DataRow(_testBase64String, true)]
-        public void ShouldValite_Base64String(string base64String, bool isValidBase64String)
+        public void ShouldValiteBase64String_InIsValidBase64String(string base64String, bool isValidBase64String)
         {
             var isValid = Base64.IsValidBase64String(base64String);
 
