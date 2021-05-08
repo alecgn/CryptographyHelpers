@@ -70,6 +70,51 @@ namespace CryptographyHelpers.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to File not found:.
+        /// </summary>
+        internal static string File_PathNotFound {
+            get {
+                return ResourceManager.GetString("File.PathNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Input hash computed succesfully..
+        /// </summary>
+        internal static string Hash_ComputeSuccess {
+            get {
+                return ResourceManager.GetString("Hash.ComputeSuccess", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Input hash and verification hash does not match..
+        /// </summary>
+        internal static string Hash_DoesNotMatch {
+            get {
+                return ResourceManager.GetString("Hash.DoesNotMatch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Input to compute hash required..
+        /// </summary>
+        internal static string Hash_InputRequired {
+            get {
+                return ResourceManager.GetString("Hash.InputRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Input hash and verification hash match..
+        /// </summary>
+        internal static string Hash_Match {
+            get {
+                return ResourceManager.GetString("Hash.Match", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalid base64 input string..
         /// </summary>
         internal static string Strings_InvalidInputBase64String {

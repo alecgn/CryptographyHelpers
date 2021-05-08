@@ -120,6 +120,21 @@
   <data name="ByteArray.InvalidInputByteArray" xml:space="preserve">
     <value>Input byte array cannot be null or empty.</value>
   </data>
+  <data name="File.PathNotFound" xml:space="preserve">
+    <value>File not found:</value>
+  </data>
+  <data name="Hash.ComputeSuccess" xml:space="preserve">
+    <value>Input hash computed succesfully.</value>
+  </data>
+  <data name="Hash.DoesNotMatch" xml:space="preserve">
+    <value>Input hash and verification hash does not match.</value>
+  </data>
+  <data name="Hash.InputRequired" xml:space="preserve">
+    <value>Input to compute hash required.</value>
+  </data>
+  <data name="Hash.Match" xml:space="preserve">
+    <value>Input hash and verification hash match.</value>
+  </data>
   <data name="Strings.InvalidInputBase64String" xml:space="preserve">
     <value>Invalid base64 input string.</value>
   </data>
