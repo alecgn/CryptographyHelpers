@@ -1,5 +1,4 @@
-﻿using CryptographyHelpers.ByteArrays;
-using CryptographyHelpers.Resources;
+﻿using CryptographyHelpers.Resources;
 using CryptographyHelpers.Strings;
 using System;
 using System.Collections.Generic;
@@ -10,8 +9,8 @@ namespace CryptographyHelpers.Encoding
 {
     public static class Hexadecimal
     {
-        private const int HexadecimalChunkSize = 2;
-        private const int HexadecimalBase = 16;
+        private const int _hexadecimalChunkSize = 2;
+        private const int _hexadecimalBase = 16;
         private static Regex _regexHexadecimalString = null;
 
         public static string ToHexadecimalString(string plainString, bool includeHexIndicatorPrefix = false, CharacterCasing outputHexCharacterCasing = CharacterCasing.Upper)
@@ -64,7 +63,7 @@ namespace CryptographyHelpers.Encoding
 
             var byteArray = ToByteArray(hexadecimalString);
 
-            return ByteArrayUtil.GetStringFromUTF8Bytes(byteArray);
+            return StringUtil.GetStringFromUTF8Bytes(byteArray);
         }
 
         public static byte[] ToByteArray(string hexadecimalString)
@@ -79,12 +78,12 @@ namespace CryptographyHelpers.Encoding
                 throw new ArgumentException(MessageStrings.Strings_InvalidInputHexadecimalString, nameof(hexadecimalString));
             }
 
-            var byteArray = new byte[hexadecimalString.Length / HexadecimalChunkSize];
+            var byteArray = new byte[hexadecimalString.Length / _hexadecimalChunkSize];
             var i = 0;
 
             foreach (var hexadecimalValue in ChunkHexadecimalString(hexadecimalString))
             {
-                byteArray[i] = Convert.ToByte(hexadecimalValue, HexadecimalBase);
+                byteArray[i] = Convert.ToByte(hexadecimalValue, _hexadecimalBase);
                 i++;
             }
 
@@ -95,14 +94,14 @@ namespace CryptographyHelpers.Encoding
         {
             _regexHexadecimalString ??= new Regex(RegexStrings.HexadecimalString);
 
-            return _regexHexadecimalString.IsMatch(hexadecimalString) && hexadecimalString.Length % HexadecimalChunkSize == 0;
+            return _regexHexadecimalString.IsMatch(hexadecimalString) && hexadecimalString.Length % _hexadecimalChunkSize == 0;
         }
 
         private static IEnumerable<string> ChunkHexadecimalString(string hexadecimalString)
         {
-            for (var i = 0; i < hexadecimalString.Length; i += HexadecimalChunkSize)
+            for (var i = 0; i < hexadecimalString.Length; i += _hexadecimalChunkSize)
             {
-                yield return hexadecimalString.Substring(i, HexadecimalChunkSize);
+                yield return hexadecimalString.Substring(i, _hexadecimalChunkSize);
             }
         }
     }
