@@ -7,13 +7,13 @@ using System.Text.RegularExpressions;
 
 namespace CryptographyHelpers.Encoding
 {
-    public static class Hexadecimal
+    public class Hexadecimal : IHexadecimal
     {
         private const int _hexadecimalChunkSize = 2;
         private const int _hexadecimalBase = 16;
-        private static Regex _regexHexadecimalString = null;
+        private Regex _regexHexadecimalString = null;
 
-        public static string ToHexadecimalString(string plainString, bool includeHexIndicatorPrefix = false, CharacterCasing outputHexCharacterCasing = CharacterCasing.Upper)
+        public string ToHexadecimalString(string plainString, bool includeHexIndicatorPrefix = false, CharacterCasing outputHexCharacterCasing = CharacterCasing.Upper)
         {
             if (string.IsNullOrWhiteSpace(plainString))
             {
@@ -25,7 +25,7 @@ namespace CryptographyHelpers.Encoding
             return ToHexadecimalString(plainStringBytes, includeHexIndicatorPrefix, outputHexCharacterCasing);
         }
 
-        public static string ToHexadecimalString(byte[] byteArray, bool includeHexIndicatorPrefix = false, CharacterCasing outputCharacterCasing = CharacterCasing.Upper)
+        public string ToHexadecimalString(byte[] byteArray, bool includeHexIndicatorPrefix = false, CharacterCasing outputCharacterCasing = CharacterCasing.Upper)
         {
             if (byteArray is null || byteArray.Length == 0)
             {
@@ -49,7 +49,7 @@ namespace CryptographyHelpers.Encoding
             return hexadecimalString.ToString();
         }
 
-        public static string ToString(string hexadecimalString)
+        public string ToString(string hexadecimalString)
         {
             if (string.IsNullOrWhiteSpace(hexadecimalString))
             {
@@ -66,7 +66,7 @@ namespace CryptographyHelpers.Encoding
             return StringUtil.GetStringFromUTF8Bytes(byteArray);
         }
 
-        public static byte[] ToByteArray(string hexadecimalString)
+        public byte[] ToByteArray(string hexadecimalString)
         {
             if (string.IsNullOrWhiteSpace(hexadecimalString))
             {
@@ -90,14 +90,14 @@ namespace CryptographyHelpers.Encoding
             return byteArray;
         }
 
-        public static bool IsValidHexadecimalString(string hexadecimalString)
+        public bool IsValidHexadecimalString(string hexadecimalString)
         {
             _regexHexadecimalString ??= new Regex(RegexStrings.HexadecimalString);
 
             return _regexHexadecimalString.IsMatch(hexadecimalString) && hexadecimalString.Length % _hexadecimalChunkSize == 0;
         }
 
-        private static IEnumerable<string> ChunkHexadecimalString(string hexadecimalString)
+        private IEnumerable<string> ChunkHexadecimalString(string hexadecimalString)
         {
             for (var i = 0; i < hexadecimalString.Length; i += _hexadecimalChunkSize)
             {

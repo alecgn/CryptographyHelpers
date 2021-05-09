@@ -5,12 +5,12 @@ using System.Text.RegularExpressions;
 
 namespace CryptographyHelpers.Encoding
 {
-    public static class Base64
+    public class Base64 : IBase64
     {
-        private static Regex _regexBase64String = null;
+        private Regex _regexBase64String = null;
         private const int _base64ChunkSize = 4;
 
-        public static string ToBase64String(string plainString)
+        public string ToBase64String(string plainString)
         {
             if (string.IsNullOrWhiteSpace(plainString))
             {
@@ -22,7 +22,7 @@ namespace CryptographyHelpers.Encoding
             return ToBase64String(plainStringBytes);
         }
 
-        public static string ToBase64String(byte[] byteArray)
+        public string ToBase64String(byte[] byteArray)
         {
             if (byteArray is null || byteArray.Length == 0)
             {
@@ -32,7 +32,7 @@ namespace CryptographyHelpers.Encoding
             return Convert.ToBase64String(byteArray);
         }
 
-        public static string ToString(string base64String)
+        public string ToString(string base64String)
         {
             if (string.IsNullOrWhiteSpace(base64String))
             {
@@ -49,7 +49,7 @@ namespace CryptographyHelpers.Encoding
             return StringUtil.GetStringFromUTF8Bytes(byteArray);
         }
 
-        public static byte[] ToByteArray(string base64String)
+        public byte[] ToByteArray(string base64String)
         {
             if (string.IsNullOrWhiteSpace(base64String))
             {
@@ -64,7 +64,7 @@ namespace CryptographyHelpers.Encoding
             return Convert.FromBase64String(base64String);
         }
 
-        public static bool IsValidBase64String(string base64String)
+        public bool IsValidBase64String(string base64String)
         {
             _regexBase64String ??= new Regex(RegexStrings.Base64String);
 

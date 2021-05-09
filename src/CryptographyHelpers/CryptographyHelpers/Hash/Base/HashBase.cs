@@ -1,4 +1,5 @@
 ﻿using CryptographyHelpers.Encoding;
+using CryptographyHelpers.IoC;
 using CryptographyHelpers.Resources;
 using CryptographyHelpers.Util;
 using System;
@@ -11,6 +12,12 @@ namespace CryptographyHelpers.Hash
     public class HashBase
     {
         public event OnHashProgressHandler OnHashProgress;
+        private IHexadecimal _hexadecimal;
+
+        public HashBase()
+        {
+            _hexadecimal = ServiceLocator.Instance.GetService<IHexadecimal>();
+        }
 
         public GenericHashResult ComputeHash(HashAlgorithmType hashAlgorithmType, byte[] bytesToComputeHash, int offset = 0, int count = 0)
         {
@@ -41,7 +48,7 @@ namespace CryptographyHelpers.Hash
                         Message = MessageStrings.Hash_ComputeSuccess,
                         HashAlgorithmType = hashAlgorithmType,
                         HashBytes = hash,
-                        HashString = Hexadecimal.ToHexadecimalString(hash),
+                        HashString = _hexadecimal.ToHexadecimalString(hash),
                     };
                 }
             }
@@ -143,7 +150,7 @@ namespace CryptographyHelpers.Hash
                     Success = true,
                     Message = MessageStrings.Hash_ComputeSuccess,
                     HashAlgorithmType = hashAlgorithmType,
-                    HashString = Hexadecimal.ToHexadecimalString(hash),
+                    HashString = _hexadecimal.ToHexadecimalString(hash),
                     HashBytes = hash
                 };
             }
@@ -177,7 +184,7 @@ namespace CryptographyHelpers.Hash
 
         public GenericHashResult VerifyHash(HashAlgorithmType hashAlgorithmType, string hashHexString, string stringToVerifyHash, int offset = 0, int count = 0)
         {
-            var hashBytes = Hexadecimal.ToByteArray(hashHexString);
+            var hashBytes = _hexadecimal.ToByteArray(hashHexString);
             var stringToVerifyHashBytes = StringUtil.GetUTF8BytesFromString(stringToVerifyHash);
 
             return VerifyHash(hashAlgorithmType, hashBytes, stringToVerifyHashBytes, offset, count);
@@ -185,7 +192,7 @@ namespace CryptographyHelpers.Hash
 
         public GenericHashResult VerifyFileHash(HashAlgorithmType hashAlgorithmType, string hashHexString, string filePathToVerifyHash, long offset = 0, long count = 0)
         {
-            var hashBytes = Hexadecimal.ToByteArray(hashHexString);
+            var hashBytes = _hexadecimal.ToByteArray(hashHexString);
 
             return VerifyFileHash(hashAlgorithmType, hashBytes, filePathToVerifyHash, offset, count);
         }

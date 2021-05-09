@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CryptographyHelpers.Encoding;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -48,8 +49,8 @@ namespace CryptographyHelpers.IoC
 
         private void BuildServiceTypesMap()
         {
-            //servicesType.Add(typeof(IService),
-            //    typeof(Service));
+            _servicesType.Add(typeof(IBase64), typeof(Base64));
+            _servicesType.Add(typeof(IHexadecimal), typeof(Hexadecimal));
         }
     }
 }
