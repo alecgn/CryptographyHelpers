@@ -1,6 +1,5 @@
 ﻿using CryptographyHelpers.Encoding;
 using CryptographyHelpers.Resources;
-using CryptographyHelpers.Strings;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
