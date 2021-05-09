@@ -1,4 +1,4 @@
 ﻿namespace CryptographyHelpers.Hash
 {
-    public delegate void OnHashProgressHandler(int percentageDone, string message);
+    public delegate void OnHashProgressHandler(int percentageComputed, string message);
 }

@@ -21,4 +21,8 @@
     <ProjectReference Include="..\CryptographyHelpers\CryptographyHelpers.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Hash\" />
+  </ItemGroup>
+
 </Project>

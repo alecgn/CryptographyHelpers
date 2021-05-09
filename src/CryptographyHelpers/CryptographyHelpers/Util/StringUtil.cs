@@ -1,4 +1,4 @@
-﻿namespace CryptographyHelpers.Strings
+﻿namespace CryptographyHelpers.Util
 {
     public static class StringUtil
     {

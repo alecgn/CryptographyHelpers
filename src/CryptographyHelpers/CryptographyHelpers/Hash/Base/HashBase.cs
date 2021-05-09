@@ -1,6 +1,6 @@
 ﻿using CryptographyHelpers.Encoding;
 using CryptographyHelpers.Resources;
-using CryptographyHelpers.Strings;
+using CryptographyHelpers.Util;
 using System;
 using System.IO;
 using System.Linq;
@@ -8,7 +8,7 @@ using System.Security.Cryptography;
 
 namespace CryptographyHelpers.Hash
 {
-    public abstract class HashBase
+    public class HashBase
     {
         public event OnHashProgressHandler OnHashProgress;
 

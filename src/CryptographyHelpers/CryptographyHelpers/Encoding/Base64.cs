@@ -1,5 +1,5 @@
 ﻿using CryptographyHelpers.Resources;
-using CryptographyHelpers.Strings;
+using CryptographyHelpers.Util;
 using System;
 using System.Text.RegularExpressions;
 
