@@ -16,7 +16,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="NuGetIcon\CryptographyHelpers.png">
+    <None Include="Resources\NuGetIcon\CryptographyHelpers.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
