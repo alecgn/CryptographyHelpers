@@ -135,6 +135,9 @@
   <data name="Hash.Match" xml:space="preserve">
     <value>Input hash and verification hash match.</value>
   </data>
+  <data name="Hash.VerificationHashRequired" xml:space="preserve">
+    <value>Verification hash required.</value>
+  </data>
   <data name="Strings.InvalidInputBase64String" xml:space="preserve">
     <value>Invalid base64 input string.</value>
   </data>

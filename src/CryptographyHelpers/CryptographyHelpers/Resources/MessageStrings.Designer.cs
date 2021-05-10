@@ -115,6 +115,15 @@ namespace CryptographyHelpers.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Verification hash required..
+        /// </summary>
+        internal static string Hash_VerificationHashRequired {
+            get {
+                return ResourceManager.GetString("Hash.VerificationHashRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalid base64 input string..
         /// </summary>
         internal static string Strings_InvalidInputBase64String {

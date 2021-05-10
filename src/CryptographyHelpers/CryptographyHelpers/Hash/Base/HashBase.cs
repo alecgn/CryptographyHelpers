@@ -12,12 +12,6 @@ namespace CryptographyHelpers.Hash
     public class HashBase
     {
         public event OnHashProgressHandler OnHashProgress;
-        private IHexadecimal _hexadecimal;
-
-        public HashBase()
-        {
-            _hexadecimal = ServiceLocator.Instance.GetService<IHexadecimal>();
-        }
 
         public GenericHashResult ComputeHash(HashAlgorithmType hashAlgorithmType, byte[] bytesToComputeHash, int offset = 0, int count = 0)
         {
@@ -26,7 +20,7 @@ namespace CryptographyHelpers.Hash
                 return new GenericHashResult()
                 {
                     Success = false,
-                    Message = MessageStrings.Hash_InputRequired
+                    Message = MessageStrings.Hash_InputRequired,
                 };
             }
 
@@ -48,7 +42,7 @@ namespace CryptographyHelpers.Hash
                         Message = MessageStrings.Hash_ComputeSuccess,
                         HashAlgorithmType = hashAlgorithmType,
                         HashBytes = hash,
-                        HashString = _hexadecimal.ToHexadecimalString(hash),
+                        HashString = ServiceLocator.Instance.GetService<IHexadecimal>().ToHexadecimalString(hash),
                     };
                 }
             }
@@ -71,7 +65,7 @@ namespace CryptographyHelpers.Hash
                 return new GenericHashResult()
                 {
                     Success = false,
-                    Message = MessageStrings.Hash_InputRequired
+                    Message = MessageStrings.Hash_InputRequired,
                 };
             }
 
@@ -87,7 +81,7 @@ namespace CryptographyHelpers.Hash
                 return new GenericHashResult()
                 {
                     Success = false,
-                    Message = $"{MessageStrings.File_PathNotFound} \"{filePathToComputeHash}\"."
+                    Message = $"{MessageStrings.File_PathNotFound} \"{filePathToComputeHash}\".",
                 };
             }
 
@@ -150,8 +144,8 @@ namespace CryptographyHelpers.Hash
                     Success = true,
                     Message = MessageStrings.Hash_ComputeSuccess,
                     HashAlgorithmType = hashAlgorithmType,
-                    HashString = _hexadecimal.ToHexadecimalString(hash),
-                    HashBytes = hash
+                    HashString = ServiceLocator.Instance.GetService<IHexadecimal>().ToHexadecimalString(hash),
+                    HashBytes = hash,
                 };
             }
             catch (Exception ex)
@@ -159,7 +153,7 @@ namespace CryptographyHelpers.Hash
                 result = new GenericHashResult()
                 {
                     Success = false,
-                    Message = ex.ToString()
+                    Message = ex.ToString(),
                 };
             }
 
@@ -182,17 +176,17 @@ namespace CryptographyHelpers.Hash
             return hashResult;
         }
 
-        public GenericHashResult VerifyHash(HashAlgorithmType hashAlgorithmType, string hashHexString, string stringToVerifyHash, int offset = 0, int count = 0)
+        public GenericHashResult VerifyHash(HashAlgorithmType hashAlgorithmType, string hashHexadecimalString, string stringToVerifyHash, int offset = 0, int count = 0)
         {
-            var hashBytes = _hexadecimal.ToByteArray(hashHexString);
+            var hashBytes = ServiceLocator.Instance.GetService<IHexadecimal>().ToByteArray(hashHexadecimalString);
             var stringToVerifyHashBytes = StringUtil.GetUTF8BytesFromString(stringToVerifyHash);
 
             return VerifyHash(hashAlgorithmType, hashBytes, stringToVerifyHashBytes, offset, count);
         }
 
-        public GenericHashResult VerifyFileHash(HashAlgorithmType hashAlgorithmType, string hashHexString, string filePathToVerifyHash, long offset = 0, long count = 0)
+        public GenericHashResult VerifyFileHash(HashAlgorithmType hashAlgorithmType, string hashHexadecimalString, string filePathToVerifyHash, long offset = 0, long count = 0)
         {
-            var hashBytes = _hexadecimal.ToByteArray(hashHexString);
+            var hashBytes = ServiceLocator.Instance.GetService<IHexadecimal>().ToByteArray(hashHexadecimalString);
 
             return VerifyFileHash(hashAlgorithmType, hashBytes, filePathToVerifyHash, offset, count);
         }

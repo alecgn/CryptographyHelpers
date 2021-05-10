@@ -3,16 +3,16 @@ using CryptographyHelpers.Resources;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
-using System.Collections.Generic;
 
 namespace CryptographyHelpers.Tests.Encoding
 {
     [TestClass]
     public class Base64Tests
     {
-        private const string _invalidBase64String = "VGhpcyBpcyBhIHRlc3Qgc3RyaW5nIQ=";
-        private const string _testPlainString = "This is a test string!";
-        private const string _testBase64String = "VGhpcyBpcyBhIHRlc3Qgc3RyaW5nIQ==";
+        private readonly Base64 _base64 = new();
+        private const string _invalidBase64TestString = "VGhpcyBpcyBhIHRlc3Qgc3RyaW5nIQ=";
+        private const string _base64TestString = "VGhpcyBpcyBhIHRlc3Qgc3RyaW5nIQ==";
+        private const string _plainTestString = "This is a test string!";
 
         [TestMethod]
         [DataRow(null)]
@@ -20,7 +20,7 @@ namespace CryptographyHelpers.Tests.Encoding
         [DataRow("   ")]
         public void ShouldThrowArgumentException_InToBase64String_WhenProvidedNullEmptyOrWhiteSpaceString(string invalidString)
         {
-            Func<string> act = () => Base64.ToBase64String(invalidString);
+            Func<string> act = () => _base64.ToBase64String(invalidString);
 
             act.Should()
                 .ThrowExactly<ArgumentException>()
@@ -32,7 +32,7 @@ namespace CryptographyHelpers.Tests.Encoding
         [DataRow(new byte[0])]
         public void ShouldThrowArgumentException_InToBase64String_WhenProvidedNullOrEmptyByteArray(byte[] invalidByteArray)
         {
-            Func<string> act = () => Base64.ToBase64String(invalidByteArray);
+            Func<string> act = () => _base64.ToBase64String(invalidByteArray);
 
             act.Should()
                 .ThrowExactly<ArgumentException>()
@@ -45,7 +45,7 @@ namespace CryptographyHelpers.Tests.Encoding
         [DataRow("   ")]
         public void ShouldThrowArgumentException_InToString_WhenProvidedNullEmptyOrWhiteSpaceString(string invalidString)
         {
-            Func<string> act = () => Base64.ToString(invalidString);
+            Func<string> act = () => _base64.ToString(invalidString);
 
             act.Should()
                 .ThrowExactly<ArgumentException>()
@@ -55,7 +55,7 @@ namespace CryptographyHelpers.Tests.Encoding
         [TestMethod]
         public void ShouldThrowArgumentException_InToString_WhenProvidedInvalidBase64String()
         {
-            Func<string> act = () => Base64.ToString(_invalidBase64String);
+            Func<string> act = () => _base64.ToString(_invalidBase64TestString);
 
             act.Should()
                 .ThrowExactly<ArgumentException>()
@@ -68,7 +68,7 @@ namespace CryptographyHelpers.Tests.Encoding
         [DataRow("   ")]
         public void ShouldThrowArgumentException_InToByteArray_WhenProvidedNullEmptyOrWhiteSpaceString(string invalidString)
         {
-            Func<byte[]> act = () => Base64.ToByteArray(invalidString);
+            Func<byte[]> act = () => _base64.ToByteArray(invalidString);
 
             act.Should()
                 .ThrowExactly<ArgumentException>()
@@ -78,7 +78,7 @@ namespace CryptographyHelpers.Tests.Encoding
         [TestMethod]
         public void ShouldThrowArgumentException_InToByteArray_WhenProvidedInvalidBase64String()
         {
-            Func<byte[]> act = () => Base64.ToByteArray(_invalidBase64String);
+            Func<byte[]> act = () => _base64.ToByteArray(_invalidBase64TestString);
 
             act.Should()
                 .ThrowExactly<ArgumentException>()
@@ -86,11 +86,11 @@ namespace CryptographyHelpers.Tests.Encoding
         }
 
         [TestMethod]
-        [DataRow(_invalidBase64String, false)]
-        [DataRow(_testBase64String, true)]
+        [DataRow(_invalidBase64TestString, false)]
+        [DataRow(_base64TestString, true)]
         public void ShouldValiteBase64String_InIsValidBase64String(string base64String, bool isValidBase64String)
         {
-            var isValid = Base64.IsValidBase64String(base64String);
+            var isValid = _base64.IsValidBase64String(base64String);
 
             isValid.Should().Be(isValidBase64String);
         }
@@ -98,9 +98,9 @@ namespace CryptographyHelpers.Tests.Encoding
         [TestMethod]
         public void ShouldMatchBase64String_InToBase64String()
         {
-            var base64String = Base64.ToBase64String(_testPlainString);
+            var base64String = _base64.ToBase64String(_plainTestString);
 
-            base64String.Should().Be(_testBase64String);
+            base64String.Should().Be(_base64TestString);
         }
     }
 }

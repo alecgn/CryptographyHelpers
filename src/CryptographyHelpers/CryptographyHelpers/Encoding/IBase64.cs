@@ -2,14 +2,14 @@
 {
     public interface IBase64
     {
-        public string ToBase64String(string plainString);
+        string ToBase64String(string plainString);
 
-        public string ToBase64String(byte[] byteArray);
+        string ToBase64String(byte[] byteArray);
 
-        public string ToString(string base64String);
+        string ToString(string base64String);
 
-        public byte[] ToByteArray(string base64String);
+        byte[] ToByteArray(string base64String);
 
-        public bool IsValidBase64String(string base64String);
+        bool IsValidBase64String(string base64String);
     }
 }
