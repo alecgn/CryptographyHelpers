@@ -4,17 +4,17 @@
     {
         public HexadecimalEncodingOptions()
         {
-            IncludeHexIndicatorPrefix = false;
+            IncludeHexadecimalIndicatorPrefix = false;
             OutputCharacterCasing = CharacterCasing.Upper;
         }
 
-        public HexadecimalEncodingOptions(bool includeHexIndicatorPrefix, CharacterCasing outputCharacterCasing)
+        public HexadecimalEncodingOptions(bool includeHexadecimalIndicatorPrefix, CharacterCasing outputCharacterCasing)
         {
-            IncludeHexIndicatorPrefix = includeHexIndicatorPrefix;
+            IncludeHexadecimalIndicatorPrefix = includeHexadecimalIndicatorPrefix;
             OutputCharacterCasing = outputCharacterCasing;
         }
 
-        public bool IncludeHexIndicatorPrefix { get; private set; }
+        public bool IncludeHexadecimalIndicatorPrefix { get; private set; }
 
         public CharacterCasing OutputCharacterCasing { get; private set; }
     }

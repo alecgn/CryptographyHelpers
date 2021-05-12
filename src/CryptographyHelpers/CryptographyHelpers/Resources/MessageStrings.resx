@@ -120,6 +120,9 @@
   <data name="ByteArray.InvalidInputByteArray" xml:space="preserve">
     <value>Input byte array cannot be null or empty.</value>
   </data>
+  <data name="File.EmptyInputFile" xml:space="preserve">
+    <value>Input file cannot be empty (0 bytes).</value>
+  </data>
   <data name="File.PathNotFound" xml:space="preserve">
     <value>File not found:</value>
   </data>

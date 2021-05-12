@@ -70,6 +70,15 @@ namespace CryptographyHelpers.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Input file cannot be empty (0 bytes)..
+        /// </summary>
+        internal static string File_EmptyInputFile {
+            get {
+                return ResourceManager.GetString("File.EmptyInputFile", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to File not found:.
         /// </summary>
         internal static string File_PathNotFound {

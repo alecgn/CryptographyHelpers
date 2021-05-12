@@ -8,7 +8,7 @@ namespace CryptographyHelpers.Encoding
     public class Base64 : IBase64
     {
         private Regex _regexBase64String = null;
-        private const int _base64ChunkSize = 4;
+        private const int Base64ChunkSize = 4;
 
         public string ToBase64String(string plainString)
         {
@@ -44,7 +44,7 @@ namespace CryptographyHelpers.Encoding
                 throw new ArgumentException(MessageStrings.Strings_InvalidInputBase64String, nameof(base64String));
             }
 
-            var byteArray = Convert.FromBase64String(base64String);
+            var byteArray = ToByteArray(base64String);
 
             return StringUtil.GetStringFromUTF8Bytes(byteArray);
         }
@@ -68,7 +68,7 @@ namespace CryptographyHelpers.Encoding
         {
             _regexBase64String ??= new Regex(RegexStrings.Base64String);
 
-            return _regexBase64String.IsMatch(base64String) && base64String.Length % _base64ChunkSize == 0;
+            return _regexBase64String.IsMatch(base64String) && base64String.Length % Base64ChunkSize == 0;
         }
     }
 }

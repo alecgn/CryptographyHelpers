@@ -9,8 +9,12 @@ namespace CryptographyHelpers.Encoding
 {
     public class Hexadecimal : IHexadecimal
     {
-        private const int _hexadecimalChunkSize = 2;
-        private const int _hexadecimalBase = 16;
+        private const int HexadecimalChunkSize = 2;
+        private const int HexadecimalBase = 16;
+        private const string HexadecimalPrefixLower = "0x";
+        private const string HexadecimalPrefixUpper = "0X";
+        private const string HexadecimalFormatLower = "x2";
+        private const string HexadecimalFormatUpper = "X2";
         private Regex _regexHexadecimalString = null;
 
         public string ToHexadecimalString(string plainString, HexadecimalEncodingOptions hexadecimalOutputEncodingOptions)
@@ -34,16 +38,16 @@ namespace CryptographyHelpers.Encoding
 
             var hexadecimalString = new StringBuilder();
 
-            if (hexadecimalOutputEncodingOptions.IncludeHexIndicatorPrefix)
+            if (hexadecimalOutputEncodingOptions.IncludeHexadecimalIndicatorPrefix)
             {
-                hexadecimalString.Append("0x");
+                hexadecimalString.Append(HexadecimalPrefixLower);
             }
 
-            var hexFormat = hexadecimalOutputEncodingOptions.OutputCharacterCasing == CharacterCasing.Upper ? "X2" : "x2";
+            var hexadecimalFormat = hexadecimalOutputEncodingOptions.OutputCharacterCasing == CharacterCasing.Upper ? HexadecimalFormatUpper : HexadecimalFormatLower;
 
             for (var i = 0; i < byteArray.Length; i++)
             {
-                hexadecimalString.Append(byteArray[i].ToString(hexFormat));
+                hexadecimalString.Append(byteArray[i].ToString(hexadecimalFormat));
             }
 
             return hexadecimalString.ToString();
@@ -59,6 +63,11 @@ namespace CryptographyHelpers.Encoding
             if (!IsValidHexadecimalString(hexadecimalString))
             {
                 throw new ArgumentException(MessageStrings.Strings_InvalidInputHexadecimalString, nameof(hexadecimalString));
+            }
+
+            if (hexadecimalString.StartsWith(HexadecimalPrefixLower) || hexadecimalString.StartsWith(HexadecimalPrefixUpper))
+            {
+                hexadecimalString = hexadecimalString[2..];
             }
 
             var byteArray = ToByteArray(hexadecimalString);
@@ -78,12 +87,17 @@ namespace CryptographyHelpers.Encoding
                 throw new ArgumentException(MessageStrings.Strings_InvalidInputHexadecimalString, nameof(hexadecimalString));
             }
 
-            var byteArray = new byte[hexadecimalString.Length / _hexadecimalChunkSize];
+            if (hexadecimalString.StartsWith(HexadecimalPrefixLower) || hexadecimalString.StartsWith(HexadecimalPrefixUpper))
+            {
+                hexadecimalString = hexadecimalString[2..];
+            }
+
+            var byteArray = new byte[hexadecimalString.Length / HexadecimalChunkSize];
             var i = 0;
 
             foreach (var hexadecimalValue in ChunkHexadecimalString(hexadecimalString))
             {
-                byteArray[i] = Convert.ToByte(hexadecimalValue, _hexadecimalBase);
+                byteArray[i] = Convert.ToByte(hexadecimalValue, HexadecimalBase);
                 i++;
             }
 
@@ -94,14 +108,14 @@ namespace CryptographyHelpers.Encoding
         {
             _regexHexadecimalString ??= new Regex(RegexStrings.HexadecimalString);
 
-            return _regexHexadecimalString.IsMatch(hexadecimalString) && hexadecimalString.Length % _hexadecimalChunkSize == 0;
+            return _regexHexadecimalString.IsMatch(hexadecimalString) && hexadecimalString.Length % HexadecimalChunkSize == 0;
         }
 
         private IEnumerable<string> ChunkHexadecimalString(string hexadecimalString)
         {
-            for (var i = 0; i < hexadecimalString.Length; i += _hexadecimalChunkSize)
+            for (var i = 0; i < hexadecimalString.Length; i += HexadecimalChunkSize)
             {
-                yield return hexadecimalString.Substring(i, _hexadecimalChunkSize);
+                yield return hexadecimalString.Substring(i, HexadecimalChunkSize);
             }
         }
     }

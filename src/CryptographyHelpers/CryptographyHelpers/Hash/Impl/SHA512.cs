@@ -1,95 +1,68 @@
-﻿namespace CryptographyHelpers.Hash
+﻿using CryptographyHelpers.Encoding;
+
+namespace CryptographyHelpers.Hash
 {
     public class SHA512 : HashBase, IHash
     {
-        private const HashAlgorithmType _hashAlgorithmType = HashAlgorithmType.SHA512;
+        private const HashAlgorithmType HashAlgorithm = HashAlgorithmType.SHA512;
 
-        /// <summary>
-        /// Computes the SHA512 hash of an input byte array.
-        /// </summary>
-        /// <param name="bytesToComputeHash">The input byte array to compute the SHA512 hash.</param>
-        /// <param name="offset">The offset into the byte array from wich to begin reading data.</param>
-        /// <param name="count">The number of bytes in the array to read after the offset.</param>
-        /// <returns>GenericHashResult</returns>
-        public GenericHashResult ComputeHash(byte[] bytesToComputeHash, int offset = 0, int count = 0)
+        public GenericHashResult ComputeHash(
+            byte[] bytesToComputeHash,
+            SeekOptions seekOptions,
+            HexadecimalEncodingOptions hexadecimalOutputEncodingOptions)
         {
-            return base.ComputeHash(_hashAlgorithmType, bytesToComputeHash, offset, count);
+            return base.ComputeHash(bytesToComputeHash, HashAlgorithm, seekOptions, hexadecimalOutputEncodingOptions);
         }
 
-        /// <summary>
-        /// Computes the SHA512 hash of an input string.
-        /// </summary>
-        /// <param name="stringToComputeHash">The input string to compute the SHA512 hash.</param>
-        /// <param name="offset">The offset into the byte array from wich to begin reading data.</param>
-        /// <param name="count">The number of bytes in the array to read after the offset.</param>
-        /// <returns>GenericHashResult</returns>
-        public GenericHashResult ComputeHash(string stringToComputeHash, int offset = 0, int count = 0)
+        public GenericHashResult ComputeHash(byte[] bytesToComputeHash)
         {
-            return base.ComputeHash(_hashAlgorithmType, stringToComputeHash, offset, count);
+            return base.ComputeHash(bytesToComputeHash, HashAlgorithm);
         }
 
-        /// <summary>
-        /// Computes the SHA512 hash of an input file.
-        /// </summary>
-        /// <param name="filePathToComputeHash">The input file path to compute the SHA512 hash.</param>
-        /// <param name="offset">The offset into the FileStream from wich to begin reading data.</param>
-        /// <param name="count">The number of bytes in the FileStream to read after the offset.</param>
-        /// <returns>GenericHashResult</returns>
-        public GenericHashResult ComputeFileHash(string filePathToComputeHash, long offset = 0, long count = 0)
+        public GenericHashResult ComputeHash(
+            string stringToComputeHash,
+            SeekOptions seekOptions,
+            HexadecimalEncodingOptions hexadecimalOutputEncodingOptions)
         {
-            return base.ComputeFileHash(_hashAlgorithmType, filePathToComputeHash, offset, count);
+            return base.ComputeHash(stringToComputeHash, HashAlgorithm, seekOptions, hexadecimalOutputEncodingOptions);
         }
 
-        /// <summary>
-        /// Verifies the SHA512 hash of an input byte array.
-        /// </summary>
-        /// <param name="hashBytes">The pre-computed SHA512 hash byte array.</param>
-        /// <param name="bytesToVerifyHash">The input byte array to compute and verify the SHA512 hash.</param>
-        /// <param name="offset">The offset into the byte array from wich to begin reading data.</param>
-        /// <param name="count">The number of bytes in the array to read after the offset.</param>
-        /// <returns>GenericHashResult</returns>
-        public GenericHashResult VerifyHash(byte[] hashBytes, byte[] bytesToVerifyHash, int offset = 0, int count = 0)
+        public GenericHashResult ComputeHash(string stringToComputeHash)
         {
-            return base.VerifyHash(_hashAlgorithmType, hashBytes, bytesToVerifyHash, offset, count);
+            return base.ComputeHash(stringToComputeHash, HashAlgorithm);
         }
 
-        /// <summary>
-        /// Verifies the SHA512 hash of an input string.
-        /// </summary>
-        /// <param name="hashHexadecimalString">The pre-computed SHA512 hash hexadecimal encoded string.</param>
-        /// <param name="stringToVerifyHash">The input string to compute and verify the SHA512 hash.</param>
-        /// <param name="offset">The offset into the byte array from wich to begin reading data.</param>
-        /// <param name="count">The number of bytes in the array to read after the offset.</param>
-        /// <returns>GenericHashResult</returns>
-        public GenericHashResult VerifyHash(string hashHexadecimalString, string stringToVerifyHash, int offset = 0, int count = 0)
+        public GenericHashResult ComputeFileHash(
+            string fileToComputeHash,
+            LongSeekOptions seekOptions,
+            HexadecimalEncodingOptions hexadecimalOutputEncodingOptions)
         {
-            return base.VerifyHash(_hashAlgorithmType, hashHexadecimalString, stringToVerifyHash, offset, count);
+            return base.ComputeFileHash(fileToComputeHash, HashAlgorithm, seekOptions, hexadecimalOutputEncodingOptions);
         }
 
-        /// <summary>
-        /// Verifies the SHA512 of an input file.
-        /// </summary>
-        /// <param name="hashHexadecimalString">The pre-computed SHA512 hash hexadecimal encoded string.</param>
-        /// <param name="filePathToVerifyHash">The input file path to compute and verify the SHA512 hash.</param>
-        /// <param name="offset">The offset into the FileStream from wich to begin reading data.</param>
-        /// <param name="count">The number of bytes in the FileStream to read after the offset.</param>
-        /// <returns>GenericHashResult</returns>
-        public GenericHashResult VerifyFileHash(string hashHexadecimalString, string filePathToVerifyHash, long offset = 0, long count = 0)
+        public GenericHashResult ComputeFileHash(string fileToComputeHash)
         {
-            return base.VerifyFileHash(_hashAlgorithmType, hashHexadecimalString, filePathToVerifyHash, offset, count);
+            return base.ComputeFileHash(fileToComputeHash, HashAlgorithm);
         }
 
-        /// <summary>
-        /// Verifies the SHA512 of an input file.
-        /// </summary>
-        /// <param name="hashBytes">The pre-computed SHA512 hash byte array.</param>
-        /// <param name="filePathToVerifyHash">The input file path to compute and verify the SHA512 hash.</param>
-        /// <param name="offset">The offset into the FileStream from wich to begin reading data.</param>
-        /// <param name="count">The number of bytes in the FileStream to read after the offset.</param>
-        /// <returns>GenericHashResult</returns>
-        public GenericHashResult VerifyFileHash(byte[] hashBytes, string filePathToVerifyHash, long offset = 0, long count = 0)
+        public GenericHashResult VerifyHash(byte[] verificationHashBytes, byte[] bytesToVerifyHash)
         {
-            return base.VerifyFileHash(_hashAlgorithmType, hashBytes, filePathToVerifyHash, offset, count);
+            return base.VerifyHash(verificationHashBytes, bytesToVerifyHash, HashAlgorithm);
+        }
+
+        public GenericHashResult VerifyHash(string verificationHexadecimalHashString, string stringToVerifyHash)
+        {
+            return base.VerifyHash(verificationHexadecimalHashString, stringToVerifyHash, HashAlgorithm);
+        }
+
+        public GenericHashResult VerifyFileHash(string verificationHexadecimalHashString, string fileToVerifyHash)
+        {
+            return base.VerifyFileHash(verificationHexadecimalHashString, fileToVerifyHash, HashAlgorithm);
+        }
+
+        public GenericHashResult VerifyFileHash(byte[] verificationHashBytes, string fileToVerifyHash)
+        {
+            return base.VerifyFileHash(verificationHashBytes, fileToVerifyHash, HashAlgorithm);
         }
     }
 }

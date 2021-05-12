@@ -11,15 +11,17 @@ namespace CryptographyHelpers.Hash
 {
     public class HashBase : IHashBase
     {
+        private const int FileReadBufferSize = 1024 * 4;
+
         public event OnHashProgressHandler OnHashProgress;
 
         public GenericHashResult ComputeHash(
             byte[] bytesToComputeHash,
             HashAlgorithmType hashAlgorithmType,
-            IntPositionOptions positionOptions,
+            SeekOptions seekOptions,
             HexadecimalEncodingOptions hexadecimalOutputEncodingOptions)
         {
-            if (bytesToComputeHash is null || bytesToComputeHash.Length <= 0)
+            if (bytesToComputeHash is null || bytesToComputeHash.Length == 0)
             {
                 return new GenericHashResult()
                 {
@@ -28,26 +30,20 @@ namespace CryptographyHelpers.Hash
                 };
             }
 
-            GenericHashResult result;
-
             try
             {
-                var hashAlg = (HashAlgorithm)CryptoConfig.CreateFromName(hashAlgorithmType.ToString());
+                using var hashAlgorithm = (HashAlgorithm)CryptoConfig.CreateFromName(hashAlgorithmType.ToString());
+                var count = seekOptions.Count == 0 ? bytesToComputeHash.Length : seekOptions.Count;
+                var hash = hashAlgorithm.ComputeHash(bytesToComputeHash, seekOptions.Offset, count);
 
-                using (hashAlg)
+                return new GenericHashResult()
                 {
-                    var count = (positionOptions.Count == 0 ? bytesToComputeHash.Length : positionOptions.Count);
-                    var hash = hashAlg.ComputeHash(bytesToComputeHash, positionOptions.Offset, count);
-
-                    result = new GenericHashResult()
-                    {
-                        Success = true,
-                        Message = MessageStrings.Hash_ComputeSuccess,
-                        HashAlgorithmType = hashAlgorithmType,
-                        HashBytes = hash,
-                        HashString = ServiceLocator.Instance.GetService<IHexadecimal>().ToHexadecimalString(hash, hexadecimalOutputEncodingOptions),
-                    };
-                }
+                    Success = true,
+                    Message = MessageStrings.Hash_ComputeSuccess,
+                    HashAlgorithmType = hashAlgorithmType,
+                    HashBytes = hash,
+                    HashString = ServiceLocator.Instance.GetService<IHexadecimal>().ToHexadecimalString(hash, hexadecimalOutputEncodingOptions),
+                };
             }
             catch (Exception ex)
             {
@@ -57,14 +53,28 @@ namespace CryptographyHelpers.Hash
                     Message = ex.ToString()
                 };
             }
+        }
 
-            return result;
+        public GenericHashResult ComputeHash(
+            byte[] bytesToComputeHash,
+            HashAlgorithmType hashAlgorithmType)
+        {
+            if (bytesToComputeHash is null || bytesToComputeHash.Length == 0)
+            {
+                return new GenericHashResult()
+                {
+                    Success = false,
+                    Message = MessageStrings.Hash_InputRequired,
+                };
+            }
+
+            return ComputeHash(bytesToComputeHash, hashAlgorithmType, new SeekOptions(), new HexadecimalEncodingOptions());
         }
 
         public GenericHashResult ComputeHash(
             string stringToComputeHash,
             HashAlgorithmType hashAlgorithmType,
-            IntPositionOptions positionOptions,
+            SeekOptions seekOptions,
             HexadecimalEncodingOptions hexadecimalOutputEncodingOptions)
         {
             if (string.IsNullOrWhiteSpace(stringToComputeHash))
@@ -78,13 +88,31 @@ namespace CryptographyHelpers.Hash
 
             var stringToComputeHashBytes = StringUtil.GetUTF8BytesFromString(stringToComputeHash);
 
-            return ComputeHash(stringToComputeHashBytes, hashAlgorithmType, positionOptions, hexadecimalOutputEncodingOptions);
+            return ComputeHash(stringToComputeHashBytes, hashAlgorithmType, seekOptions, hexadecimalOutputEncodingOptions);
+        }
+
+        public GenericHashResult ComputeHash(
+            string stringToComputeHash,
+            HashAlgorithmType hashAlgorithmType)
+        {
+            if (string.IsNullOrWhiteSpace(stringToComputeHash))
+            {
+                return new GenericHashResult()
+                {
+                    Success = false,
+                    Message = MessageStrings.Hash_InputRequired,
+                };
+            }
+
+            var stringToComputeHashBytes = StringUtil.GetUTF8BytesFromString(stringToComputeHash);
+
+            return ComputeHash(stringToComputeHashBytes, hashAlgorithmType, new SeekOptions(), new HexadecimalEncodingOptions());
         }
 
         public GenericHashResult ComputeFileHash(
             string fileToComputeHash,
             HashAlgorithmType hashAlgorithmType,
-            LongPositionOptions positionOptions,
+            LongSeekOptions seekOptions,
             HexadecimalEncodingOptions hexadecimalOutputEncodingOptions)
         {
             if (!File.Exists(fileToComputeHash))
@@ -96,27 +124,31 @@ namespace CryptographyHelpers.Hash
                 };
             }
 
-            GenericHashResult result;
-            var hashAlg = (HashAlgorithm)CryptoConfig.CreateFromName(hashAlgorithmType.ToString());
+            if (new FileInfo(fileToComputeHash).Length == 0)
+            {
+                return new GenericHashResult()
+                {
+                    Success = false,
+                    Message = MessageStrings.File_EmptyInputFile,
+                };
+            }
 
             try
             {
-                byte[] hash = null;
-
-                using (var fStream = new FileStream(fileToComputeHash, FileMode.Open, FileAccess.Read, FileShare.None))
+                using (var fileStream = new FileStream(fileToComputeHash, FileMode.Open, FileAccess.Read, FileShare.None))
                 {
-                    var count = (positionOptions.Count == 0 ? fStream.Length : positionOptions.Count);
-                    fStream.Position = positionOptions.Offset;
-                    var buffer = new byte[(1024 * 4)];
-                    var amount = (count - positionOptions.Offset);
+                    var count = seekOptions.Count == 0 ? fileStream.Length : seekOptions.Count;
+                    fileStream.Position = seekOptions.Offset;
+                    var buffer = new byte[FileReadBufferSize];
+                    var amount = count - seekOptions.Offset;
 
-                    using (hashAlg)
+                    using (var hashAlgorithm = (HashAlgorithm)CryptoConfig.CreateFromName(hashAlgorithmType.ToString()))
                     {
                         var percentageDone = 0;
 
                         while (amount > 0)
                         {
-                            var bytesRead = fStream.Read(buffer, 0, (int)Math.Min(buffer.Length, amount));
+                            var bytesRead = fileStream.Read(buffer, 0, (int)Math.Min(buffer.Length, amount));
 
                             if (bytesRead > 0)
                             {
@@ -124,66 +156,89 @@ namespace CryptographyHelpers.Hash
 
                                 if (amount > 0)
                                 {
-                                    hashAlg.TransformBlock(buffer, 0, bytesRead, buffer, 0);
+                                    hashAlgorithm.TransformBlock(buffer, 0, bytesRead, buffer, 0);
                                 }
                                 else
                                 {
-                                    hashAlg.TransformFinalBlock(buffer, 0, bytesRead);
+                                    hashAlgorithm.TransformFinalBlock(buffer, 0, bytesRead);
                                 }
 
-                                var tmpPercentageDone = (int)(fStream.Position * 100 / count);
+                                var tmpPercentageDone = (int)(fileStream.Position * 100 / count);
 
                                 if (tmpPercentageDone != percentageDone)
                                 {
                                     percentageDone = tmpPercentageDone;
 
-                                    RaiseOnHashProgress(percentageDone, (percentageDone != 100 ? $"Computing hash ({percentageDone}%)..." : $"Hash computed ({percentageDone}%)."));
+                                    RaiseOnHashProgressEvent(percentageDone, (percentageDone != 100 ? $"Computing hash ({percentageDone}%)..." : $"Hash computed ({percentageDone}%)."));
                                 }
-                            }
-                            else
-                            {
-                                throw new InvalidOperationException();
                             }
                         }
 
-                        hash = hashAlg.Hash;
+                        return new GenericHashResult()
+                        {
+                            Success = true,
+                            Message = MessageStrings.Hash_ComputeSuccess,
+                            HashAlgorithmType = hashAlgorithmType,
+                            HashString = ServiceLocator.Instance.GetService<IHexadecimal>().ToHexadecimalString(hashAlgorithm.Hash, hexadecimalOutputEncodingOptions),
+                            HashBytes = hashAlgorithm.Hash,
+                        };
                     }
                 }
-
-                result = new GenericHashResult()
-                {
-                    Success = true,
-                    Message = MessageStrings.Hash_ComputeSuccess,
-                    HashAlgorithmType = hashAlgorithmType,
-                    HashString = ServiceLocator.Instance.GetService<IHexadecimal>().ToHexadecimalString(hash, hexadecimalOutputEncodingOptions),
-                    HashBytes = hash,
-                };
             }
             catch (Exception ex)
             {
-                result = new GenericHashResult()
+                return new GenericHashResult()
                 {
                     Success = false,
                     Message = ex.ToString(),
                 };
             }
-
-            return result;
         }
 
+        public GenericHashResult ComputeFileHash(
+            string fileToComputeHash,
+            HashAlgorithmType hashAlgorithmType)
+        {
+            if (!File.Exists(fileToComputeHash))
+            {
+                return new GenericHashResult()
+                {
+                    Success = false,
+                    Message = $"{MessageStrings.File_PathNotFound} \"{fileToComputeHash}\".",
+                };
+            }
+
+            return ComputeFileHash(fileToComputeHash, hashAlgorithmType, new LongSeekOptions(), new HexadecimalEncodingOptions());
+        }
 
         public GenericHashResult VerifyHash(
-            byte[] hashBytes,
-            byte[] bytesToVerifyHash,
-            HashAlgorithmType hashAlgorithmType,
-            IntPositionOptions positionOptions)
+        byte[] verificationHashBytes,
+        byte[] bytesToVerifyHash,
+        HashAlgorithmType hashAlgorithmType)
         {
-            HexadecimalEncodingOptions hexadecimalEncodingOptions = new(includeHexIndicatorPrefix: false, outputCharacterCasing: CharacterCasing.Upper);
-            var hashResult = ComputeHash(bytesToVerifyHash, hashAlgorithmType, positionOptions, hexadecimalEncodingOptions);
+            if (verificationHashBytes is null || verificationHashBytes.Length == 0)
+            {
+                return new GenericHashResult()
+                {
+                    Success = false,
+                    Message = MessageStrings.Hash_VerificationHashRequired,
+                };
+            }
+
+            if (bytesToVerifyHash is null || bytesToVerifyHash.Length == 0)
+            {
+                return new GenericHashResult()
+                {
+                    Success = false,
+                    Message = MessageStrings.Hash_InputRequired,
+                };
+            }
+
+            var hashResult = ComputeHash(bytesToVerifyHash, hashAlgorithmType);
 
             if (hashResult.Success)
             {
-                var hashesMatch = hashResult.HashBytes.SequenceEqual(hashBytes);
+                var hashesMatch = hashResult.HashBytes.SequenceEqual(verificationHashBytes);
 
                 hashResult.Success = hashesMatch;
                 hashResult.Message = $"{(hashesMatch ? MessageStrings.Hash_Match : MessageStrings.Hash_DoesNotMatch)}";
@@ -193,40 +248,126 @@ namespace CryptographyHelpers.Hash
         }
 
         public GenericHashResult VerifyHash(
-            string hashHexadecimalString,
+            string verificationHexadecimalHashString,
             string stringToVerifyHash,
-            HashAlgorithmType hashAlgorithmType,
-            IntPositionOptions positionOptions)
+            HashAlgorithmType hashAlgorithmType)
         {
-            var hashBytes = ServiceLocator.Instance.GetService<IHexadecimal>().ToByteArray(hashHexadecimalString);
+            if (string.IsNullOrWhiteSpace(verificationHexadecimalHashString))
+            {
+                return new GenericHashResult()
+                {
+                    Success = false,
+                    Message = MessageStrings.Strings_InvalidInputString,
+                };
+            }
+
+            if (!ServiceLocator.Instance.GetService<IHexadecimal>().IsValidHexadecimalString(verificationHexadecimalHashString))
+            {
+                return new GenericHashResult()
+                {
+                    Success = false,
+                    Message = MessageStrings.Strings_InvalidInputHexadecimalString,
+                };
+            }
+
+            if (string.IsNullOrWhiteSpace(stringToVerifyHash))
+            {
+                return new GenericHashResult()
+                {
+                    Success = false,
+                    Message = MessageStrings.Strings_InvalidInputString,
+                };
+            }
+
+            var hashBytes = ServiceLocator.Instance.GetService<IHexadecimal>().ToByteArray(verificationHexadecimalHashString);
             var stringToVerifyHashBytes = StringUtil.GetUTF8BytesFromString(stringToVerifyHash);
 
-            return VerifyHash(stringToVerifyHashBytes, hashBytes, hashAlgorithmType, positionOptions);
+            return VerifyHash(stringToVerifyHashBytes, hashBytes, hashAlgorithmType);
         }
 
         public GenericHashResult VerifyFileHash(
-            string hashHexadecimalString,
+            string verificationHexadecimalHashString,
             string fileToVerifyHash,
-            HashAlgorithmType hashAlgorithmType,
-            LongPositionOptions positionOptions)
+            HashAlgorithmType hashAlgorithmType)
         {
-            var hashBytes = ServiceLocator.Instance.GetService<IHexadecimal>().ToByteArray(hashHexadecimalString);
+            if (string.IsNullOrWhiteSpace(verificationHexadecimalHashString))
+            {
+                return new GenericHashResult()
+                {
+                    Success = false,
+                    Message = MessageStrings.Hash_VerificationHashRequired,
+                };
+            }
 
-            return VerifyFileHash(hashBytes, fileToVerifyHash, hashAlgorithmType, positionOptions);
+            if (!ServiceLocator.Instance.GetService<IHexadecimal>().IsValidHexadecimalString(verificationHexadecimalHashString))
+            {
+                return new GenericHashResult()
+                {
+                    Success = false,
+                    Message = MessageStrings.Strings_InvalidInputHexadecimalString,
+                };
+            }
+
+            if (!File.Exists(fileToVerifyHash))
+            {
+                return new GenericHashResult()
+                {
+                    Success = false,
+                    Message = $"{MessageStrings.File_PathNotFound} \"{fileToVerifyHash}\".",
+                };
+            }
+
+            if (new FileInfo(fileToVerifyHash).Length == 0)
+            {
+                return new GenericHashResult()
+                {
+                    Success = false,
+                    Message = MessageStrings.File_EmptyInputFile,
+                };
+            }
+
+            var hashBytes = ServiceLocator.Instance.GetService<IHexadecimal>().ToByteArray(verificationHexadecimalHashString);
+
+            return VerifyFileHash(hashBytes, fileToVerifyHash, hashAlgorithmType);
         }
 
         public GenericHashResult VerifyFileHash(
-            byte[] hashBytes,
+            byte[] verificationHashBytes,
             string fileToVerifyHash,
-            HashAlgorithmType hashAlgorithmType,
-            LongPositionOptions positionOptions)
+            HashAlgorithmType hashAlgorithmType)
         {
-            HexadecimalEncodingOptions hexadecimalEncodingOptions = new(includeHexIndicatorPrefix: false, outputCharacterCasing: CharacterCasing.Upper);
-            var hashResult = ComputeFileHash(fileToVerifyHash, hashAlgorithmType, positionOptions, hexadecimalEncodingOptions);
+            if (verificationHashBytes is null || verificationHashBytes.Length == 0)
+            {
+                return new GenericHashResult()
+                {
+                    Success = false,
+                    Message = MessageStrings.Hash_VerificationHashRequired,
+                };
+            }
+
+            if (!File.Exists(fileToVerifyHash))
+            {
+                return new GenericHashResult()
+                {
+                    Success = false,
+                    Message = $"{MessageStrings.File_PathNotFound} \"{fileToVerifyHash}\".",
+                };
+            }
+
+            if (new FileInfo(fileToVerifyHash).Length == 0)
+            {
+                return new GenericHashResult()
+                {
+                    Success = false,
+                    Message = MessageStrings.File_EmptyInputFile,
+                };
+            }
+
+            var hashResult = ComputeFileHash(fileToVerifyHash, hashAlgorithmType);
 
             if (hashResult.Success)
             {
-                var hashesMatch = hashResult.HashBytes.SequenceEqual(hashBytes);
+                var hashesMatch = hashResult.HashBytes.SequenceEqual(verificationHashBytes);
 
                 hashResult.Success = hashesMatch;
                 hashResult.Message = $"{(hashesMatch ? MessageStrings.Hash_Match : MessageStrings.Hash_DoesNotMatch)}";
@@ -235,7 +376,7 @@ namespace CryptographyHelpers.Hash
             return hashResult;
         }
 
-        private void RaiseOnHashProgress(int percentageDone, string message)
+        private void RaiseOnHashProgressEvent(int percentageDone, string message)
         {
             OnHashProgress?.Invoke(percentageDone, message);
         }

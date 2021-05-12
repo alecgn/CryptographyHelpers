@@ -1,14 +1,14 @@
 ﻿namespace CryptographyHelpers
 {
-    public class IntPositionOptions
+    public class SeekOptions
     {
-        public IntPositionOptions()
+        public SeekOptions()
         {
             Offset = 0;
             Count = 0;
         }
 
-        public IntPositionOptions(int offset, int count)
+        public SeekOptions(int offset, int count)
         {
             Offset = offset;
             Count = count;

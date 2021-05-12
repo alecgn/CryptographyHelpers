@@ -1,14 +1,14 @@
 ﻿namespace CryptographyHelpers
 {
-    public class LongPositionOptions
+    public class LongSeekOptions
     {
-        public LongPositionOptions()
+        public LongSeekOptions()
         {
             Offset = 0L;
             Count = 0L;
         }
 
-        public LongPositionOptions(long offset, long count)
+        public LongSeekOptions(long offset, long count)
         {
             Offset = offset;
             Count = count;
