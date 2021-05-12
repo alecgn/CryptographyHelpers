@@ -2,9 +2,9 @@
 {
     public interface IHexadecimal
     {
-        string ToHexadecimalString(string plainString, bool includeHexIndicatorPrefix = false, CharacterCasing outputHexCharacterCasing = CharacterCasing.Upper);
+        string ToHexadecimalString(string plainString, HexadecimalEncodingOptions hexadecimalOutputEncodingOptions);
 
-        string ToHexadecimalString(byte[] byteArray, bool includeHexIndicatorPrefix = false, CharacterCasing outputCharacterCasing = CharacterCasing.Upper);
+        string ToHexadecimalString(byte[] byteArray, HexadecimalEncodingOptions hexadecimalOutputEncodingOptions);
 
         string ToString(string hexadecimalString);
 

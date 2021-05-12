@@ -13,7 +13,7 @@ namespace CryptographyHelpers.Encoding
         private const int _hexadecimalBase = 16;
         private Regex _regexHexadecimalString = null;
 
-        public string ToHexadecimalString(string plainString, bool includeHexIndicatorPrefix = false, CharacterCasing outputHexCharacterCasing = CharacterCasing.Upper)
+        public string ToHexadecimalString(string plainString, HexadecimalEncodingOptions hexadecimalOutputEncodingOptions)
         {
             if (string.IsNullOrWhiteSpace(plainString))
             {
@@ -22,10 +22,10 @@ namespace CryptographyHelpers.Encoding
 
             var plainStringBytes = StringUtil.GetUTF8BytesFromString(plainString);
 
-            return ToHexadecimalString(plainStringBytes, includeHexIndicatorPrefix, outputHexCharacterCasing);
+            return ToHexadecimalString(plainStringBytes, hexadecimalOutputEncodingOptions);
         }
 
-        public string ToHexadecimalString(byte[] byteArray, bool includeHexIndicatorPrefix = false, CharacterCasing outputCharacterCasing = CharacterCasing.Upper)
+        public string ToHexadecimalString(byte[] byteArray, HexadecimalEncodingOptions hexadecimalOutputEncodingOptions)
         {
             if (byteArray is null || byteArray.Length == 0)
             {
@@ -34,12 +34,12 @@ namespace CryptographyHelpers.Encoding
 
             var hexadecimalString = new StringBuilder();
 
-            if (includeHexIndicatorPrefix)
+            if (hexadecimalOutputEncodingOptions.IncludeHexIndicatorPrefix)
             {
                 hexadecimalString.Append("0x");
             }
 
-            var hexFormat = outputCharacterCasing == CharacterCasing.Upper ? "X2" : "x2";
+            var hexFormat = hexadecimalOutputEncodingOptions.OutputCharacterCasing == CharacterCasing.Upper ? "X2" : "x2";
 
             for (var i = 0; i < byteArray.Length; i++)
             {
