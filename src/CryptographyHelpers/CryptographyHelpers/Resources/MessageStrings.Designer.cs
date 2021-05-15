@@ -61,6 +61,15 @@ namespace CryptographyHelpers.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid authentication tag..
+        /// </summary>
+        internal static string Authentication_InvalidTag {
+            get {
+                return ResourceManager.GetString("Authentication.InvalidTag", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Input byte array cannot be null or empty..
         /// </summary>
         internal static string ByteArray_InvalidInputByteArray {
@@ -129,6 +138,51 @@ namespace CryptographyHelpers.Resources {
         internal static string Hash_VerificationHashRequired {
             get {
                 return ResourceManager.GetString("Hash.VerificationHashRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Key derived from password succesfully..
+        /// </summary>
+        internal static string KeyDerivation_DerivationSuccess {
+            get {
+                return ResourceManager.GetString("KeyDerivation.DerivationSuccess", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error while trying to derive key from password:.
+        /// </summary>
+        internal static string KeyDerivation_ExceptionError {
+            get {
+                return ResourceManager.GetString("KeyDerivation.ExceptionError", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Number of bytes requested from key derivation required (must be greater than 0)..
+        /// </summary>
+        internal static string KeyDerivation_InvalidBytesRequested {
+            get {
+                return ResourceManager.GetString("KeyDerivation.InvalidBytesRequested", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Invalid (and insecure) iteration count: Minimum must be greater or equal {0}..
+        /// </summary>
+        internal static string KeyDerivation_IterationCountInvalid {
+            get {
+                return ResourceManager.GetString("KeyDerivation.IterationCountInvalid", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Input password required for key derivation..
+        /// </summary>
+        internal static string KeyDerivation_PasswordRequired {
+            get {
+                return ResourceManager.GetString("KeyDerivation.PasswordRequired", resourceCulture);
             }
         }
         

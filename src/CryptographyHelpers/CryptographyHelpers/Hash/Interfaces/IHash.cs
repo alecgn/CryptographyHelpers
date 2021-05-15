@@ -4,6 +4,8 @@ namespace CryptographyHelpers.Hash
 {
     public interface IHash
     {
+        event OnHashProgressHandler OnHashProgress;
+
         GenericHashResult ComputeHash(byte[] bytesToComputeHash, SeekOptions seekOptions, HexadecimalEncodingOptions hexadecimalOutputEncodingOptions);
 
         GenericHashResult ComputeHash(byte[] bytesToComputeHash);
