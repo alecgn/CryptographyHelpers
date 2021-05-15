@@ -6,63 +6,36 @@ namespace CryptographyHelpers.Hash
     {
         private const HashAlgorithmType HashAlgorithm = HashAlgorithmType.SHA512;
 
-        public GenericHashResult ComputeHash(
-            byte[] bytesToComputeHash,
-            SeekOptions seekOptions,
-            HexadecimalEncodingOptions hexadecimalOutputEncodingOptions)
-        {
-            return base.ComputeHash(bytesToComputeHash, HashAlgorithm, seekOptions, hexadecimalOutputEncodingOptions);
-        }
+        public SHA512() : base(HashAlgorithm) { }
 
-        public GenericHashResult ComputeHash(byte[] bytesToComputeHash)
-        {
-            return base.ComputeHash(bytesToComputeHash, HashAlgorithm);
-        }
+        public new GenericHashResult ComputeHash(byte[] bytesToComputeHash, SeekOptions seekOptions, HexadecimalEncodingOptions hexadecimalOutputEncodingOptions) =>
+            base.ComputeHash(bytesToComputeHash, seekOptions, hexadecimalOutputEncodingOptions);
 
-        public GenericHashResult ComputeHash(
-            string stringToComputeHash,
-            SeekOptions seekOptions,
-            HexadecimalEncodingOptions hexadecimalOutputEncodingOptions)
-        {
-            return base.ComputeHash(stringToComputeHash, HashAlgorithm, seekOptions, hexadecimalOutputEncodingOptions);
-        }
+        public new GenericHashResult ComputeHash(byte[] bytesToComputeHash) =>
+            base.ComputeHash(bytesToComputeHash);
 
-        public GenericHashResult ComputeHash(string stringToComputeHash)
-        {
-            return base.ComputeHash(stringToComputeHash, HashAlgorithm);
-        }
+        public new GenericHashResult ComputeHash(string stringToComputeHash, SeekOptions seekOptions, HexadecimalEncodingOptions hexadecimalOutputEncodingOptions) =>
+            base.ComputeHash(stringToComputeHash, seekOptions, hexadecimalOutputEncodingOptions);
 
-        public GenericHashResult ComputeFileHash(
-            string fileToComputeHash,
-            LongSeekOptions seekOptions,
-            HexadecimalEncodingOptions hexadecimalOutputEncodingOptions)
-        {
-            return base.ComputeFileHash(fileToComputeHash, HashAlgorithm, seekOptions, hexadecimalOutputEncodingOptions);
-        }
+        public new GenericHashResult ComputeHash(string stringToComputeHash) =>
+            base.ComputeHash(stringToComputeHash);
 
-        public GenericHashResult ComputeFileHash(string fileToComputeHash)
-        {
-            return base.ComputeFileHash(fileToComputeHash, HashAlgorithm);
-        }
+        public new GenericHashResult ComputeFileHash(string fileToComputeHash, LongSeekOptions seekOptions, HexadecimalEncodingOptions hexadecimalOutputEncodingOptions) =>
+                base.ComputeFileHash(fileToComputeHash, seekOptions, hexadecimalOutputEncodingOptions);
 
-        public GenericHashResult VerifyHash(byte[] verificationHashBytes, byte[] bytesToVerifyHash)
-        {
-            return base.VerifyHash(verificationHashBytes, bytesToVerifyHash, HashAlgorithm);
-        }
+        public new GenericHashResult ComputeFileHash(string fileToComputeHash) =>
+            base.ComputeFileHash(fileToComputeHash);
 
-        public GenericHashResult VerifyHash(string verificationHexadecimalHashString, string stringToVerifyHash)
-        {
-            return base.VerifyHash(verificationHexadecimalHashString, stringToVerifyHash, HashAlgorithm);
-        }
+        public new GenericHashResult VerifyHash(byte[] verificationHashBytes, byte[] bytesToVerifyHash) =>
+            base.VerifyHash(verificationHashBytes, bytesToVerifyHash);
 
-        public GenericHashResult VerifyFileHash(string verificationHexadecimalHashString, string fileToVerifyHash)
-        {
-            return base.VerifyFileHash(verificationHexadecimalHashString, fileToVerifyHash, HashAlgorithm);
-        }
+        public new GenericHashResult VerifyHash(string verificationHexadecimalHashString, string stringToVerifyHash) =>
+            base.VerifyHash(verificationHexadecimalHashString, stringToVerifyHash);
 
-        public GenericHashResult VerifyFileHash(byte[] verificationHashBytes, string fileToVerifyHash)
-        {
-            return base.VerifyFileHash(verificationHashBytes, fileToVerifyHash, HashAlgorithm);
-        }
+        public new GenericHashResult VerifyFileHash(string verificationHexadecimalHashString, string fileToVerifyHash) =>
+            base.VerifyFileHash(verificationHexadecimalHashString, fileToVerifyHash);
+
+        public new GenericHashResult VerifyFileHash(byte[] verificationHashBytes, string fileToVerifyHash) =>
+            base.VerifyFileHash(verificationHashBytes, fileToVerifyHash);
     }
 }

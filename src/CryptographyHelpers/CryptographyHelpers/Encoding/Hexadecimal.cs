@@ -7,17 +7,16 @@ using System.Text.RegularExpressions;
 
 namespace CryptographyHelpers.Encoding
 {
-    public class Hexadecimal : IHexadecimal
+    public static class Hexadecimal
     {
         private const int HexadecimalChunkSize = 2;
         private const int HexadecimalBase = 16;
-        private const string HexadecimalPrefixLower = "0x";
-        private const string HexadecimalPrefixUpper = "0X";
+        private const string HexadecimalPrefix = "0x";
         private const string HexadecimalFormatLower = "x2";
         private const string HexadecimalFormatUpper = "X2";
-        private Regex _regexHexadecimalString = null;
+        private static Regex _regexHexadecimalString = null;
 
-        public string ToHexadecimalString(string plainString, HexadecimalEncodingOptions hexadecimalOutputEncodingOptions)
+        public static string ToHexadecimalString(string plainString, HexadecimalEncodingOptions hexadecimalOutputEncodingOptions)
         {
             if (string.IsNullOrWhiteSpace(plainString))
             {
@@ -29,7 +28,7 @@ namespace CryptographyHelpers.Encoding
             return ToHexadecimalString(plainStringBytes, hexadecimalOutputEncodingOptions);
         }
 
-        public string ToHexadecimalString(byte[] byteArray, HexadecimalEncodingOptions hexadecimalOutputEncodingOptions)
+        public static string ToHexadecimalString(byte[] byteArray, HexadecimalEncodingOptions hexadecimalOutputEncodingOptions)
         {
             if (byteArray is null || byteArray.Length == 0)
             {
@@ -40,7 +39,7 @@ namespace CryptographyHelpers.Encoding
 
             if (hexadecimalOutputEncodingOptions.IncludeHexadecimalIndicatorPrefix)
             {
-                hexadecimalString.Append(HexadecimalPrefixLower);
+                hexadecimalString.Append(HexadecimalPrefix);
             }
 
             var hexadecimalFormat = hexadecimalOutputEncodingOptions.OutputCharacterCasing == CharacterCasing.Upper ? HexadecimalFormatUpper : HexadecimalFormatLower;
@@ -53,7 +52,7 @@ namespace CryptographyHelpers.Encoding
             return hexadecimalString.ToString();
         }
 
-        public string ToString(string hexadecimalString)
+        public static string ToString(string hexadecimalString)
         {
             if (string.IsNullOrWhiteSpace(hexadecimalString))
             {
@@ -65,7 +64,7 @@ namespace CryptographyHelpers.Encoding
                 throw new ArgumentException(MessageStrings.Strings_InvalidInputHexadecimalString, nameof(hexadecimalString));
             }
 
-            if (hexadecimalString.StartsWith(HexadecimalPrefixLower) || hexadecimalString.StartsWith(HexadecimalPrefixUpper))
+            if (hexadecimalString.StartsWith(HexadecimalPrefix, StringComparison.OrdinalIgnoreCase))
             {
                 hexadecimalString = hexadecimalString[2..];
             }
@@ -75,7 +74,7 @@ namespace CryptographyHelpers.Encoding
             return StringUtil.GetStringFromUTF8Bytes(byteArray);
         }
 
-        public byte[] ToByteArray(string hexadecimalString)
+        public static byte[] ToByteArray(string hexadecimalString)
         {
             if (string.IsNullOrWhiteSpace(hexadecimalString))
             {
@@ -87,7 +86,7 @@ namespace CryptographyHelpers.Encoding
                 throw new ArgumentException(MessageStrings.Strings_InvalidInputHexadecimalString, nameof(hexadecimalString));
             }
 
-            if (hexadecimalString.StartsWith(HexadecimalPrefixLower) || hexadecimalString.StartsWith(HexadecimalPrefixUpper))
+            if (hexadecimalString.StartsWith(HexadecimalPrefix, StringComparison.OrdinalIgnoreCase))
             {
                 hexadecimalString = hexadecimalString[2..];
             }
@@ -104,14 +103,14 @@ namespace CryptographyHelpers.Encoding
             return byteArray;
         }
 
-        public bool IsValidHexadecimalString(string hexadecimalString)
+        public static bool IsValidHexadecimalString(string hexadecimalString)
         {
             _regexHexadecimalString ??= new Regex(RegexStrings.HexadecimalString);
 
             return _regexHexadecimalString.IsMatch(hexadecimalString) && hexadecimalString.Length % HexadecimalChunkSize == 0;
         }
 
-        private IEnumerable<string> ChunkHexadecimalString(string hexadecimalString)
+        private static IEnumerable<string> ChunkHexadecimalString(string hexadecimalString)
         {
             for (var i = 0; i < hexadecimalString.Length; i += HexadecimalChunkSize)
             {

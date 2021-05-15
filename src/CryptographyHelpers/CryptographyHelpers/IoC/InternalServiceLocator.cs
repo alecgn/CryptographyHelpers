@@ -1,21 +1,19 @@
-﻿using CryptographyHelpers.Encoding;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Reflection;
 
 namespace CryptographyHelpers.IoC
 {
-    internal sealed class ServiceLocator
+    internal sealed class InternalServiceLocator
     {
-        internal static ServiceLocator Instance { get { return _lazyInstance.Value; } }
+        internal static InternalServiceLocator Instance { get { return _lazyInstance.Value; } }
         
-        private static readonly Lazy<ServiceLocator> _lazyInstance = new(() => new ServiceLocator());
+        private static readonly Lazy<InternalServiceLocator> _lazyInstance = new(() => new InternalServiceLocator());
         private IDictionary<Type, Type> _servicesType;
         private IDictionary<Type, object> _instantiatedServices;
 
-        private ServiceLocator()
+        private InternalServiceLocator()
         {
             this._servicesType = new ConcurrentDictionary<Type, Type>();
             this._instantiatedServices = new ConcurrentDictionary<Type, object>();
@@ -54,8 +52,7 @@ namespace CryptographyHelpers.IoC
 
         private void BuildServiceTypesMap()
         {
-            _servicesType.Add(typeof(IBase64), typeof(Base64));
-            _servicesType.Add(typeof(IHexadecimal), typeof(Hexadecimal));
+            //_servicesType.Add(typeof(Interface), typeof(Implementation));
         }
     }
 }
