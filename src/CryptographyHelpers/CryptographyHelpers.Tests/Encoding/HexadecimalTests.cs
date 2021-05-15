@@ -9,17 +9,17 @@ namespace CryptographyHelpers.Tests.Encoding
     [TestClass]
     public class HexadecimalTests
     {
-        private readonly Hexadecimal _hexadecimal = new();
-        private const string _invalidHexadecimalTestString = "000102030405060708090A0B0C0D0E0FG";
-        private const string _hexadecimalTestString = "000102030405060708090A0B0C0D0E0F";
+        private const string _plainTestString = "This is a test string!";
         private readonly byte[] _testByteArray = new byte[]
         {
-            0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf,
+            0x54, 0x68, 0x69, 0x73, 0x20, 0x69, 0x73, 0x20, 0x61, 0x20, 0x74, 
+            0x65, 0x73, 0x74, 0x20, 0x73, 0x74, 0x72, 0x69, 0x6E, 0x67, 0x21, 
         };
-        private const string _uppercaseHexadecimalTestString = "000102030405060708090A0B0C0D0E0F";
-        private const string _uppercaseHexadecimalTestStringWithPrefix = "0x000102030405060708090A0B0C0D0E0F";
-        private const string _lowercaseHexadecimalTestString = "000102030405060708090a0b0c0d0e0f";
-        private const string _lowercaseHexadecimalTestStringWithPrefix = "0x000102030405060708090a0b0c0d0e0f";
+        private const string _uppercaseHexadecimalTestStringWithoutPrefix = "546869732069732061207465737420737472696E6721";
+        private const string _uppercaseHexadecimalTestStringWithPrefix = "0x546869732069732061207465737420737472696E6721";
+        private const string _lowercaseHexadecimalTestStringWithoutPrefix = "546869732069732061207465737420737472696e6721";
+        private const string _lowercaseHexadecimalTestStringWithPrefix = "0x546869732069732061207465737420737472696e6721";
+        private const string _invalidHexadecimalTestString = "546869732069732061207465737420737472696E672G";
 
         [TestMethod]
         [DataRow(null)]
@@ -27,7 +27,7 @@ namespace CryptographyHelpers.Tests.Encoding
         [DataRow("   ")]
         public void ShouldThrowArgumentException_InToHexadecimalString_WhenProvidedNullEmptyOrWhiteSpaceString(string invalidString)
         {
-            Func<string> act = () => _hexadecimal.ToHexadecimalString(invalidString);
+            Func<string> act = () => Hexadecimal.ToHexadecimalString(invalidString);
 
             act.Should()
                 .ThrowExactly<ArgumentException>()
@@ -39,7 +39,7 @@ namespace CryptographyHelpers.Tests.Encoding
         [DataRow(new byte[0])]
         public void ShouldThrowArgumentException_InToHexadecimalString_WhenProvidedNullOrEmptyByteArray(byte[] invalidByteArray)
         {
-            Func<string> act = () => _hexadecimal.ToHexadecimalString(invalidByteArray);
+            Func<string> act = () => Hexadecimal.ToHexadecimalString(invalidByteArray);
 
             act.Should()
                 .ThrowExactly<ArgumentException>()
@@ -52,7 +52,7 @@ namespace CryptographyHelpers.Tests.Encoding
         [DataRow("   ")]
         public void ShouldThrowArgumentException_InToString_WhenProvidedNullEmptyOrWhiteSpaceString(string invalidString)
         {
-            Func<string> act = () => _hexadecimal.ToString(invalidString);
+            Func<string> act = () => Hexadecimal.ToString(invalidString);
 
             act.Should()
                 .ThrowExactly<ArgumentException>()
@@ -62,7 +62,7 @@ namespace CryptographyHelpers.Tests.Encoding
         [TestMethod]
         public void ShouldThrowArgumentException_InToString_WhenProvidedInvalidHexadecimalString()
         {
-            Func<string> act = () => _hexadecimal.ToString(_invalidHexadecimalTestString);
+            Func<string> act = () => Hexadecimal.ToString(_invalidHexadecimalTestString);
 
             act.Should()
                 .ThrowExactly<ArgumentException>()
@@ -75,7 +75,7 @@ namespace CryptographyHelpers.Tests.Encoding
         [DataRow("   ")]
         public void ShouldThrowArgumentException_InToByteArray_WhenProvidedNullEmptyOrWhiteSpaceString(string invalidString)
         {
-            Func<byte[]> act = () => _hexadecimal.ToByteArray(invalidString);
+            Func<byte[]> act = () => Hexadecimal.ToByteArray(invalidString);
 
             act.Should()
                 .ThrowExactly<ArgumentException>()
@@ -85,7 +85,7 @@ namespace CryptographyHelpers.Tests.Encoding
         [TestMethod]
         public void ShouldThrowArgumentException_InToByteArray_WhenProvidedInvalidHexadecimalString()
         {
-            Func<byte[]> act = () => _hexadecimal.ToByteArray(_invalidHexadecimalTestString);
+            Func<byte[]> act = () => Hexadecimal.ToByteArray(_invalidHexadecimalTestString);
 
             act.Should()
                 .ThrowExactly<ArgumentException>()
@@ -94,26 +94,35 @@ namespace CryptographyHelpers.Tests.Encoding
 
         [TestMethod]
         [DataRow(_invalidHexadecimalTestString, false)]
-        [DataRow(_hexadecimalTestString, true)]
+        [DataRow(_uppercaseHexadecimalTestStringWithoutPrefix, true)]
         public void ShouldValiteHexadecimalString_InIsValidHexadecimalString(string hexadecimalString, bool isValidHexadecimalString)
         {
-            var isValid = _hexadecimal.IsValidHexadecimalString(hexadecimalString);
+            var isValid = Hexadecimal.IsValidHexadecimalString(hexadecimalString);
 
             isValid.Should().Be(isValidHexadecimalString);
         }
 
         [TestMethod]
-        [DataRow(false, CharacterCasing.Upper, _uppercaseHexadecimalTestString)]
+        [DataRow(false, CharacterCasing.Upper, _uppercaseHexadecimalTestStringWithoutPrefix)]
         [DataRow(true, CharacterCasing.Upper, _uppercaseHexadecimalTestStringWithPrefix)]
-        [DataRow(false, CharacterCasing.Lower, _lowercaseHexadecimalTestString)]
+        [DataRow(false, CharacterCasing.Lower, _lowercaseHexadecimalTestStringWithoutPrefix)]
         [DataRow(true, CharacterCasing.Lower, _lowercaseHexadecimalTestStringWithPrefix)]
-        [DataRow(false, CharacterCasing.Normal, _lowercaseHexadecimalTestString)]
+        [DataRow(false, CharacterCasing.Normal, _lowercaseHexadecimalTestStringWithoutPrefix)]
         [DataRow(true, CharacterCasing.Normal, _lowercaseHexadecimalTestStringWithPrefix)]
-        public void ShouldMatchHexadecimalString_InToHexadecimalString(bool includeHexIndicatorPrefix, CharacterCasing outputCharacterCasing, string expectedHexadecimalString)
+        public void ShouldEncodeToHexadecimalStringAndMatch_InToHexadecimalString(bool includeHexIndicatorPrefix, CharacterCasing outputCharacterCasing, string expectedHexadecimalString)
         {
-            var hexadecimalString = _hexadecimal.ToHexadecimalString(_testByteArray, includeHexIndicatorPrefix, outputCharacterCasing);
+            HexadecimalEncodingOptions hexadecimalEncodingOptions = new(includeHexIndicatorPrefix, outputCharacterCasing);
+            var hexadecimalString = Hexadecimal.ToHexadecimalString(_testByteArray, hexadecimalEncodingOptions);
 
             hexadecimalString.Should().Be(expectedHexadecimalString);
+        }
+
+        [TestMethod]
+        public void ShouldDecodeFromBase64StringAndMatch_InToString()
+        {
+            var decodedPlainString = Hexadecimal.ToString(_uppercaseHexadecimalTestStringWithoutPrefix);
+
+            decodedPlainString.Should().Be(_plainTestString);
         }
     }
 }

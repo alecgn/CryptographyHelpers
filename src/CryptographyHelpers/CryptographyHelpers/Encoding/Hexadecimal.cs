@@ -16,6 +16,9 @@ namespace CryptographyHelpers.Encoding
         private const string HexadecimalFormatUpper = "X2";
         private static Regex _regexHexadecimalString = null;
 
+        public static string ToHexadecimalString(string plainString) =>
+            ToHexadecimalString(plainString, new HexadecimalEncodingOptions());
+
         public static string ToHexadecimalString(string plainString, HexadecimalEncodingOptions hexadecimalOutputEncodingOptions)
         {
             if (string.IsNullOrWhiteSpace(plainString))
@@ -27,6 +30,9 @@ namespace CryptographyHelpers.Encoding
 
             return ToHexadecimalString(plainStringBytes, hexadecimalOutputEncodingOptions);
         }
+
+        public static string ToHexadecimalString(byte[] byteArray) =>
+            ToHexadecimalString(byteArray, new HexadecimalEncodingOptions());
 
         public static string ToHexadecimalString(byte[] byteArray, HexadecimalEncodingOptions hexadecimalOutputEncodingOptions)
         {
