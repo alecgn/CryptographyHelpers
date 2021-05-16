@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+﻿using CryptographyHelpers.HMAC;
 
 namespace CryptographyHelpers.KeyDerivation
 {
@@ -9,7 +9,7 @@ namespace CryptographyHelpers.KeyDerivation
         public string DerivedKeyBase64String { get; set; }
         public byte[] DerivedKeyBytes { get; set; }
         public byte[] Salt { get; set; }
-        public KeyDerivationPrf PseudoRandomFunction { get; set; }
+        public HMACAlgorithmType PseudoRandomFunction { get; set; }
         public int IterationCount { get; set; }
     }
 }

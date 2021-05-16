@@ -1,18 +1,23 @@
 ﻿using CryptographyHelpers.Encoding;
+using CryptographyHelpers.HMAC;
 using CryptographyHelpers.Resources;
 using CryptographyHelpers.Util;
+using CryptographyHelpers.Util.Extensions;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using System;
+using System.Security.Cryptography;
 
 namespace CryptographyHelpers.KeyDerivation
 {
     public abstract class PBKDF2Base : IPBKDF2
     {
         private const int MinimumIterationCount = 10000;
-        private KeyDerivationPrf _pseudoRandomFunction;
+        private HMACAlgorithmType _pseudoRandomFunction;
 
-        public PBKDF2Base(KeyDerivationPrf pseudoRandomFunction) =>
+        public PBKDF2Base(HMACAlgorithmType pseudoRandomFunction)
+        {
             _pseudoRandomFunction = pseudoRandomFunction;
+        }
 
         public PBKDF2KeyDerivationResult DeriveKey(string password, int bytesRequested, byte[] salt = null, int iterationCount = MinimumIterationCount)
         {
@@ -48,12 +53,23 @@ namespace CryptographyHelpers.KeyDerivation
                 salt = CryptographyCommon.GenerateSalt();
             }
 
+            KeyDerivationPrf pseudoRandomFunction;
+
+            try
+            {
+                pseudoRandomFunction = _pseudoRandomFunction.Cast<HMACAlgorithmType, KeyDerivationPrf>();
+            }
+            catch
+            {
+                throw new CryptographicException($"{nameof(HMACAlgorithmType)}.{_pseudoRandomFunction} not supported.");
+            }
+
             try
             {
                 var derivedKey = Microsoft.AspNetCore.Cryptography.KeyDerivation.KeyDerivation.Pbkdf2(
                     password,
                     salt,
-                    _pseudoRandomFunction,
+                    pseudoRandomFunction,
                     iterationCount,
                     bytesRequested);
 

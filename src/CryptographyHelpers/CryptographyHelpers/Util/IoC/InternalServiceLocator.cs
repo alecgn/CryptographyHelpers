@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace CryptographyHelpers.IoC
+namespace CryptographyHelpers.Util.IoC
 {
     internal sealed class InternalServiceLocator
     {
