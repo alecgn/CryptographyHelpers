@@ -2,7 +2,7 @@
 
 namespace CryptographyHelpers.Hash
 {
-    public class SHA384 : HashBase, IHash
+    public class SHA384 : HashBase
     {
         private const HashAlgorithmType HashAlgorithm = HashAlgorithmType.SHA384;
 

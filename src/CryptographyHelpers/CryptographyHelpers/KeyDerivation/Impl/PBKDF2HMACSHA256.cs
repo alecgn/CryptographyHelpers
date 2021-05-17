@@ -1,14 +1,14 @@
-﻿using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+﻿using CryptographyHelpers.HMAC;
 
 namespace CryptographyHelpers.KeyDerivation
 {
-    public class PBKDF2HMACSHA256 : PBKDF2Base, IPBKDF2
+    public class PBKDF2HMACSHA256 : PBKDF2Base
     {
         /// <summary>
         /// DefaultIterationCount value based on https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html#pbkdf2
         /// </summary>
         public const int DefaultIterationCount = 310000;
-        public const KeyDerivationPrf PseudoRandomFunction = KeyDerivationPrf.HMACSHA256;
+        public const HMACAlgorithmType PseudoRandomFunction = HMACAlgorithmType.HMACSHA256;
 
         public PBKDF2HMACSHA256() : base(PseudoRandomFunction) { }
 

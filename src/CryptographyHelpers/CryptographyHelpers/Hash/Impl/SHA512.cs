@@ -2,7 +2,7 @@
 
 namespace CryptographyHelpers.Hash
 {
-    public class SHA512 : HashBase, IHash
+    public class SHA512 : HashBase
     {
         private const HashAlgorithmType HashAlgorithm = HashAlgorithmType.SHA512;
 

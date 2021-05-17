@@ -33,7 +33,7 @@ namespace CryptographyHelpers.HMAC
 
             if (key == null || key.Length == 0)
             {
-                key = CryptographyCommon.GenerateRandomBytes(HMACOutputLengthDictionary.Instance[_hmacAlgorithmType] / 8);
+                key = CryptographyCommon.GenerateRandomBytes(HMACUtil.HMACLengthMapper[_hmacAlgorithmType] / 8);
             }
 
             HMACResult result = null;
@@ -43,10 +43,9 @@ namespace CryptographyHelpers.HMAC
                 using (var hmac = (System.Security.Cryptography.HMAC)CryptoConfig.CreateFromName(_hmacAlgorithmType.ToString()))
                 {
                     hmac.Key = key;
-                    //offset = (offset == 0 ? 0 : offset);
-                    count = (count == 0 ? bytesToComputeHMAC.Length : count);
+                    var count = (seekOptions.Count == 0 ? bytesToComputeHMAC.Length : seekOptions.Count);
 
-                    var hash = hmac.ComputeHash(bytesToComputeHMAC, offset, count);
+                    var hash = hmac.ComputeHash(bytesToComputeHMAC, seekOptions.Offset, count);
 
                     result = new HMACResult()
                     {
@@ -100,7 +99,7 @@ namespace CryptographyHelpers.HMAC
 
             if (key == null || key.Length == 0)
             {
-                key = CryptographyCommon.GenerateRandomBytes(HMACOutputLengthDictionary.Instance[hmacAlgorithm] / 8);
+                key = CryptographyCommon.GenerateRandomBytes(HMACUtil.HMACLengthMapper[_hmacAlgorithmType] / 8);
             }
 
             HMACResult result = null;
