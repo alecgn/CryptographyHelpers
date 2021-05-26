@@ -12,7 +12,7 @@ namespace CryptographyHelpers.Tests.Encoding
     public class HexadecimalTests
     {
         private const string PlainTestString = "This is a test string!";
-        private const string UppercaseHexadecimalTestStringWithoutPrefix = "546869732069732061207465737420737472696E6721";
+        private const string UppercaseHexadecimalTestStringWithoutPrefix = "546869732069732061207465737420737472696E6721"; // Generated on -> https://www.convertstring.com/en/EncodeDecode/HexEncode from the above string
         private const string UppercaseHexadecimalTestStringWithPrefix = "0x546869732069732061207465737420737472696E6721";
         private const string LowercaseHexadecimalTestStringWithoutPrefix = "546869732069732061207465737420737472696e6721";
         private const string LowercaseHexadecimalTestStringWithPrefix = "0x546869732069732061207465737420737472696e6721";

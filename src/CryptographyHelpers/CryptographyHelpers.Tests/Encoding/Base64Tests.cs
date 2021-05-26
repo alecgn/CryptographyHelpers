@@ -10,7 +10,7 @@ namespace CryptographyHelpers.Tests.Encoding
     public class Base64Tests
     {
         private const string PlainTestString = "This is a test string!";
-        private const string Base64TestString = "VGhpcyBpcyBhIHRlc3Qgc3RyaW5nIQ=="; // Generated on -> https://www.base64encode.org from the above string
+        private const string Base64TestString = "VGhpcyBpcyBhIHRlc3Qgc3RyaW5nIQ=="; // Generated on -> https://www.convertstring.com/en/EncodeDecode/Base64Encode from the above string
         private const string InvalidBase64TestString = "VGhpcyBpcyBhIHRlc3Qgc3RyaW5nIQ=";
         private readonly byte[] _testByteArray = new byte[]
         {
