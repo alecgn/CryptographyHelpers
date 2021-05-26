@@ -1,5 +1,7 @@
-﻿using CryptographyHelpers.Resources;
-using CryptographyHelpers.Util;
+﻿using CryptographyHelpers.Encoding.Options;
+using CryptographyHelpers.Enums;
+using CryptographyHelpers.Extensions;
+using CryptographyHelpers.Resources;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -26,7 +28,7 @@ namespace CryptographyHelpers.Encoding
                 throw new ArgumentException(MessageStrings.Strings_InvalidInputString, nameof(plainString));
             }
 
-            var plainStringBytes = StringUtil.GetUTF8BytesFromString(plainString);
+            var plainStringBytes = plainString.ToUTF8Bytes();
 
             return ToHexadecimalString(plainStringBytes, hexadecimalOutputEncodingOptions);
         }
@@ -77,7 +79,7 @@ namespace CryptographyHelpers.Encoding
 
             var byteArray = ToByteArray(hexadecimalString);
 
-            return StringUtil.GetStringFromUTF8Bytes(byteArray);
+            return byteArray.ToUTF8String();
         }
 
         public static byte[] ToByteArray(string hexadecimalString)

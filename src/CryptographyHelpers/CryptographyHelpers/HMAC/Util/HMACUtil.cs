@@ -1,7 +1,8 @@
-﻿using System.Collections.Concurrent;
+﻿using CryptographyHelpers.HMAC.Enums;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 
-namespace CryptographyHelpers.HMAC
+namespace CryptographyHelpers.HMAC.Util
 {
     public static class HMACUtil
     {

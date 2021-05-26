@@ -1,6 +1,11 @@
 ﻿using CryptographyHelpers.Encoding;
+using CryptographyHelpers.Encoding.Options;
+using CryptographyHelpers.Extensions;
+using CryptographyHelpers.Hash.Enums;
+using CryptographyHelpers.Hash.EventHandlers;
+using CryptographyHelpers.Hash.Results;
+using CryptographyHelpers.Options;
 using CryptographyHelpers.Resources;
-using CryptographyHelpers.Util;
 using System;
 using System.IO;
 using System.Linq;
@@ -78,7 +83,7 @@ namespace CryptographyHelpers.Hash
                 };
             }
 
-            var stringToComputeHashBytes = StringUtil.GetUTF8BytesFromString(stringToComputeHash);
+            var stringToComputeHashBytes = stringToComputeHash.ToUTF8Bytes();
 
             return ComputeHash(stringToComputeHashBytes, seekOptions, hexadecimalOutputEncodingOptions);
         }
@@ -94,7 +99,7 @@ namespace CryptographyHelpers.Hash
                 };
             }
 
-            var stringToComputeHashBytes = StringUtil.GetUTF8BytesFromString(stringToComputeHash);
+            var stringToComputeHashBytes = stringToComputeHash.ToUTF8Bytes();
 
             return ComputeHash(stringToComputeHashBytes, new SeekOptions(), new HexadecimalEncodingOptions());
         }
@@ -258,7 +263,7 @@ namespace CryptographyHelpers.Hash
             }
 
             var hashBytes = Hexadecimal.ToByteArray(verificationHexadecimalHashString);
-            var stringToVerifyHashBytes = StringUtil.GetUTF8BytesFromString(stringToVerifyHash);
+            var stringToVerifyHashBytes = stringToVerifyHash.ToUTF8Bytes();
 
             return VerifyHash(stringToVerifyHashBytes, hashBytes);
         }

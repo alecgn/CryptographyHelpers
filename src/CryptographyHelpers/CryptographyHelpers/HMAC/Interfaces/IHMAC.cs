@@ -1,4 +1,6 @@
-﻿using CryptographyHelpers.Hash;
+﻿using CryptographyHelpers.Hash.EventHandlers;
+using CryptographyHelpers.HMAC.Results;
+using CryptographyHelpers.Options;
 
 namespace CryptographyHelpers.HMAC
 {

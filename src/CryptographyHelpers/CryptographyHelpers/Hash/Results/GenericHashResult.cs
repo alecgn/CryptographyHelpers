@@ -1,4 +1,6 @@
-﻿namespace CryptographyHelpers.Hash
+﻿using CryptographyHelpers.Hash.Enums;
+
+namespace CryptographyHelpers.Hash.Results
 {
     public class GenericHashResult
     {

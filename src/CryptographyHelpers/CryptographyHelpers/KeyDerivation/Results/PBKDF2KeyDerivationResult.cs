@@ -1,6 +1,6 @@
-﻿using CryptographyHelpers.HMAC;
+﻿using CryptographyHelpers.HMAC.Enums;
 
-namespace CryptographyHelpers.KeyDerivation
+namespace CryptographyHelpers.KeyDerivation.Results
 {
     public class PBKDF2KeyDerivationResult
     {

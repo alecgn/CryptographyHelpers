@@ -1,4 +1,6 @@
-﻿namespace CryptographyHelpers.Encoding
+﻿using CryptographyHelpers.Enums;
+
+namespace CryptographyHelpers.Encoding.Options
 {
     public class HexadecimalEncodingOptions
     {

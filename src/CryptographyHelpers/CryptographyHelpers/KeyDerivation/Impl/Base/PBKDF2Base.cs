@@ -1,8 +1,8 @@
 ﻿using CryptographyHelpers.Encoding;
-using CryptographyHelpers.HMAC;
+using CryptographyHelpers.Extensions;
+using CryptographyHelpers.HMAC.Enums;
+using CryptographyHelpers.KeyDerivation.Results;
 using CryptographyHelpers.Resources;
-using CryptographyHelpers.Util;
-using CryptographyHelpers.Util.Extensions;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using System;
 using System.Security.Cryptography;

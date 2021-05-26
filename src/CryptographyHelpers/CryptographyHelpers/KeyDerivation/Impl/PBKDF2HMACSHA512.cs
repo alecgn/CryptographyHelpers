@@ -1,4 +1,5 @@
-﻿using CryptographyHelpers.HMAC;
+﻿using CryptographyHelpers.HMAC.Enums;
+using CryptographyHelpers.KeyDerivation.Results;
 
 namespace CryptographyHelpers.KeyDerivation
 {

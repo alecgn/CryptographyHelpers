@@ -97,7 +97,7 @@ namespace CryptographyHelpers.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Input hash computed succesfully..
+        ///   Looks up a localized string similar to Hash computed succesfully..
         /// </summary>
         internal static string Hash_ComputeSuccess {
             get {
@@ -124,7 +124,7 @@ namespace CryptographyHelpers.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Input hash and verification hash match..
+        ///   Looks up a localized string similar to Input hash and verification hash does match..
         /// </summary>
         internal static string Hash_Match {
             get {
@@ -142,7 +142,34 @@ namespace CryptographyHelpers.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Key derived from password succesfully..
+        ///   Looks up a localized string similar to HMAC computed succesfully..
+        /// </summary>
+        internal static string HMAC_ComputeSuccess {
+            get {
+                return ResourceManager.GetString("HMAC.ComputeSuccess", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Input bytes to compute HMAC required..
+        /// </summary>
+        internal static string HMAC_InputBytesRequired {
+            get {
+                return ResourceManager.GetString("HMAC.InputBytesRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Input string to compute HMAC required..
+        /// </summary>
+        internal static string HMAC_InputStringRequired {
+            get {
+                return ResourceManager.GetString("HMAC.InputStringRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Key derived succesfully..
         /// </summary>
         internal static string KeyDerivation_DerivationSuccess {
             get {

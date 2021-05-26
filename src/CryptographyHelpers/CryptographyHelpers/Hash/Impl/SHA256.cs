@@ -1,4 +1,7 @@
-﻿using CryptographyHelpers.Encoding;
+﻿using CryptographyHelpers.Encoding.Options;
+using CryptographyHelpers.Hash.Enums;
+using CryptographyHelpers.Hash.Results;
+using CryptographyHelpers.Options;
 
 namespace CryptographyHelpers.Hash
 {

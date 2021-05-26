@@ -1,10 +1,11 @@
 ﻿using CryptographyHelpers.Encoding;
+using CryptographyHelpers.Encoding.Enums;
 using CryptographyHelpers.Resources;
 using System;
 using System.IO;
 using System.Security.Cryptography;
 
-namespace CryptographyHelpers.Util
+namespace CryptographyHelpers
 {
     public static class CryptographyCommon
     {

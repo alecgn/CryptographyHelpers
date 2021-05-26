@@ -130,7 +130,7 @@
     <value>File not found:</value>
   </data>
   <data name="Hash.ComputeSuccess" xml:space="preserve">
-    <value>Input hash computed succesfully.</value>
+    <value>Hash computed succesfully.</value>
   </data>
   <data name="Hash.DoesNotMatch" xml:space="preserve">
     <value>Input hash and verification hash does not match.</value>
@@ -139,13 +139,22 @@
     <value>Input to compute hash required.</value>
   </data>
   <data name="Hash.Match" xml:space="preserve">
-    <value>Input hash and verification hash match.</value>
+    <value>Input hash and verification hash does match.</value>
   </data>
   <data name="Hash.VerificationHashRequired" xml:space="preserve">
     <value>Verification hash required.</value>
   </data>
+  <data name="HMAC.ComputeSuccess" xml:space="preserve">
+    <value>HMAC computed succesfully.</value>
+  </data>
+  <data name="HMAC.InputBytesRequired" xml:space="preserve">
+    <value>Input bytes to compute HMAC required.</value>
+  </data>
+  <data name="HMAC.InputStringRequired" xml:space="preserve">
+    <value>Input string to compute HMAC required.</value>
+  </data>
   <data name="KeyDerivation.DerivationSuccess" xml:space="preserve">
-    <value>Key derived from password succesfully.</value>
+    <value>Key derived succesfully.</value>
   </data>
   <data name="KeyDerivation.ExceptionError" xml:space="preserve">
     <value>Error while trying to derive key from password:</value>

@@ -1,7 +1,10 @@
 ﻿using CryptographyHelpers.Encoding;
-using CryptographyHelpers.Hash;
+using CryptographyHelpers.Hash.EventHandlers;
+using CryptographyHelpers.HMAC.Enums;
+using CryptographyHelpers.HMAC.Results;
+using CryptographyHelpers.HMAC.Util;
+using CryptographyHelpers.Options;
 using CryptographyHelpers.Resources;
-using CryptographyHelpers.Util;
 using System;
 using System.IO;
 using System.Linq;
@@ -27,7 +30,7 @@ namespace CryptographyHelpers.HMAC
                 return new HMACResult()
                 {
                     Success = false,
-                    Message = MessageStrings.HMAC_InputRequired
+                    Message = MessageStrings.HMAC_InputBytesRequired
                 };
             }
 
@@ -77,7 +80,7 @@ namespace CryptographyHelpers.HMAC
                 return new HMACResult()
                 {
                     Success = false,
-                    Message = MessageStrings.HMAC_InputRequired
+                    Message = MessageStrings.HMAC_InputStringRequired
                 };
             }
 
@@ -93,7 +96,7 @@ namespace CryptographyHelpers.HMAC
                 return new HMACResult()
                 {
                     Success = false,
-                    Message = $"{MessageStrings.Common_FileNotFound} \"{filePathToComputeHMAC}\"."
+                    Message = $"{MessageStrings.File_PathNotFound} \"{filePathToComputeHMAC}\"."
                 };
             }
 

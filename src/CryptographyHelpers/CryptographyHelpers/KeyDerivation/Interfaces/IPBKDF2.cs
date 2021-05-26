@@ -1,4 +1,6 @@
-﻿namespace CryptographyHelpers.KeyDerivation
+﻿using CryptographyHelpers.KeyDerivation.Results;
+
+namespace CryptographyHelpers.KeyDerivation
 {
     public interface IPBKDF2
     {

@@ -1,5 +1,5 @@
-﻿using CryptographyHelpers.Resources;
-using CryptographyHelpers.Util;
+﻿using CryptographyHelpers.Extensions;
+using CryptographyHelpers.Resources;
 using System;
 using System.Text.RegularExpressions;
 
@@ -7,8 +7,8 @@ namespace CryptographyHelpers.Encoding
 {
     public static class Base64
     {
-        private static Regex _regexBase64String = null;
         private const int Base64ChunkSize = 4;
+        private static Regex _regexBase64String = null;
 
         public static string ToBase64String(string plainString)
         {
@@ -17,7 +17,7 @@ namespace CryptographyHelpers.Encoding
                 throw new ArgumentException(MessageStrings.Strings_InvalidInputString, nameof(plainString));
             }
 
-            var plainStringBytes = StringUtil.GetUTF8BytesFromString(plainString);
+            var plainStringBytes = plainString.ToUTF8Bytes();
 
             return ToBase64String(plainStringBytes);
         }
@@ -29,7 +29,7 @@ namespace CryptographyHelpers.Encoding
                 throw new ArgumentException(MessageStrings.ByteArray_InvalidInputByteArray, nameof(byteArray));
             }
 
-            return Convert.ToBase64String(byteArray);
+            return byteArray.ToBase64String();
         }
 
         public static string ToString(string base64String)
@@ -46,7 +46,7 @@ namespace CryptographyHelpers.Encoding
 
             var byteArray = ToByteArray(base64String);
 
-            return StringUtil.GetStringFromUTF8Bytes(byteArray);
+            return byteArray.ToUTF8String();
         }
 
         public static byte[] ToByteArray(string base64String)
@@ -61,7 +61,7 @@ namespace CryptographyHelpers.Encoding
                 throw new ArgumentException(MessageStrings.Strings_InvalidInputBase64String, nameof(base64String));
             }
 
-            return Convert.FromBase64String(base64String);
+            return base64String.FromBase64StringToByteArray();
         }
 
         public static bool IsValidBase64String(string base64String)

@@ -1,4 +1,4 @@
-﻿namespace CryptographyHelpers
+﻿namespace CryptographyHelpers.Options
 {
     public class LongSeekOptions
     {

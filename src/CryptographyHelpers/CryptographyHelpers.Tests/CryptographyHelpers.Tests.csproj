@@ -4,6 +4,12 @@
     <TargetFramework>net5.0</TargetFramework>
 
     <IsPackable>false</IsPackable>
+
+    <Version>1.0.1</Version>
+
+    <AssemblyVersion>1.0.1</AssemblyVersion>
+
+    <FileVersion>1.0.1</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,6 +26,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\CryptographyHelpers\CryptographyHelpers.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Hash\" />
   </ItemGroup>
 
 </Project>
