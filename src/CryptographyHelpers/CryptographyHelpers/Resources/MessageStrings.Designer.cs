@@ -115,11 +115,20 @@ namespace CryptographyHelpers.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Input to compute hash required..
+        ///   Looks up a localized string similar to Input bytes to compute hash required..
         /// </summary>
-        internal static string Hash_InputRequired {
+        internal static string Hash_InputBytesRequired {
             get {
-                return ResourceManager.GetString("Hash.InputRequired", resourceCulture);
+                return ResourceManager.GetString("Hash.InputBytesRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Input string to compute hash required..
+        /// </summary>
+        internal static string Hash_InputStringRequired {
+            get {
+                return ResourceManager.GetString("Hash.InputStringRequired", resourceCulture);
             }
         }
         

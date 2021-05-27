@@ -1,4 +1,5 @@
 ﻿using CryptographyHelpers.Encoding;
+using CryptographyHelpers.Encoding.Enums;
 using CryptographyHelpers.Encoding.Options;
 using CryptographyHelpers.Extensions;
 using CryptographyHelpers.Hash.Enums;
@@ -17,35 +18,38 @@ namespace CryptographyHelpers.Hash
     {
         public event OnHashProgressHandler OnHashProgress;
         private const int FileReadBufferSize = 1024 * 4;
-        private HashAlgorithmType _hashAlgorithm;
+        private readonly HashAlgorithmType _hashAlgorithmType;
 
-        public HashBase(HashAlgorithmType hashAlgorithm) =>
-            _hashAlgorithm = hashAlgorithm;
+        public HashBase(HashAlgorithmType hashAlgorithmType) =>
+            _hashAlgorithmType = hashAlgorithmType;
 
-        public GenericHashResult ComputeHash(byte[] bytesToComputeHash, SeekOptions seekOptions, HexadecimalEncodingOptions hexadecimalOutputEncodingOptions)
+        public GenericHashResult ComputeHash(byte[] bytesToComputeHash, SeekOptions seekOptions, EncodingType outputEncodingType = EncodingType.Hexadecimal)
         {
             if (bytesToComputeHash is null || bytesToComputeHash.Length == 0)
             {
                 return new GenericHashResult()
                 {
                     Success = false,
-                    Message = MessageStrings.Hash_InputRequired,
+                    Message = MessageStrings.Hash_InputBytesRequired,
                 };
             }
 
             try
             {
-                using var hashAlgorithm = (HashAlgorithm)CryptoConfig.CreateFromName(_hashAlgorithm.ToString());
+                using var hashAlgorithm = (HashAlgorithm)CryptoConfig.CreateFromName(_hashAlgorithmType.ToString());
                 var count = seekOptions.Count == 0 ? bytesToComputeHash.Length : seekOptions.Count;
-                var hash = hashAlgorithm.ComputeHash(bytesToComputeHash, seekOptions.Offset, count);
+                var hashBytes = hashAlgorithm.ComputeHash(bytesToComputeHash, seekOptions.Offset, count);
 
                 return new GenericHashResult()
                 {
                     Success = true,
                     Message = MessageStrings.Hash_ComputeSuccess,
-                    HashAlgorithmType = _hashAlgorithm,
-                    HashBytes = hash,
-                    HashString = Hexadecimal.ToHexadecimalString(hash, hexadecimalOutputEncodingOptions),
+                    HashAlgorithmType = _hashAlgorithmType,
+                    OutputEncodingType = outputEncodingType,
+                    HashBytes = hashBytes,
+                    HashString = outputEncodingType == EncodingType.Hexadecimal 
+                        ? Hexadecimal.ToHexadecimalString(hashBytes)
+                        : Base64.ToBase64String(hashBytes),
                 };
             }
             catch (Exception ex)
@@ -58,53 +62,29 @@ namespace CryptographyHelpers.Hash
             }
         }
 
-        public GenericHashResult ComputeHash(byte[] bytesToComputeHash)
-        {
-            if (bytesToComputeHash is null || bytesToComputeHash.Length == 0)
-            {
-                return new GenericHashResult()
-                {
-                    Success = false,
-                    Message = MessageStrings.Hash_InputRequired,
-                };
-            }
+        public GenericHashResult ComputeHash(byte[] bytesToComputeHash) =>
+            ComputeHash(bytesToComputeHash, new SeekOptions());
 
-            return ComputeHash(bytesToComputeHash, new SeekOptions(), new HexadecimalEncodingOptions());
-        }
-
-        public GenericHashResult ComputeHash(string stringToComputeHash, SeekOptions seekOptions, HexadecimalEncodingOptions hexadecimalOutputEncodingOptions)
+        public GenericHashResult ComputeHash(string stringToComputeHash, SeekOptions seekOptions, EncodingType outputEncodingType = EncodingType.Hexadecimal)
         {
             if (string.IsNullOrWhiteSpace(stringToComputeHash))
             {
                 return new GenericHashResult()
                 {
                     Success = false,
-                    Message = MessageStrings.Hash_InputRequired,
+                    Message = MessageStrings.Hash_InputStringRequired,
                 };
             }
 
             var stringToComputeHashBytes = stringToComputeHash.ToUTF8Bytes();
 
-            return ComputeHash(stringToComputeHashBytes, seekOptions, hexadecimalOutputEncodingOptions);
+            return ComputeHash(stringToComputeHashBytes, seekOptions, outputEncodingType);
         }
 
-        public GenericHashResult ComputeHash(string stringToComputeHash)
-        {
-            if (string.IsNullOrWhiteSpace(stringToComputeHash))
-            {
-                return new GenericHashResult()
-                {
-                    Success = false,
-                    Message = MessageStrings.Hash_InputRequired,
-                };
-            }
+        public GenericHashResult ComputeHash(string stringToComputeHash) =>
+            ComputeHash(stringToComputeHash, new SeekOptions());
 
-            var stringToComputeHashBytes = stringToComputeHash.ToUTF8Bytes();
-
-            return ComputeHash(stringToComputeHashBytes, new SeekOptions(), new HexadecimalEncodingOptions());
-        }
-
-        public GenericHashResult ComputeFileHash(string fileToComputeHash, LongSeekOptions seekOptions, HexadecimalEncodingOptions hexadecimalOutputEncodingOptions)
+        public GenericHashResult ComputeFileHash(string fileToComputeHash, LongSeekOptions seekOptions, EncodingType outputEncodingType = EncodingType.Hexadecimal)
         {
             if (!File.Exists(fileToComputeHash))
             {
@@ -133,7 +113,7 @@ namespace CryptographyHelpers.Hash
                     var buffer = new byte[FileReadBufferSize];
                     var amount = count - seekOptions.Offset;
 
-                    using (var hashAlgorithm = (HashAlgorithm)CryptoConfig.CreateFromName(_hashAlgorithm.ToString()))
+                    using (var hashAlgorithm = (HashAlgorithm)CryptoConfig.CreateFromName(_hashAlgorithmType.ToString()))
                     {
                         var percentageDone = 0;
 
@@ -169,9 +149,12 @@ namespace CryptographyHelpers.Hash
                         {
                             Success = true,
                             Message = MessageStrings.Hash_ComputeSuccess,
-                            HashAlgorithmType = _hashAlgorithm,
-                            HashString = Hexadecimal.ToHexadecimalString(hashAlgorithm.Hash, hexadecimalOutputEncodingOptions),
+                            HashAlgorithmType = _hashAlgorithmType,
+                            OutputEncodingType = outputEncodingType,
                             HashBytes = hashAlgorithm.Hash,
+                            HashString = outputEncodingType == EncodingType.Hexadecimal
+                                ? Hexadecimal.ToHexadecimalString(hashAlgorithm.Hash)
+                                : Base64.ToBase64String(hashAlgorithm.Hash),
                         };
                     }
                 }
@@ -186,19 +169,8 @@ namespace CryptographyHelpers.Hash
             }
         }
 
-        public GenericHashResult ComputeFileHash(string fileToComputeHash)
-        {
-            if (!File.Exists(fileToComputeHash))
-            {
-                return new GenericHashResult()
-                {
-                    Success = false,
-                    Message = $"{MessageStrings.File_PathNotFound} \"{fileToComputeHash}\".",
-                };
-            }
-
-            return ComputeFileHash(fileToComputeHash, new LongSeekOptions(), new HexadecimalEncodingOptions());
-        }
+        public GenericHashResult ComputeFileHash(string fileToComputeHash) =>
+            ComputeFileHash(fileToComputeHash, new LongSeekOptions());
 
         public GenericHashResult VerifyHash(byte[] verificationHashBytes, byte[] bytesToVerifyHash)
         {
@@ -216,7 +188,7 @@ namespace CryptographyHelpers.Hash
                 return new GenericHashResult()
                 {
                     Success = false,
-                    Message = MessageStrings.Hash_InputRequired,
+                    Message = MessageStrings.Hash_InputBytesRequired,
                 };
             }
 

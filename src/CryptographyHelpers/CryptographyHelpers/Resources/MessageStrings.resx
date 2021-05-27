@@ -135,8 +135,11 @@
   <data name="Hash.DoesNotMatch" xml:space="preserve">
     <value>Input hash and verification hash does not match.</value>
   </data>
-  <data name="Hash.InputRequired" xml:space="preserve">
-    <value>Input to compute hash required.</value>
+  <data name="Hash.InputBytesRequired" xml:space="preserve">
+    <value>Input bytes to compute hash required.</value>
+  </data>
+  <data name="Hash.InputStringRequired" xml:space="preserve">
+    <value>Input string to compute hash required.</value>
   </data>
   <data name="Hash.Match" xml:space="preserve">
     <value>Input hash and verification hash does match.</value>
