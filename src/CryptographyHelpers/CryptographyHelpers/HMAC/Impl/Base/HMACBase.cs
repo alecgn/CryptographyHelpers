@@ -96,7 +96,7 @@ namespace CryptographyHelpers.HMAC
                 return new HMACResult()
                 {
                     Success = false,
-                    Message = $"{MessageStrings.File_PathNotFound} \"{filePathToComputeHMAC}\"."
+                    Message = $@"{MessageStrings.File_PathNotFound} ""{filePathToComputeHMAC}""."
                 };
             }
 

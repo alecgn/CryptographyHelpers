@@ -79,15 +79,6 @@ namespace CryptographyHelpers.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Input file cannot be empty (0 bytes)..
-        /// </summary>
-        internal static string File_EmptyInputFile {
-            get {
-                return ResourceManager.GetString("File.EmptyInputFile", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to File not found:.
         /// </summary>
         internal static string File_PathNotFound {
@@ -142,11 +133,20 @@ namespace CryptographyHelpers.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Verification hash required..
+        ///   Looks up a localized string similar to Verification hash bytes required..
         /// </summary>
-        internal static string Hash_VerificationHashRequired {
+        internal static string Hash_VerificationHashBytesRequired {
             get {
-                return ResourceManager.GetString("Hash.VerificationHashRequired", resourceCulture);
+                return ResourceManager.GetString("Hash.VerificationHashBytesRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Verification hash string required..
+        /// </summary>
+        internal static string Hash_VerificationHashStringRequired {
+            get {
+                return ResourceManager.GetString("Hash.VerificationHashStringRequired", resourceCulture);
             }
         }
         

@@ -123,9 +123,6 @@
   <data name="ByteArray.InvalidInputByteArray" xml:space="preserve">
     <value>Input byte array cannot be null or empty.</value>
   </data>
-  <data name="File.EmptyInputFile" xml:space="preserve">
-    <value>Input file cannot be empty (0 bytes).</value>
-  </data>
   <data name="File.PathNotFound" xml:space="preserve">
     <value>File not found:</value>
   </data>
@@ -144,8 +141,11 @@
   <data name="Hash.Match" xml:space="preserve">
     <value>Input hash and verification hash does match.</value>
   </data>
-  <data name="Hash.VerificationHashRequired" xml:space="preserve">
-    <value>Verification hash required.</value>
+  <data name="Hash.VerificationHashBytesRequired" xml:space="preserve">
+    <value>Verification hash bytes required.</value>
+  </data>
+  <data name="Hash.VerificationHashStringRequired" xml:space="preserve">
+    <value>Verification hash string required.</value>
   </data>
   <data name="HMAC.ComputeSuccess" xml:space="preserve">
     <value>HMAC computed succesfully.</value>

@@ -1,6 +1,5 @@
 ﻿using CryptographyHelpers.Encoding;
 using CryptographyHelpers.Encoding.Enums;
-using CryptographyHelpers.Encoding.Options;
 using CryptographyHelpers.Extensions;
 using CryptographyHelpers.Hash.Enums;
 using CryptographyHelpers.Hash.EventHandlers;
@@ -18,12 +17,43 @@ namespace CryptographyHelpers.Hash
     {
         public event OnHashProgressHandler OnHashProgress;
         private const int FileReadBufferSize = 1024 * 4;
+        private const EncodingType DefaultEncodingType = EncodingType.Hexadecimal;
         private readonly HashAlgorithmType _hashAlgorithmType;
+
 
         public HashBase(HashAlgorithmType hashAlgorithmType) =>
             _hashAlgorithmType = hashAlgorithmType;
 
-        public GenericHashResult ComputeHash(byte[] bytesToComputeHash, SeekOptions seekOptions, EncodingType outputEncodingType = EncodingType.Hexadecimal)
+
+        public GenericHashResult ComputeHash(string stringToComputeHash) =>
+            ComputeHash(stringToComputeHash, new SeekOptions(), DefaultEncodingType);
+
+        public GenericHashResult ComputeHash(string stringToComputeHash, SeekOptions seekOptions) =>
+            ComputeHash(stringToComputeHash, seekOptions, DefaultEncodingType);
+
+        public GenericHashResult ComputeHash(string stringToComputeHash, SeekOptions seekOptions, EncodingType outputEncodingType)
+        {
+            if (string.IsNullOrWhiteSpace(stringToComputeHash))
+            {
+                return new GenericHashResult()
+                {
+                    Success = false,
+                    Message = MessageStrings.Hash_InputStringRequired,
+                };
+            }
+
+            var stringToComputeHashBytes = stringToComputeHash.ToUTF8Bytes();
+
+            return ComputeHash(stringToComputeHashBytes, seekOptions, outputEncodingType);
+        }
+
+        public GenericHashResult ComputeHash(byte[] bytesToComputeHash) =>
+            ComputeHash(bytesToComputeHash, new SeekOptions(), DefaultEncodingType);
+
+        public GenericHashResult ComputeHash(byte[] bytesToComputeHash, SeekOptions seekOptions) =>
+            ComputeHash(bytesToComputeHash, seekOptions, DefaultEncodingType);
+
+        public GenericHashResult ComputeHash(byte[] bytesToComputeHash, SeekOptions seekOptions, EncodingType outputEncodingType)
         {
             if (bytesToComputeHash is null || bytesToComputeHash.Length == 0)
             {
@@ -61,46 +91,22 @@ namespace CryptographyHelpers.Hash
                 };
             }
         }
+        
+        
+        public GenericHashResult ComputeFileHash(string fileToComputeHash) =>
+            ComputeFileHash(fileToComputeHash, new LongSeekOptions(), DefaultEncodingType);
 
-        public GenericHashResult ComputeHash(byte[] bytesToComputeHash) =>
-            ComputeHash(bytesToComputeHash, new SeekOptions());
+        public GenericHashResult ComputeFileHash(string fileToComputeHash, LongSeekOptions seekOptions) =>
+            ComputeFileHash(fileToComputeHash, seekOptions, DefaultEncodingType);
 
-        public GenericHashResult ComputeHash(string stringToComputeHash, SeekOptions seekOptions, EncodingType outputEncodingType = EncodingType.Hexadecimal)
-        {
-            if (string.IsNullOrWhiteSpace(stringToComputeHash))
-            {
-                return new GenericHashResult()
-                {
-                    Success = false,
-                    Message = MessageStrings.Hash_InputStringRequired,
-                };
-            }
-
-            var stringToComputeHashBytes = stringToComputeHash.ToUTF8Bytes();
-
-            return ComputeHash(stringToComputeHashBytes, seekOptions, outputEncodingType);
-        }
-
-        public GenericHashResult ComputeHash(string stringToComputeHash) =>
-            ComputeHash(stringToComputeHash, new SeekOptions());
-
-        public GenericHashResult ComputeFileHash(string fileToComputeHash, LongSeekOptions seekOptions, EncodingType outputEncodingType = EncodingType.Hexadecimal)
+        public GenericHashResult ComputeFileHash(string fileToComputeHash, LongSeekOptions seekOptions, EncodingType outputEncodingType)
         {
             if (!File.Exists(fileToComputeHash))
             {
                 return new GenericHashResult()
                 {
                     Success = false,
-                    Message = $"{MessageStrings.File_PathNotFound} \"{fileToComputeHash}\".",
-                };
-            }
-
-            if (new FileInfo(fileToComputeHash).Length == 0)
-            {
-                return new GenericHashResult()
-                {
-                    Success = false,
-                    Message = MessageStrings.File_EmptyInputFile,
+                    Message = $@"{MessageStrings.File_PathNotFound} ""{fileToComputeHash}"".",
                 };
             }
 
@@ -169,62 +175,16 @@ namespace CryptographyHelpers.Hash
             }
         }
 
-        public GenericHashResult ComputeFileHash(string fileToComputeHash) =>
-            ComputeFileHash(fileToComputeHash, new LongSeekOptions());
+        
 
-        public GenericHashResult VerifyHash(byte[] verificationHashBytes, byte[] bytesToVerifyHash)
+        public GenericHashResult VerifyHash(string stringToVerifyHash, string verificationHashString) =>
+            VerifyHash(stringToVerifyHash, verificationHashString, new SeekOptions(), DefaultEncodingType);
+
+        public GenericHashResult VerifyHash(string stringToVerifyHash, string verificationHashString, SeekOptions seekOptions) =>
+            VerifyHash(stringToVerifyHash, verificationHashString, seekOptions, DefaultEncodingType);
+
+        public GenericHashResult VerifyHash(string stringToVerifyHash, string verificationHashString, SeekOptions seekOptions, EncodingType verificationHashStringEncodingType)
         {
-            if (verificationHashBytes is null || verificationHashBytes.Length == 0)
-            {
-                return new GenericHashResult()
-                {
-                    Success = false,
-                    Message = MessageStrings.Hash_VerificationHashRequired,
-                };
-            }
-
-            if (bytesToVerifyHash is null || bytesToVerifyHash.Length == 0)
-            {
-                return new GenericHashResult()
-                {
-                    Success = false,
-                    Message = MessageStrings.Hash_InputBytesRequired,
-                };
-            }
-
-            var hashResult = ComputeHash(bytesToVerifyHash);
-
-            if (hashResult.Success)
-            {
-                var hashesMatch = hashResult.HashBytes.SequenceEqual(verificationHashBytes);
-
-                hashResult.Success = hashesMatch;
-                hashResult.Message = $"{(hashesMatch ? MessageStrings.Hash_Match : MessageStrings.Hash_DoesNotMatch)}";
-            }
-
-            return hashResult;
-        }
-
-        public GenericHashResult VerifyHash(string verificationHexadecimalHashString, string stringToVerifyHash)
-        {
-            if (string.IsNullOrWhiteSpace(verificationHexadecimalHashString))
-            {
-                return new GenericHashResult()
-                {
-                    Success = false,
-                    Message = MessageStrings.Strings_InvalidInputString,
-                };
-            }
-
-            if (!Hexadecimal.IsValidHexadecimalString(verificationHexadecimalHashString))
-            {
-                return new GenericHashResult()
-                {
-                    Success = false,
-                    Message = MessageStrings.Strings_InvalidInputHexadecimalString,
-                };
-            }
-
             if (string.IsNullOrWhiteSpace(stringToVerifyHash))
             {
                 return new GenericHashResult()
@@ -234,85 +194,65 @@ namespace CryptographyHelpers.Hash
                 };
             }
 
-            var hashBytes = Hexadecimal.ToByteArray(verificationHexadecimalHashString);
+            if (string.IsNullOrWhiteSpace(verificationHashString))
+            {
+                return new GenericHashResult()
+                {
+                    Success = false,
+                    Message = MessageStrings.Hash_VerificationHashStringRequired,
+                };
+            }
+
+            byte[] verificationHashBytes = null;
+
+            if (verificationHashStringEncodingType == EncodingType.Hexadecimal)
+            {
+                if (!Hexadecimal.IsValidHexadecimalString(verificationHashString))
+                {
+                    return new GenericHashResult()
+                    {
+                        Success = false,
+                        Message = MessageStrings.Strings_InvalidInputHexadecimalString,
+                    };
+                }
+
+                verificationHashBytes = Hexadecimal.ToByteArray(verificationHashString);
+            }
+
+            if (verificationHashStringEncodingType == EncodingType.Base64)
+            {
+                if (!Base64.IsValidBase64String(verificationHashString))
+                {
+                    return new GenericHashResult()
+                    {
+                        Success = false,
+                        Message = MessageStrings.Strings_InvalidInputBase64String,
+                    };
+                }
+
+                verificationHashBytes = Base64.ToByteArray(verificationHashString);
+            }
+
             var stringToVerifyHashBytes = stringToVerifyHash.ToUTF8Bytes();
 
-            return VerifyHash(stringToVerifyHashBytes, hashBytes);
+            return VerifyHash(stringToVerifyHashBytes, verificationHashBytes, seekOptions);
         }
 
-        public GenericHashResult VerifyFileHash(string verificationHexadecimalHashString, string fileToVerifyHash)
-        {
-            if (string.IsNullOrWhiteSpace(verificationHexadecimalHashString))
-            {
-                return new GenericHashResult()
-                {
-                    Success = false,
-                    Message = MessageStrings.Hash_VerificationHashRequired,
-                };
-            }
+        public GenericHashResult VerifyHash(byte[] bytesToVerifyHash, byte[] verificationHashBytes) =>
+            VerifyHash(bytesToVerifyHash, verificationHashBytes, new SeekOptions());
 
-            if (!Hexadecimal.IsValidHexadecimalString(verificationHexadecimalHashString))
-            {
-                return new GenericHashResult()
-                {
-                    Success = false,
-                    Message = MessageStrings.Strings_InvalidInputHexadecimalString,
-                };
-            }
-
-            if (!File.Exists(fileToVerifyHash))
-            {
-                return new GenericHashResult()
-                {
-                    Success = false,
-                    Message = $"{MessageStrings.File_PathNotFound} \"{fileToVerifyHash}\".",
-                };
-            }
-
-            if (new FileInfo(fileToVerifyHash).Length == 0)
-            {
-                return new GenericHashResult()
-                {
-                    Success = false,
-                    Message = MessageStrings.File_EmptyInputFile,
-                };
-            }
-
-            var hashBytes = Hexadecimal.ToByteArray(verificationHexadecimalHashString);
-
-            return VerifyFileHash(hashBytes, fileToVerifyHash);
-        }
-
-        public GenericHashResult VerifyFileHash(byte[] verificationHashBytes, string fileToVerifyHash)
+        public GenericHashResult VerifyHash(byte[] bytesToVerifyHash, byte[] verificationHashBytes, SeekOptions seekOptions)
         {
             if (verificationHashBytes is null || verificationHashBytes.Length == 0)
             {
                 return new GenericHashResult()
                 {
                     Success = false,
-                    Message = MessageStrings.Hash_VerificationHashRequired,
+                    Message = MessageStrings.Hash_VerificationHashBytesRequired,
                 };
             }
 
-            if (!File.Exists(fileToVerifyHash))
-            {
-                return new GenericHashResult()
-                {
-                    Success = false,
-                    Message = $"{MessageStrings.File_PathNotFound} \"{fileToVerifyHash}\".",
-                };
-            }
-
-            if (new FileInfo(fileToVerifyHash).Length == 0)
-            {
-                return new GenericHashResult()
-                {
-                    Success = false,
-                    Message = MessageStrings.File_EmptyInputFile,
-                };
-            }
-
-            var hashResult = ComputeFileHash(fileToVerifyHash);
+            var hashResult = ComputeHash(bytesToVerifyHash, seekOptions);
 
             if (hashResult.Success)
             {
@@ -324,6 +264,85 @@ namespace CryptographyHelpers.Hash
 
             return hashResult;
         }
+
+
+        public GenericHashResult VerifyFileHash(string fileToVerifyHash, string verificationHashString) =>
+            VerifyFileHash(fileToVerifyHash, verificationHashString, new LongSeekOptions(), DefaultEncodingType);
+
+        public GenericHashResult VerifyFileHash(string fileToVerifyHash, string verificationHashString, LongSeekOptions seekOptions) =>
+            VerifyFileHash(fileToVerifyHash, verificationHashString, seekOptions, DefaultEncodingType);
+
+        public GenericHashResult VerifyFileHash(string fileToVerifyHash, string verificationHashString, LongSeekOptions seekOptions, EncodingType verificationHashStringEncodingType)
+        {
+            if (string.IsNullOrWhiteSpace(verificationHashString))
+            {
+                return new GenericHashResult()
+                {
+                    Success = false,
+                    Message = MessageStrings.Hash_VerificationHashStringRequired,
+                };
+            }
+
+            byte[] verificationHashBytes = null;
+
+            if (verificationHashStringEncodingType == EncodingType.Hexadecimal)
+            {
+                if (!Hexadecimal.IsValidHexadecimalString(verificationHashString))
+                {
+                    return new GenericHashResult()
+                    {
+                        Success = false,
+                        Message = MessageStrings.Strings_InvalidInputHexadecimalString,
+                    };
+                }
+
+                verificationHashBytes = Hexadecimal.ToByteArray(verificationHashString);
+            }
+
+            if (verificationHashStringEncodingType == EncodingType.Base64)
+            {
+                if (!Base64.IsValidBase64String(verificationHashString))
+                {
+                    return new GenericHashResult()
+                    {
+                        Success = false,
+                        Message = MessageStrings.Strings_InvalidInputBase64String,
+                    };
+                }
+
+                verificationHashBytes = Base64.ToByteArray(verificationHashString);
+            }
+
+            return VerifyFileHash(fileToVerifyHash, verificationHashBytes, seekOptions);
+        }
+
+        public GenericHashResult VerifyFileHash(string fileToVerifyHash, byte[] verificationHashBytes) =>
+            VerifyFileHash(fileToVerifyHash, verificationHashBytes, new LongSeekOptions());
+
+        public GenericHashResult VerifyFileHash(string fileToVerifyHash, byte[] verificationHashBytes, LongSeekOptions seekOptions)
+        {
+            if (verificationHashBytes is null || verificationHashBytes.Length == 0)
+            {
+                return new GenericHashResult()
+                {
+                    Success = false,
+                    Message = MessageStrings.Hash_VerificationHashBytesRequired,
+                };
+            }
+
+            var hashResult = ComputeFileHash(fileToVerifyHash, seekOptions);
+
+            if (hashResult.Success)
+            {
+                var hashesMatch = hashResult.HashBytes.SequenceEqual(verificationHashBytes);
+
+                hashResult.Success = hashesMatch;
+                hashResult.Message = $"{(hashesMatch ? MessageStrings.Hash_Match : MessageStrings.Hash_DoesNotMatch)}";
+            }
+
+            return hashResult;
+        }
+
 
         private void RaiseOnHashProgressEvent(int percentageDone, string message) =>
             OnHashProgress?.Invoke(percentageDone, message);
