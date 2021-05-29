@@ -13,9 +13,7 @@ namespace CryptographyHelpers.Tests.Hash
     public class HashBaseTests
     {
         private readonly MD5 _hashBase; // "HashBase" is an abastrat class and can't be instantiated, so we will use MD5 here (could be any other class wich inherits from it)
-        private const string HexadecimalTestString = "546869732069732061207465737420737472696E6721";
         private const string InvalidHexadecimalTestString = "546869732069732061207465737420737472696E672G";
-        private const string Base64TestString = "VGhpcyBpcyBhIHRlc3Qgc3RyaW5nIQ==";
         private const string InvalidBase64TestString = "VGhpcyBpcyBhIHRlc3Qgc3RyaW5nIQ=";
 
         public HashBaseTests()
@@ -86,7 +84,7 @@ namespace CryptographyHelpers.Tests.Hash
                 Message = MessageStrings.Strings_InvalidInputString,
             };
 
-            var hashResult = _hashBase.VerifyHash(nullEmptyOrWhitespaceString, HexadecimalTestString);
+            var hashResult = _hashBase.VerifyHash(nullEmptyOrWhitespaceString, Guid.NewGuid().ToString());
 
             hashResult.Should().BeEquivalentTo(expectedHashResult);
         }
@@ -95,7 +93,7 @@ namespace CryptographyHelpers.Tests.Hash
         [DataRow(null)]
         [DataRow("")]
         [DataRow("   ")]
-        public void ShouldNotReturnSuccess_InVerifyHash_WhenProvidedNullEmptyOrWhitespaceVerificationHashString(string verificationHashString)
+        public void ShouldNotReturnSuccess_InVerifyHash_WhenProvidedNullEmptyOrWhitespaceVerificationHashString(string nullEmptyOrWhitespaceVerificationHashString)
         {
             var expectedHashResult = new GenericHashResult()
             {
@@ -103,7 +101,7 @@ namespace CryptographyHelpers.Tests.Hash
                 Message = MessageStrings.Hash_VerificationHashStringRequired,
             };
 
-            var hashResult = _hashBase.VerifyHash(Guid.NewGuid().ToString(), verificationHashString);
+            var hashResult = _hashBase.VerifyHash(Guid.NewGuid().ToString(), nullEmptyOrWhitespaceVerificationHashString);
 
             hashResult.Should().BeEquivalentTo(expectedHashResult);
         }
@@ -139,7 +137,7 @@ namespace CryptographyHelpers.Tests.Hash
         [TestMethod]
         [DataRow(null)]
         [DataRow(new byte[0])]
-        public void ShouldNotReturnSuccess_InVerifyHash_WhenProvidedNullOrEmptyHashByteArray(byte[] nullOrEmptyHashByteArray)
+        public void ShouldNotReturnSuccess_InVerifyHash_WhenProvidedNullOrEmptyVerificationHashByteArray(byte[] nullOrEmptyVerificationHashByteArray)
         {
             var expectedHashResult = new GenericHashResult()
             {
@@ -147,7 +145,7 @@ namespace CryptographyHelpers.Tests.Hash
                 Message = MessageStrings.Hash_VerificationHashBytesRequired,
             };
 
-            var hashResult = _hashBase.VerifyHash(nullOrEmptyHashByteArray, Array.Empty<byte>());
+            var hashResult = _hashBase.VerifyHash(Array.Empty<byte>(), nullOrEmptyVerificationHashByteArray);
 
             hashResult.Should().BeEquivalentTo(expectedHashResult);
         }
