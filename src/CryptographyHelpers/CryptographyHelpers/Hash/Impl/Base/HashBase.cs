@@ -175,7 +175,6 @@ namespace CryptographyHelpers.Hash
             }
         }
 
-        
 
         public GenericHashResult VerifyHash(string stringToVerifyHash, string verificationHashString) =>
             VerifyHash(stringToVerifyHash, verificationHashString, new SeekOptions(), DefaultEncodingType);
