@@ -1,8 +1,10 @@
 ﻿using CryptographyHelpers.Encoding.Enums;
 using CryptographyHelpers.Hash.Enums;
+using System.Diagnostics.CodeAnalysis;
 
 namespace CryptographyHelpers.Hash.Results
 {
+    [ExcludeFromCodeCoverage]
     public class GenericHashResult
     {
         public bool Success { get; set; }

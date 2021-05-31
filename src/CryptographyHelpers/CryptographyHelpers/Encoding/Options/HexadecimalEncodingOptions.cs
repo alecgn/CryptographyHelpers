@@ -1,7 +1,9 @@
 ﻿using CryptographyHelpers.Enums;
+using System.Diagnostics.CodeAnalysis;
 
 namespace CryptographyHelpers.Encoding.Options
 {
+    [ExcludeFromCodeCoverage]
     public class HexadecimalEncodingOptions
     {
         public HexadecimalEncodingOptions()

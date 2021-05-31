@@ -118,7 +118,7 @@ namespace CryptographyHelpers.Encoding
             return _regexHexadecimalString.IsMatch(hexadecimalString) && hexadecimalString.Length % HexadecimalChunkSize == 0;
         }
 
-        private static IEnumerable<string> ChunkHexadecimalString(string hexadecimalString)
+        internal static IEnumerable<string> ChunkHexadecimalString(string hexadecimalString)
         {
             for (var i = 0; i < hexadecimalString.Length; i += HexadecimalChunkSize)
             {

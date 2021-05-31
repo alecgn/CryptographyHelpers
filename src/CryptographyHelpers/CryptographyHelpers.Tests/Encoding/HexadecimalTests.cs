@@ -160,5 +160,18 @@ namespace CryptographyHelpers.Tests.Encoding
 
             isValid.Should().Be(isValidHexadecimalString);
         }
+
+        [TestMethod]
+        public void ShouldChunkHexadecimalString_InChunkHexadecimalString()
+        {
+            string[] expectedChunkedHexadecimalString = {
+                "54", "68", "69", "73", "20", "69", "73", "20", "61", "20", "74",
+                "65", "73", "74", "20", "73", "74", "72", "69", "6E", "67", "21"
+            };
+
+            var chunkedHexadecimalString = Hexadecimal.ChunkHexadecimalString(UppercaseHexadecimalTestStringWithoutPrefix);
+
+            chunkedHexadecimalString.Should().BeEquivalentTo(expectedChunkedHexadecimalString);
+        }
     }
 }

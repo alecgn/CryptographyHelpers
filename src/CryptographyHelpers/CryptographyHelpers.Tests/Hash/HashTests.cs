@@ -15,6 +15,7 @@ namespace CryptographyHelpers.Tests.Hash
         private readonly IHash _hash;
         private const string InvalidHexadecimalTestString = "546869732069732061207465737420737472696E672G";
         private const string InvalidBase64TestString = "VGhpcyBpcyBhIHRlc3Qgc3RyaW5nIQ=";
+        private const EncodingType DefaultEncodingType = EncodingType.Hexadecimal;
 
         public HashTests()
         {
@@ -33,7 +34,7 @@ namespace CryptographyHelpers.Tests.Hash
                 Message = MessageStrings.Hash_InputStringRequired,
             };
 
-            var hashResult = _hash.ComputeHash(nullEmptyOrWhiteSpaceString);
+            var hashResult = _hash.ComputeHash(nullEmptyOrWhiteSpaceString, new SeekOptions(), DefaultEncodingType);
 
             hashResult.Should().BeEquivalentTo(expectedHashResult);
         }
@@ -49,7 +50,7 @@ namespace CryptographyHelpers.Tests.Hash
                 Message = MessageStrings.Hash_InputBytesRequired,
             };
 
-            var hashResult = _hash.ComputeHash(nullOrEmptyByteArray);
+            var hashResult = _hash.ComputeHash(nullOrEmptyByteArray, new SeekOptions(), DefaultEncodingType);
 
             hashResult.Should().BeEquivalentTo(expectedHashResult);
         }
@@ -67,7 +68,7 @@ namespace CryptographyHelpers.Tests.Hash
                 Message = $@"{MessageStrings.File_PathNotFound} ""{invalidFilePath}"".",
             };
 
-            var hashResult = _hash.ComputeFileHash(invalidFilePath);
+            var hashResult = _hash.ComputeFileHash(invalidFilePath, new LongSeekOptions(), DefaultEncodingType);
 
             hashResult.Should().BeEquivalentTo(expectedHashResult);
         }
@@ -84,7 +85,7 @@ namespace CryptographyHelpers.Tests.Hash
                 Message = MessageStrings.Strings_InvalidInputString,
             };
 
-            var hashResult = _hash.VerifyHash(nullEmptyOrWhitespaceString, Guid.NewGuid().ToString());
+            var hashResult = _hash.VerifyHash(nullEmptyOrWhitespaceString, Guid.NewGuid().ToString(), new SeekOptions(), DefaultEncodingType);
 
             hashResult.Should().BeEquivalentTo(expectedHashResult);
         }
@@ -101,7 +102,7 @@ namespace CryptographyHelpers.Tests.Hash
                 Message = MessageStrings.Hash_VerificationHashStringRequired,
             };
 
-            var hashResult = _hash.VerifyHash(Guid.NewGuid().ToString(), nullEmptyOrWhitespaceVerificationHashString);
+            var hashResult = _hash.VerifyHash(Guid.NewGuid().ToString(), nullEmptyOrWhitespaceVerificationHashString, new SeekOptions(), DefaultEncodingType);
 
             hashResult.Should().BeEquivalentTo(expectedHashResult);
         }
@@ -145,7 +146,7 @@ namespace CryptographyHelpers.Tests.Hash
                 Message = MessageStrings.Hash_VerificationHashBytesRequired,
             };
 
-            var hashResult = _hash.VerifyHash(Array.Empty<byte>(), nullOrEmptyVerificationHashByteArray);
+            var hashResult = _hash.VerifyHash(Array.Empty<byte>(), nullOrEmptyVerificationHashByteArray, new SeekOptions());
 
             hashResult.Should().BeEquivalentTo(expectedHashResult);
         }
@@ -162,7 +163,7 @@ namespace CryptographyHelpers.Tests.Hash
                 Message = MessageStrings.Hash_VerificationHashStringRequired,
             };
 
-            var hashResult = _hash.VerifyFileHash(Guid.NewGuid().ToString(), nullEmptyOrWhitespaceVerificationHashString);
+            var hashResult = _hash.VerifyFileHash(Guid.NewGuid().ToString(), nullEmptyOrWhitespaceVerificationHashString, new LongSeekOptions(), DefaultEncodingType);
 
             hashResult.Should().BeEquivalentTo(expectedHashResult);
         }
@@ -206,7 +207,7 @@ namespace CryptographyHelpers.Tests.Hash
                 Message = MessageStrings.Hash_VerificationHashBytesRequired,
             };
 
-            var hashResult = _hash.VerifyFileHash(Guid.NewGuid().ToString(), nullOrEmptyVerificationHashByteArray);
+            var hashResult = _hash.VerifyFileHash(Guid.NewGuid().ToString(), nullOrEmptyVerificationHashByteArray, new LongSeekOptions());
 
             hashResult.Should().BeEquivalentTo(expectedHashResult);
         }

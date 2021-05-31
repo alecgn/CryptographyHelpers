@@ -1,5 +1,8 @@
-﻿namespace CryptographyHelpers.Options
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace CryptographyHelpers.Options
 {
+    [ExcludeFromCodeCoverage]
     public class LongSeekOptions
     {
         public LongSeekOptions()

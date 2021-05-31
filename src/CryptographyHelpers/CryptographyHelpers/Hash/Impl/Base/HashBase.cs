@@ -7,6 +7,7 @@ using CryptographyHelpers.Hash.Results;
 using CryptographyHelpers.Options;
 using CryptographyHelpers.Resources;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
@@ -25,9 +26,11 @@ namespace CryptographyHelpers.Hash
             _hashAlgorithmType = hashAlgorithmType;
 
 
+        [ExcludeFromCodeCoverage]
         public GenericHashResult ComputeHash(string stringToComputeHash) =>
             ComputeHash(stringToComputeHash, new SeekOptions(), DefaultEncodingType);
 
+        [ExcludeFromCodeCoverage]
         public GenericHashResult ComputeHash(string stringToComputeHash, SeekOptions seekOptions) =>
             ComputeHash(stringToComputeHash, seekOptions, DefaultEncodingType);
 
@@ -47,9 +50,11 @@ namespace CryptographyHelpers.Hash
             return ComputeHash(stringToComputeHashBytes, seekOptions, outputEncodingType);
         }
 
+        [ExcludeFromCodeCoverage]
         public GenericHashResult ComputeHash(byte[] bytesToComputeHash) =>
             ComputeHash(bytesToComputeHash, new SeekOptions(), DefaultEncodingType);
 
+        [ExcludeFromCodeCoverage]
         public GenericHashResult ComputeHash(byte[] bytesToComputeHash, SeekOptions seekOptions) =>
             ComputeHash(bytesToComputeHash, seekOptions, DefaultEncodingType);
 
@@ -91,11 +96,13 @@ namespace CryptographyHelpers.Hash
                 };
             }
         }
-        
-        
+
+
+        [ExcludeFromCodeCoverage]
         public GenericHashResult ComputeFileHash(string fileToComputeHash) =>
             ComputeFileHash(fileToComputeHash, new LongSeekOptions(), DefaultEncodingType);
 
+        [ExcludeFromCodeCoverage]
         public GenericHashResult ComputeFileHash(string fileToComputeHash, LongSeekOptions seekOptions) =>
             ComputeFileHash(fileToComputeHash, seekOptions, DefaultEncodingType);
 
@@ -176,9 +183,11 @@ namespace CryptographyHelpers.Hash
         }
 
 
+        [ExcludeFromCodeCoverage]
         public GenericHashResult VerifyHash(string stringToVerifyHash, string verificationHashString) =>
             VerifyHash(stringToVerifyHash, verificationHashString, new SeekOptions(), DefaultEncodingType);
 
+        [ExcludeFromCodeCoverage]
         public GenericHashResult VerifyHash(string stringToVerifyHash, string verificationHashString, SeekOptions seekOptions) =>
             VerifyHash(stringToVerifyHash, verificationHashString, seekOptions, DefaultEncodingType);
 
@@ -237,6 +246,7 @@ namespace CryptographyHelpers.Hash
             return VerifyHash(stringToVerifyHashBytes, verificationHashBytes, seekOptions);
         }
 
+        [ExcludeFromCodeCoverage]
         public GenericHashResult VerifyHash(byte[] bytesToVerifyHash, byte[] verificationHashBytes) =>
             VerifyHash(bytesToVerifyHash, verificationHashBytes, new SeekOptions());
 
@@ -265,9 +275,11 @@ namespace CryptographyHelpers.Hash
         }
 
 
+        [ExcludeFromCodeCoverage]
         public GenericHashResult VerifyFileHash(string fileToVerifyHash, string verificationHashString) =>
             VerifyFileHash(fileToVerifyHash, verificationHashString, new LongSeekOptions(), DefaultEncodingType);
 
+        [ExcludeFromCodeCoverage]
         public GenericHashResult VerifyFileHash(string fileToVerifyHash, string verificationHashString, LongSeekOptions seekOptions) =>
             VerifyFileHash(fileToVerifyHash, verificationHashString, seekOptions, DefaultEncodingType);
 
@@ -315,6 +327,7 @@ namespace CryptographyHelpers.Hash
             return VerifyFileHash(fileToVerifyHash, verificationHashBytes, seekOptions);
         }
 
+        [ExcludeFromCodeCoverage]
         public GenericHashResult VerifyFileHash(string fileToVerifyHash, byte[] verificationHashBytes) =>
             VerifyFileHash(fileToVerifyHash, verificationHashBytes, new LongSeekOptions());
 
@@ -343,6 +356,7 @@ namespace CryptographyHelpers.Hash
         }
 
 
+        [ExcludeFromCodeCoverage]
         private void RaiseOnHashProgressEvent(int percentageDone, string message) =>
             OnHashProgress?.Invoke(percentageDone, message);
     }

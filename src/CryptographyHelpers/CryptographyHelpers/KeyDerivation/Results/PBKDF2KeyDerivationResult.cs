@@ -1,7 +1,9 @@
 ﻿using CryptographyHelpers.HMAC.Enums;
+using System.Diagnostics.CodeAnalysis;
 
 namespace CryptographyHelpers.KeyDerivation.Results
 {
+    [ExcludeFromCodeCoverage]
     public class PBKDF2KeyDerivationResult
     {
         public bool Success { get; set; }
