@@ -28,7 +28,7 @@ namespace CryptographyHelpers.Tests.Hash
         [DataRow("   ")]
         public void ShouldNotReturnSuccess_InComputeHash_WhenProvidedNullEmptyOrWhiteSpaceStringToComputeHash(string nullEmptyOrWhiteSpaceString)
         {
-            var expectedHashResult = new GenericHashResult()
+            var expectedHashResult = new HashResult()
             {
                 Success = false,
                 Message = MessageStrings.Hash_InputStringRequired,
@@ -44,7 +44,7 @@ namespace CryptographyHelpers.Tests.Hash
         [DataRow(new byte[0])]
         public void ShouldNotReturnSuccess_InComputeHash_WhenProvidedNullOrEmptyByteArrayToComputeHash(byte[] nullOrEmptyByteArray)
         {
-            var expectedHashResult = new GenericHashResult()
+            var expectedHashResult = new HashResult()
             {
                 Success = false,
                 Message = MessageStrings.Hash_InputBytesRequired,
@@ -62,7 +62,7 @@ namespace CryptographyHelpers.Tests.Hash
         [DataRow(@"Z:\8f297b5d-e0d4-4c91-bc45-38a857c20fa2\cf8152bb-d185-4127-a811-975460bca6fc.txt")]
         public void ShouldNotReturnSuccess_InComputeFileHash_WhenProvidedInvalidFilePathToComputeHash(string invalidFilePath)
         {
-            var expectedHashResult = new GenericHashResult()
+            var expectedHashResult = new HashResult()
             {
                 Success = false,
                 Message = $@"{MessageStrings.File_PathNotFound} ""{invalidFilePath}"".",
@@ -79,7 +79,7 @@ namespace CryptographyHelpers.Tests.Hash
         [DataRow("   ")]
         public void ShouldNotReturnSuccess_InVerifyHash_WhenProvidedNullEmptyOrWhitespaceStringToComputeHash(string nullEmptyOrWhitespaceString)
         {
-            var expectedHashResult = new GenericHashResult()
+            var expectedHashResult = new HashResult()
             {
                 Success = false,
                 Message = MessageStrings.Strings_InvalidInputString,
@@ -96,7 +96,7 @@ namespace CryptographyHelpers.Tests.Hash
         [DataRow("   ")]
         public void ShouldNotReturnSuccess_InVerifyHash_WhenProvidedNullEmptyOrWhitespaceVerificationHashString(string nullEmptyOrWhitespaceVerificationHashString)
         {
-            var expectedHashResult = new GenericHashResult()
+            var expectedHashResult = new HashResult()
             {
                 Success = false,
                 Message = MessageStrings.Hash_VerificationHashStringRequired,
@@ -110,7 +110,7 @@ namespace CryptographyHelpers.Tests.Hash
         [TestMethod]
         public void ShouldNotReturnSuccess_InVerifyHash_WhenProvidedInvalidHexadecimalVerificationHashString()
         {
-            var expectedHashResult = new GenericHashResult()
+            var expectedHashResult = new HashResult()
             {
                 Success = false,
                 Message = MessageStrings.Strings_InvalidInputHexadecimalString,
@@ -124,7 +124,7 @@ namespace CryptographyHelpers.Tests.Hash
         [TestMethod]
         public void ShouldNotReturnSuccess_InVerifyHash_WhenProvidedInvalidBase64VerificationHashString()
         {
-            var expectedHashResult = new GenericHashResult()
+            var expectedHashResult = new HashResult()
             {
                 Success = false,
                 Message = MessageStrings.Strings_InvalidInputBase64String,
@@ -140,7 +140,7 @@ namespace CryptographyHelpers.Tests.Hash
         [DataRow(new byte[0])]
         public void ShouldNotReturnSuccess_InVerifyHash_WhenProvidedNullOrEmptyVerificationHashByteArray(byte[] nullOrEmptyVerificationHashByteArray)
         {
-            var expectedHashResult = new GenericHashResult()
+            var expectedHashResult = new HashResult()
             {
                 Success = false,
                 Message = MessageStrings.Hash_VerificationHashBytesRequired,
@@ -157,7 +157,7 @@ namespace CryptographyHelpers.Tests.Hash
         [DataRow("   ")]
         public void ShouldNotReturnSuccess_InVerifyFileHash_WhenProvidedNullEmptyOrWhitespaceVerificationHashString(string nullEmptyOrWhitespaceVerificationHashString)
         {
-            var expectedHashResult = new GenericHashResult()
+            var expectedHashResult = new HashResult()
             {
                 Success = false,
                 Message = MessageStrings.Hash_VerificationHashStringRequired,
@@ -171,7 +171,7 @@ namespace CryptographyHelpers.Tests.Hash
         [TestMethod]
         public void ShouldNotReturnSuccess_InVerifyFileHash_WhenProvidedInvalidHexadecimalVerificationHashString()
         {
-            var expectedHashResult = new GenericHashResult()
+            var expectedHashResult = new HashResult()
             {
                 Success = false,
                 Message = MessageStrings.Strings_InvalidInputHexadecimalString,
@@ -185,7 +185,7 @@ namespace CryptographyHelpers.Tests.Hash
         [TestMethod]
         public void ShouldNotReturnSuccess_InVerifyFileHash_WhenProvidedInvalidBase64VerificationHashString()
         {
-            var expectedHashResult = new GenericHashResult()
+            var expectedHashResult = new HashResult()
             {
                 Success = false,
                 Message = MessageStrings.Strings_InvalidInputBase64String,
@@ -201,7 +201,7 @@ namespace CryptographyHelpers.Tests.Hash
         [DataRow(new byte[0])]
         public void ShouldNotReturnSuccess_InVerifyFileHash_WhenProvidedNullOrEmptyVerificationHashByteArray(byte[] nullOrEmptyVerificationHashByteArray)
         {
-            var expectedHashResult = new GenericHashResult()
+            var expectedHashResult = new HashResult()
             {
                 Success = false,
                 Message = MessageStrings.Hash_VerificationHashBytesRequired,

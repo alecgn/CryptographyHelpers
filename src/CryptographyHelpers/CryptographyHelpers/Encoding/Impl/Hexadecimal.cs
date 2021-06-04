@@ -18,6 +18,7 @@ namespace CryptographyHelpers.Encoding
         private const string HexadecimalFormatUpper = "X2";
         private static Regex _regexHexadecimalString = null;
 
+
         public static string ToHexadecimalString(string plainString) =>
             ToHexadecimalString(plainString, new HexadecimalEncodingOptions());
 

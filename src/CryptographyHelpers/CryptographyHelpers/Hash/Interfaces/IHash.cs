@@ -1,5 +1,5 @@
 ﻿using CryptographyHelpers.Encoding.Enums;
-using CryptographyHelpers.Hash.EventHandlers;
+using CryptographyHelpers.EventHandlers;
 using CryptographyHelpers.Hash.Results;
 using CryptographyHelpers.Options;
 
@@ -7,48 +7,48 @@ namespace CryptographyHelpers.Hash
 {
     public interface IHash
     {
-        event OnHashProgressHandler OnHashProgress;
+        event OnProgressHandler OnProgress;
 
-        GenericHashResult ComputeHash(string stringToComputeHash);
+        HashResult ComputeHash(string stringToComputeHash);
 
-        GenericHashResult ComputeHash(string stringToComputeHash, SeekOptions seekOptions);
+        HashResult ComputeHash(string stringToComputeHash, SeekOptions seekOptions);
 
-        GenericHashResult ComputeHash(string stringToComputeHash, SeekOptions seekOptions, EncodingType outputEncodingType);
+        HashResult ComputeHash(string stringToComputeHash, SeekOptions seekOptions, EncodingType outputEncodingType);
 
-        GenericHashResult ComputeHash(byte[] bytesToComputeHash);
+        HashResult ComputeHash(byte[] bytesToComputeHash);
 
-        GenericHashResult ComputeHash(byte[] bytesToComputeHash, SeekOptions seekOptions);
+        HashResult ComputeHash(byte[] bytesToComputeHash, SeekOptions seekOptions);
 
-        GenericHashResult ComputeHash(byte[] bytesToComputeHash, SeekOptions seekOptions, EncodingType outputEncodingType);
-
-
-        GenericHashResult ComputeFileHash(string fileToComputeHash);
-
-        GenericHashResult ComputeFileHash(string fileToComputeHash, LongSeekOptions seekOptions);
-
-        GenericHashResult ComputeFileHash(string fileToComputeHash, LongSeekOptions seekOptions, EncodingType outputEncodingType);
+        HashResult ComputeHash(byte[] bytesToComputeHash, SeekOptions seekOptions, EncodingType outputEncodingType);
 
 
+        HashResult ComputeFileHash(string fileToComputeHash);
 
-        GenericHashResult VerifyHash(string stringToVerifyHash, string verificationHashString);
+        HashResult ComputeFileHash(string fileToComputeHash, LongSeekOptions seekOptions);
 
-        GenericHashResult VerifyHash(string stringToVerifyHash, string verificationHashString, SeekOptions seekOptions);
-
-        GenericHashResult VerifyHash(string stringToVerifyHash, string verificationHashString, SeekOptions seekOptions, EncodingType verificationHashStringEncodingType);
-
-        GenericHashResult VerifyHash(byte[] bytesToVerifyHash, byte[] verificationHashBytes);
-
-        GenericHashResult VerifyHash(byte[] bytesToVerifyHash, byte[] verificationHashBytes, SeekOptions seekOptions);
+        HashResult ComputeFileHash(string fileToComputeHash, LongSeekOptions seekOptions, EncodingType outputEncodingType);
 
 
-        GenericHashResult VerifyFileHash(string fileToVerifyHash, string verificationHashString);
 
-        GenericHashResult VerifyFileHash(string fileToVerifyHash, string verificationHashString, LongSeekOptions seekOptions);
+        HashResult VerifyHash(string stringToVerifyHash, string verificationHashString);
 
-        GenericHashResult VerifyFileHash(string fileToVerifyHash, string verificationHashString, LongSeekOptions seekOptions, EncodingType verificationHashStringEncodingType);
+        HashResult VerifyHash(string stringToVerifyHash, string verificationHashString, SeekOptions seekOptions);
 
-        GenericHashResult VerifyFileHash(string fileToVerifyHash, byte[] verificationHashBytes);
+        HashResult VerifyHash(string stringToVerifyHash, string verificationHashString, SeekOptions seekOptions, EncodingType verificationHashStringEncodingType);
 
-        GenericHashResult VerifyFileHash(string fileToVerifyHash, byte[] verificationHashBytes, LongSeekOptions seekOptions);
+        HashResult VerifyHash(byte[] bytesToVerifyHash, byte[] verificationHashBytes);
+
+        HashResult VerifyHash(byte[] bytesToVerifyHash, byte[] verificationHashBytes, SeekOptions seekOptions);
+
+
+        HashResult VerifyFileHash(string fileToVerifyHash, string verificationHashString);
+
+        HashResult VerifyFileHash(string fileToVerifyHash, string verificationHashString, LongSeekOptions seekOptions);
+
+        HashResult VerifyFileHash(string fileToVerifyHash, string verificationHashString, LongSeekOptions seekOptions, EncodingType verificationHashStringEncodingType);
+
+        HashResult VerifyFileHash(string fileToVerifyHash, byte[] verificationHashBytes);
+
+        HashResult VerifyFileHash(string fileToVerifyHash, byte[] verificationHashBytes, LongSeekOptions seekOptions);
     }
 }

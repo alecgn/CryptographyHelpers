@@ -6,7 +6,7 @@ namespace CryptographyHelpers.HMAC.Util
 {
     public static class HMACUtil
     {
-        public static readonly IDictionary<HMACAlgorithmType, int> HMACLengthMapper = new ConcurrentDictionary<HMACAlgorithmType, int>()
+        public static readonly IDictionary<HMACAlgorithmType, int> HMACSizeMapper = new ConcurrentDictionary<HMACAlgorithmType, int>()
         {
             [HMACAlgorithmType.HMACMD5] = 128,
             [HMACAlgorithmType.HMACSHA1] = 160,

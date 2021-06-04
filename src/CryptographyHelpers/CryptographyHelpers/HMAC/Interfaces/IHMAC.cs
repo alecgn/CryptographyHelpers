@@ -1,4 +1,4 @@
-﻿using CryptographyHelpers.Hash.EventHandlers;
+﻿using CryptographyHelpers.EventHandlers;
 using CryptographyHelpers.HMAC.Results;
 using CryptographyHelpers.Options;
 
@@ -6,7 +6,7 @@ namespace CryptographyHelpers.HMAC
 {
     public interface IHMAC
     {
-        event OnHashProgressHandler OnHMACProgress;
+        event OnProgressHandler OnProgress;
 
         HMACResult ComputeHMAC(byte[] bytesToComputeHMAC, SeekOptions seekOptions, byte[] key = null);
 

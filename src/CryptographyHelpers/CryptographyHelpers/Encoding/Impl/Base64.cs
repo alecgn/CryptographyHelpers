@@ -10,6 +10,7 @@ namespace CryptographyHelpers.Encoding
         private const int Base64ChunkSize = 4;
         private static Regex _regexBase64String = null;
 
+
         public static string ToBase64String(string plainString)
         {
             if (string.IsNullOrWhiteSpace(plainString))

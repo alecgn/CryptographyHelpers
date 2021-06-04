@@ -5,7 +5,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace CryptographyHelpers.Hash.Results
 {
     [ExcludeFromCodeCoverage]
-    public class GenericHashResult
+    public class HashResult
     {
         public bool Success { get; set; }
         public string Message { get; set; }

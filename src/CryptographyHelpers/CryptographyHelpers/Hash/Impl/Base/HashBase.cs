@@ -2,7 +2,7 @@
 using CryptographyHelpers.Encoding.Enums;
 using CryptographyHelpers.Extensions;
 using CryptographyHelpers.Hash.Enums;
-using CryptographyHelpers.Hash.EventHandlers;
+using CryptographyHelpers.EventHandlers;
 using CryptographyHelpers.Hash.Results;
 using CryptographyHelpers.Options;
 using CryptographyHelpers.Resources;
@@ -16,7 +16,7 @@ namespace CryptographyHelpers.Hash
 {
     public abstract class HashBase : IHash
     {
-        public event OnHashProgressHandler OnHashProgress;
+        public event OnProgressHandler OnProgress;
         private const int FileReadBufferSize = 1024 * 4;
         private const EncodingType DefaultEncodingType = EncodingType.Hexadecimal;
         private readonly HashAlgorithmType _hashAlgorithmType;
@@ -27,18 +27,18 @@ namespace CryptographyHelpers.Hash
 
 
         [ExcludeFromCodeCoverage]
-        public GenericHashResult ComputeHash(string stringToComputeHash) =>
+        public HashResult ComputeHash(string stringToComputeHash) =>
             ComputeHash(stringToComputeHash, new SeekOptions(), DefaultEncodingType);
 
         [ExcludeFromCodeCoverage]
-        public GenericHashResult ComputeHash(string stringToComputeHash, SeekOptions seekOptions) =>
+        public HashResult ComputeHash(string stringToComputeHash, SeekOptions seekOptions) =>
             ComputeHash(stringToComputeHash, seekOptions, DefaultEncodingType);
 
-        public GenericHashResult ComputeHash(string stringToComputeHash, SeekOptions seekOptions, EncodingType outputEncodingType)
+        public HashResult ComputeHash(string stringToComputeHash, SeekOptions seekOptions, EncodingType outputEncodingType)
         {
             if (string.IsNullOrWhiteSpace(stringToComputeHash))
             {
-                return new GenericHashResult()
+                return new HashResult()
                 {
                     Success = false,
                     Message = MessageStrings.Hash_InputStringRequired,
@@ -51,18 +51,18 @@ namespace CryptographyHelpers.Hash
         }
 
         [ExcludeFromCodeCoverage]
-        public GenericHashResult ComputeHash(byte[] bytesToComputeHash) =>
+        public HashResult ComputeHash(byte[] bytesToComputeHash) =>
             ComputeHash(bytesToComputeHash, new SeekOptions(), DefaultEncodingType);
 
         [ExcludeFromCodeCoverage]
-        public GenericHashResult ComputeHash(byte[] bytesToComputeHash, SeekOptions seekOptions) =>
+        public HashResult ComputeHash(byte[] bytesToComputeHash, SeekOptions seekOptions) =>
             ComputeHash(bytesToComputeHash, seekOptions, DefaultEncodingType);
 
-        public GenericHashResult ComputeHash(byte[] bytesToComputeHash, SeekOptions seekOptions, EncodingType outputEncodingType)
+        public HashResult ComputeHash(byte[] bytesToComputeHash, SeekOptions seekOptions, EncodingType outputEncodingType)
         {
             if (bytesToComputeHash is null || bytesToComputeHash.Length == 0)
             {
-                return new GenericHashResult()
+                return new HashResult()
                 {
                     Success = false,
                     Message = MessageStrings.Hash_InputBytesRequired,
@@ -75,7 +75,7 @@ namespace CryptographyHelpers.Hash
                 var count = seekOptions.Count == 0 ? bytesToComputeHash.Length : seekOptions.Count;
                 var hashBytes = hashAlgorithm.ComputeHash(bytesToComputeHash, seekOptions.Offset, count);
 
-                return new GenericHashResult()
+                return new HashResult()
                 {
                     Success = true,
                     Message = MessageStrings.Hash_ComputeSuccess,
@@ -89,7 +89,7 @@ namespace CryptographyHelpers.Hash
             }
             catch (Exception ex)
             {
-                return new GenericHashResult()
+                return new HashResult()
                 {
                     Success = false,
                     Message = ex.ToString()
@@ -99,18 +99,18 @@ namespace CryptographyHelpers.Hash
 
 
         [ExcludeFromCodeCoverage]
-        public GenericHashResult ComputeFileHash(string fileToComputeHash) =>
+        public HashResult ComputeFileHash(string fileToComputeHash) =>
             ComputeFileHash(fileToComputeHash, new LongSeekOptions(), DefaultEncodingType);
 
         [ExcludeFromCodeCoverage]
-        public GenericHashResult ComputeFileHash(string fileToComputeHash, LongSeekOptions seekOptions) =>
+        public HashResult ComputeFileHash(string fileToComputeHash, LongSeekOptions seekOptions) =>
             ComputeFileHash(fileToComputeHash, seekOptions, DefaultEncodingType);
 
-        public GenericHashResult ComputeFileHash(string fileToComputeHash, LongSeekOptions seekOptions, EncodingType outputEncodingType)
+        public HashResult ComputeFileHash(string fileToComputeHash, LongSeekOptions seekOptions, EncodingType outputEncodingType)
         {
             if (!File.Exists(fileToComputeHash))
             {
-                return new GenericHashResult()
+                return new HashResult()
                 {
                     Success = false,
                     Message = $@"{MessageStrings.File_PathNotFound} ""{fileToComputeHash}"".",
@@ -153,12 +153,12 @@ namespace CryptographyHelpers.Hash
                                 {
                                     percentageDone = tmpPercentageDone;
 
-                                    RaiseOnHashProgressEvent(percentageDone, (percentageDone != 100 ? $"Computing hash ({percentageDone}%)..." : $"Hash computed ({percentageDone}%)."));
+                                    RaiseOnProgressEvent(percentageDone, (percentageDone != 100 ? $"Computing hash ({percentageDone}%)..." : $"Hash computed ({percentageDone}%)."));
                                 }
                             }
                         }
 
-                        return new GenericHashResult()
+                        return new HashResult()
                         {
                             Success = true,
                             Message = MessageStrings.Hash_ComputeSuccess,
@@ -174,7 +174,7 @@ namespace CryptographyHelpers.Hash
             }
             catch (Exception ex)
             {
-                return new GenericHashResult()
+                return new HashResult()
                 {
                     Success = false,
                     Message = ex.ToString(),
@@ -184,18 +184,18 @@ namespace CryptographyHelpers.Hash
 
 
         [ExcludeFromCodeCoverage]
-        public GenericHashResult VerifyHash(string stringToVerifyHash, string verificationHashString) =>
+        public HashResult VerifyHash(string stringToVerifyHash, string verificationHashString) =>
             VerifyHash(stringToVerifyHash, verificationHashString, new SeekOptions(), DefaultEncodingType);
 
         [ExcludeFromCodeCoverage]
-        public GenericHashResult VerifyHash(string stringToVerifyHash, string verificationHashString, SeekOptions seekOptions) =>
+        public HashResult VerifyHash(string stringToVerifyHash, string verificationHashString, SeekOptions seekOptions) =>
             VerifyHash(stringToVerifyHash, verificationHashString, seekOptions, DefaultEncodingType);
 
-        public GenericHashResult VerifyHash(string stringToVerifyHash, string verificationHashString, SeekOptions seekOptions, EncodingType verificationHashStringEncodingType)
+        public HashResult VerifyHash(string stringToVerifyHash, string verificationHashString, SeekOptions seekOptions, EncodingType verificationHashStringEncodingType)
         {
             if (string.IsNullOrWhiteSpace(stringToVerifyHash))
             {
-                return new GenericHashResult()
+                return new HashResult()
                 {
                     Success = false,
                     Message = MessageStrings.Strings_InvalidInputString,
@@ -204,7 +204,7 @@ namespace CryptographyHelpers.Hash
 
             if (string.IsNullOrWhiteSpace(verificationHashString))
             {
-                return new GenericHashResult()
+                return new HashResult()
                 {
                     Success = false,
                     Message = MessageStrings.Hash_VerificationHashStringRequired,
@@ -217,7 +217,7 @@ namespace CryptographyHelpers.Hash
             {
                 if (!Hexadecimal.IsValidHexadecimalString(verificationHashString))
                 {
-                    return new GenericHashResult()
+                    return new HashResult()
                     {
                         Success = false,
                         Message = MessageStrings.Strings_InvalidInputHexadecimalString,
@@ -231,7 +231,7 @@ namespace CryptographyHelpers.Hash
             {
                 if (!Base64.IsValidBase64String(verificationHashString))
                 {
-                    return new GenericHashResult()
+                    return new HashResult()
                     {
                         Success = false,
                         Message = MessageStrings.Strings_InvalidInputBase64String,
@@ -247,14 +247,14 @@ namespace CryptographyHelpers.Hash
         }
 
         [ExcludeFromCodeCoverage]
-        public GenericHashResult VerifyHash(byte[] bytesToVerifyHash, byte[] verificationHashBytes) =>
+        public HashResult VerifyHash(byte[] bytesToVerifyHash, byte[] verificationHashBytes) =>
             VerifyHash(bytesToVerifyHash, verificationHashBytes, new SeekOptions());
 
-        public GenericHashResult VerifyHash(byte[] bytesToVerifyHash, byte[] verificationHashBytes, SeekOptions seekOptions)
+        public HashResult VerifyHash(byte[] bytesToVerifyHash, byte[] verificationHashBytes, SeekOptions seekOptions)
         {
             if (verificationHashBytes is null || verificationHashBytes.Length == 0)
             {
-                return new GenericHashResult()
+                return new HashResult()
                 {
                     Success = false,
                     Message = MessageStrings.Hash_VerificationHashBytesRequired,
@@ -276,18 +276,18 @@ namespace CryptographyHelpers.Hash
 
 
         [ExcludeFromCodeCoverage]
-        public GenericHashResult VerifyFileHash(string fileToVerifyHash, string verificationHashString) =>
+        public HashResult VerifyFileHash(string fileToVerifyHash, string verificationHashString) =>
             VerifyFileHash(fileToVerifyHash, verificationHashString, new LongSeekOptions(), DefaultEncodingType);
 
         [ExcludeFromCodeCoverage]
-        public GenericHashResult VerifyFileHash(string fileToVerifyHash, string verificationHashString, LongSeekOptions seekOptions) =>
+        public HashResult VerifyFileHash(string fileToVerifyHash, string verificationHashString, LongSeekOptions seekOptions) =>
             VerifyFileHash(fileToVerifyHash, verificationHashString, seekOptions, DefaultEncodingType);
 
-        public GenericHashResult VerifyFileHash(string fileToVerifyHash, string verificationHashString, LongSeekOptions seekOptions, EncodingType verificationHashStringEncodingType)
+        public HashResult VerifyFileHash(string fileToVerifyHash, string verificationHashString, LongSeekOptions seekOptions, EncodingType verificationHashStringEncodingType)
         {
             if (string.IsNullOrWhiteSpace(verificationHashString))
             {
-                return new GenericHashResult()
+                return new HashResult()
                 {
                     Success = false,
                     Message = MessageStrings.Hash_VerificationHashStringRequired,
@@ -300,7 +300,7 @@ namespace CryptographyHelpers.Hash
             {
                 if (!Hexadecimal.IsValidHexadecimalString(verificationHashString))
                 {
-                    return new GenericHashResult()
+                    return new HashResult()
                     {
                         Success = false,
                         Message = MessageStrings.Strings_InvalidInputHexadecimalString,
@@ -314,7 +314,7 @@ namespace CryptographyHelpers.Hash
             {
                 if (!Base64.IsValidBase64String(verificationHashString))
                 {
-                    return new GenericHashResult()
+                    return new HashResult()
                     {
                         Success = false,
                         Message = MessageStrings.Strings_InvalidInputBase64String,
@@ -328,14 +328,14 @@ namespace CryptographyHelpers.Hash
         }
 
         [ExcludeFromCodeCoverage]
-        public GenericHashResult VerifyFileHash(string fileToVerifyHash, byte[] verificationHashBytes) =>
+        public HashResult VerifyFileHash(string fileToVerifyHash, byte[] verificationHashBytes) =>
             VerifyFileHash(fileToVerifyHash, verificationHashBytes, new LongSeekOptions());
 
-        public GenericHashResult VerifyFileHash(string fileToVerifyHash, byte[] verificationHashBytes, LongSeekOptions seekOptions)
+        public HashResult VerifyFileHash(string fileToVerifyHash, byte[] verificationHashBytes, LongSeekOptions seekOptions)
         {
             if (verificationHashBytes is null || verificationHashBytes.Length == 0)
             {
-                return new GenericHashResult()
+                return new HashResult()
                 {
                     Success = false,
                     Message = MessageStrings.Hash_VerificationHashBytesRequired,
@@ -357,7 +357,7 @@ namespace CryptographyHelpers.Hash
 
 
         [ExcludeFromCodeCoverage]
-        private void RaiseOnHashProgressEvent(int percentageDone, string message) =>
-            OnHashProgress?.Invoke(percentageDone, message);
+        private void RaiseOnProgressEvent(int percentageDone, string message) =>
+            OnProgress?.Invoke(percentageDone, message);
     }
 }
