@@ -16,7 +16,7 @@ namespace CryptographyHelpers.Hash
 {
     public abstract class HashBase : IHash
     {
-        public event OnProgressHandler OnProgress;
+        public event OnProgressHandler OnFileHashProgress;
         private const int FileReadBufferSize = 1024 * 4;
         private const EncodingType DefaultEncodingType = EncodingType.Hexadecimal;
         private readonly HashAlgorithmType _hashAlgorithmType;
@@ -153,7 +153,7 @@ namespace CryptographyHelpers.Hash
                                 {
                                     percentageDone = tmpPercentageDone;
 
-                                    RaiseOnProgressEvent(percentageDone, (percentageDone != 100 ? $"Computing hash ({percentageDone}%)..." : $"Hash computed ({percentageDone}%)."));
+                                    OnFileHashProgress?.Invoke(percentageDone, (percentageDone != 100 ? $"Computing hash ({percentageDone}%)..." : $"Hash computed ({percentageDone}%)."));
                                 }
                             }
                         }
@@ -211,35 +211,37 @@ namespace CryptographyHelpers.Hash
                 };
             }
 
-            byte[] verificationHashBytes = null;
+            var verificationHashBytes = verificationHashStringEncodingType == EncodingType.Hexadecimal
+                ? Hexadecimal.ToByteArray(verificationHashString)
+                : Base64.ToByteArray(verificationHashString);
 
-            if (verificationHashStringEncodingType == EncodingType.Hexadecimal)
-            {
-                if (!Hexadecimal.IsValidHexadecimalString(verificationHashString))
-                {
-                    return new HashResult()
-                    {
-                        Success = false,
-                        Message = MessageStrings.Strings_InvalidInputHexadecimalString,
-                    };
-                }
+            //if (verificationHashStringEncodingType == EncodingType.Hexadecimal)
+            //{
+            //    if (!Hexadecimal.IsValidHexadecimalString(verificationHashString))
+            //    {
+            //        return new HashResult()
+            //        {
+            //            Success = false,
+            //            Message = MessageStrings.Strings_InvalidInputHexadecimalString,
+            //        };
+            //    }
 
-                verificationHashBytes = Hexadecimal.ToByteArray(verificationHashString);
-            }
+            //    verificationHashBytes = Hexadecimal.ToByteArray(verificationHashString);
+            //}
 
-            if (verificationHashStringEncodingType == EncodingType.Base64)
-            {
-                if (!Base64.IsValidBase64String(verificationHashString))
-                {
-                    return new HashResult()
-                    {
-                        Success = false,
-                        Message = MessageStrings.Strings_InvalidInputBase64String,
-                    };
-                }
+            //if (verificationHashStringEncodingType == EncodingType.Base64)
+            //{
+            //    if (!Base64.IsValidBase64String(verificationHashString))
+            //    {
+            //        return new HashResult()
+            //        {
+            //            Success = false,
+            //            Message = MessageStrings.Strings_InvalidInputBase64String,
+            //        };
+            //    }
 
-                verificationHashBytes = Base64.ToByteArray(verificationHashString);
-            }
+            //    verificationHashBytes = Base64.ToByteArray(verificationHashString);
+            //}
 
             var stringToVerifyHashBytes = stringToVerifyHash.ToUTF8Bytes();
 
@@ -354,10 +356,5 @@ namespace CryptographyHelpers.Hash
 
             return hashResult;
         }
-
-
-        [ExcludeFromCodeCoverage]
-        private void RaiseOnProgressEvent(int percentageDone, string message) =>
-            OnProgress?.Invoke(percentageDone, message);
     }
 }

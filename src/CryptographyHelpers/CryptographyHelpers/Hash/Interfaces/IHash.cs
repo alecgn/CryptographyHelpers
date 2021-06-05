@@ -7,7 +7,7 @@ namespace CryptographyHelpers.Hash
 {
     public interface IHash
     {
-        event OnProgressHandler OnProgress;
+        event OnProgressHandler OnFileHashProgress;
 
         HashResult ComputeHash(string stringToComputeHash);
 

@@ -6,7 +6,7 @@ namespace CryptographyHelpers.HMAC
 {
     public interface IHMAC
     {
-        event OnProgressHandler OnProgress;
+        event OnProgressHandler OnFileHMACProgress;
 
         HMACResult ComputeHMAC(byte[] bytesToComputeHMAC, SeekOptions seekOptions, byte[] key = null);
 

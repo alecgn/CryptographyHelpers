@@ -2,9 +2,8 @@
 using CryptographyHelpers.Encoding.Enums;
 using CryptographyHelpers.EventHandlers;
 using CryptographyHelpers.Extensions;
-using CryptographyHelpers.HMAC.Enums;
+using CryptographyHelpers.Hash.Util;
 using CryptographyHelpers.HMAC.Results;
-using CryptographyHelpers.HMAC.Util;
 using CryptographyHelpers.Options;
 using CryptographyHelpers.Resources;
 using System;
@@ -17,29 +16,29 @@ namespace CryptographyHelpers.HMAC
 {
     public abstract class HMACBase : IHMAC
     {
-        public event OnProgressHandler OnProgress;
+        public event OnProgressHandler OnFileHMACProgress;
         private const int FileReadBufferSize = 1024 * 4;
         private const EncodingType DefaultEncodingType = EncodingType.Hexadecimal;
-        private readonly HMACAlgorithmType _hmacAlgorithmType;
+        private readonly Hash.Enums.HashAlgorithmType _hashAlgorithmType;
 
 
-        public HMACBase(HMACAlgorithmType hmacAlgorithmType) =>
-            _hmacAlgorithmType = hmacAlgorithmType;
+        public HMACBase(Hash.Enums.HashAlgorithmType hashAlgorithmType) =>
+            _hashAlgorithmType = hashAlgorithmType;
 
 
         [ExcludeFromCodeCoverage]
         public HMACResult ComputeHMAC(string stringToComputeHMAC) =>
-            ComputeHMAC(stringToComputeHMAC, key: null, new SeekOptions(), DefaultEncodingType);
+            ComputeHMAC(stringToComputeHMAC, key: null, keyAndOutputEncodingType: DefaultEncodingType, new SeekOptions());
 
         [ExcludeFromCodeCoverage]
-        public HMACResult ComputeHMAC(string stringToComputeHMAC, byte[] key) =>
-            ComputeHMAC(stringToComputeHMAC, key, new SeekOptions(), DefaultEncodingType);
+        public HMACResult ComputeHMAC(string stringToComputeHMAC, string key) =>
+            ComputeHMAC(stringToComputeHMAC, key, keyAndOutputEncodingType: DefaultEncodingType, new SeekOptions());
 
         [ExcludeFromCodeCoverage]
-        public HMACResult ComputeHMAC(string stringToComputeHMAC, byte[] key, SeekOptions seekOptions) =>
-            ComputeHMAC(stringToComputeHMAC, key, seekOptions, DefaultEncodingType);
+        public HMACResult ComputeHMAC(string stringToComputeHMAC, string key, EncodingType keyAndOutputEncodingType) =>
+            ComputeHMAC(stringToComputeHMAC, key, keyAndOutputEncodingType, new SeekOptions());
 
-        public HMACResult ComputeHMAC(string stringToComputeHMAC, byte[] key, SeekOptions seekOptions, EncodingType outputEncodingType)
+        public HMACResult ComputeHMAC(string stringToComputeHMAC, string key, EncodingType keyAndOutputEncodingType, SeekOptions seekOptions)
         {
             if (string.IsNullOrWhiteSpace(stringToComputeHMAC))
             {
@@ -50,24 +49,43 @@ namespace CryptographyHelpers.HMAC
                 };
             }
 
-            var stringToComputeHMACBytes = stringToComputeHMAC.ToUTF8Bytes();
+            try
+            {
+                var stringToComputeHMACBytes = stringToComputeHMAC.ToUTF8Bytes();
+                byte[] keyBytes = null;
 
-            return ComputeHMAC(stringToComputeHMACBytes, key, seekOptions, outputEncodingType);
+                if (!string.IsNullOrWhiteSpace(key))
+                {
+                    keyBytes = keyAndOutputEncodingType == EncodingType.Hexadecimal
+                        ? Hexadecimal.ToByteArray(key)
+                        : Base64.ToByteArray(key);
+                }
+
+                return ComputeHMAC(stringToComputeHMACBytes, keyBytes, keyAndOutputEncodingType, seekOptions);
+            }
+            catch (Exception ex)
+            {
+                return new HMACResult()
+                {
+                    Success = false,
+                    Message = ex.ToString(),
+                };
+            }
         }
 
         [ExcludeFromCodeCoverage]
         public HMACResult ComputeHMAC(byte[] bytesToComputeHMAC) =>
-            ComputeHMAC(bytesToComputeHMAC, key: null, new SeekOptions(), DefaultEncodingType);
+            ComputeHMAC(bytesToComputeHMAC, key: null, outputEncodingType: DefaultEncodingType, new SeekOptions());
 
         [ExcludeFromCodeCoverage]
         public HMACResult ComputeHMAC(byte[] bytesToComputeHMAC, byte[] key) =>
-            ComputeHMAC(bytesToComputeHMAC, key, new SeekOptions(), DefaultEncodingType);
+            ComputeHMAC(bytesToComputeHMAC, key, outputEncodingType: DefaultEncodingType, new SeekOptions());
 
         [ExcludeFromCodeCoverage]
-        public HMACResult ComputeHMAC(byte[] bytesToComputeHMAC, byte[] key, SeekOptions seekOptions) =>
-            ComputeHMAC(bytesToComputeHMAC, key, seekOptions, DefaultEncodingType);
+        public HMACResult ComputeHMAC(byte[] bytesToComputeHMAC, byte[] key, EncodingType outputEncodingType) =>
+            ComputeHMAC(bytesToComputeHMAC, key, outputEncodingType, new SeekOptions());
 
-        public HMACResult ComputeHMAC(byte[] bytesToComputeHMAC, byte[] key, SeekOptions seekOptions, EncodingType outputEncodingType)
+        public HMACResult ComputeHMAC(byte[] bytesToComputeHMAC, byte[] key, EncodingType outputEncodingType, SeekOptions seekOptions)
         {
             if (bytesToComputeHMAC is null || bytesToComputeHMAC.Length == 0)
             {
@@ -82,10 +100,10 @@ namespace CryptographyHelpers.HMAC
             {
                 if (key is null || key.Length == 0)
                 {
-                    key = CryptographyCommon.GenerateRandomBytes(HMACUtil.HMACSizeMapper[_hmacAlgorithmType] / 8);
+                    key = CryptographyCommon.GenerateRandomBytes(HashUtil.HashOutputSizeDictionary[_hashAlgorithmType] / 8);
                 }
 
-                using var hmacAlgorithm = (System.Security.Cryptography.HMAC)CryptoConfig.CreateFromName(_hmacAlgorithmType.ToString());
+                using var hmacAlgorithm = (System.Security.Cryptography.HMAC)CryptoConfig.CreateFromName($"HMAC{_hashAlgorithmType}");
                 hmacAlgorithm.Key = key;
                 var count = (seekOptions.Count == 0 ? bytesToComputeHMAC.Length : seekOptions.Count);
                 var hashBytes = hmacAlgorithm.ComputeHash(bytesToComputeHMAC, seekOptions.Offset, count);
@@ -94,7 +112,7 @@ namespace CryptographyHelpers.HMAC
                 {
                     Success = true,
                     Message = MessageStrings.HMAC_ComputeSuccess,
-                    HMACAlgorithmType = _hmacAlgorithmType,
+                    HashAlgorithmType = _hashAlgorithmType,
                     Key = key,
                     OutputEncodingType = outputEncodingType,
                     HashBytes = hashBytes,
@@ -116,17 +134,50 @@ namespace CryptographyHelpers.HMAC
 
         [ExcludeFromCodeCoverage]
         public HMACResult ComputeFileHMAC(string filePathToComputeHMAC) =>
-            ComputeFileHMAC(filePathToComputeHMAC, key: null, new LongSeekOptions(), DefaultEncodingType);
+            ComputeFileHMAC(filePathToComputeHMAC, key: null, outputEncodingType: DefaultEncodingType, new LongSeekOptions());
+
+        [ExcludeFromCodeCoverage]
+        public HMACResult ComputeFileHMAC(string filePathToComputeHMAC, string key) =>
+            ComputeFileHMAC(filePathToComputeHMAC, key, keyAndOutputEncodingType: DefaultEncodingType, new LongSeekOptions());
+
+        [ExcludeFromCodeCoverage]
+        public HMACResult ComputeFileHMAC(string filePathToComputeHMAC, string key, EncodingType outputEncodingType) =>
+            ComputeFileHMAC(filePathToComputeHMAC, key, outputEncodingType, new LongSeekOptions());
+
+        public HMACResult ComputeFileHMAC(string filePathToComputeHMAC, string key, EncodingType keyAndOutputEncodingType, LongSeekOptions seekOptions)
+        {
+            try
+            {
+                byte[] keyBytes = null;
+
+                if (!string.IsNullOrWhiteSpace(key))
+                {
+                    keyBytes = keyAndOutputEncodingType == EncodingType.Hexadecimal
+                        ? Hexadecimal.ToByteArray(key)
+                        : Base64.ToByteArray(key);
+                }
+
+                return ComputeFileHMAC(filePathToComputeHMAC, keyBytes, keyAndOutputEncodingType, seekOptions);
+            }
+            catch (Exception ex)
+            {
+                return new HMACResult()
+                {
+                    Success = false,
+                    Message = ex.ToString(),
+                };
+            }
+        }
 
         [ExcludeFromCodeCoverage]
         public HMACResult ComputeFileHMAC(string filePathToComputeHMAC, byte[] key) =>
-            ComputeFileHMAC(filePathToComputeHMAC, key, new LongSeekOptions(), DefaultEncodingType);
+            ComputeFileHMAC(filePathToComputeHMAC, key, outputEncodingType: DefaultEncodingType, new LongSeekOptions());
 
         [ExcludeFromCodeCoverage]
-        public HMACResult ComputeFileHMAC(string filePathToComputeHMAC, byte[] key, LongSeekOptions seekOptions) =>
-            ComputeFileHMAC(filePathToComputeHMAC, key, seekOptions, DefaultEncodingType);
+        public HMACResult ComputeFileHMAC(string filePathToComputeHMAC, byte[] key, EncodingType outputEncodingType) =>
+            ComputeFileHMAC(filePathToComputeHMAC, key, outputEncodingType, new LongSeekOptions());
 
-        public HMACResult ComputeFileHMAC(string filePathToComputeHMAC, byte[] key, LongSeekOptions seekOptions, EncodingType outputEncodingType)
+        public HMACResult ComputeFileHMAC(string filePathToComputeHMAC, byte[] key, EncodingType outputEncodingType, LongSeekOptions seekOptions)
         {
             if (!File.Exists(filePathToComputeHMAC))
             {
@@ -137,12 +188,11 @@ namespace CryptographyHelpers.HMAC
                 };
             }
 
-
             try
             {
                 if (key == null || key.Length == 0)
                 {
-                    key = CryptographyCommon.GenerateRandomBytes(HMACUtil.HMACSizeMapper[_hmacAlgorithmType] / 8);
+                    key = CryptographyCommon.GenerateRandomBytes(HashUtil.HashOutputSizeDictionary[_hashAlgorithmType] / 8);
                 }
 
                 byte[] hashBytes = null;
@@ -154,7 +204,7 @@ namespace CryptographyHelpers.HMAC
                     var buffer = new byte[FileReadBufferSize];
                     var amount = (count - seekOptions.Offset);
 
-                    using (var hmacAlgorithm = (System.Security.Cryptography.HMAC)CryptoConfig.CreateFromName(_hmacAlgorithmType.ToString()))
+                    using (var hmacAlgorithm = (System.Security.Cryptography.HMAC)CryptoConfig.CreateFromName($"HMAC{_hashAlgorithmType}"))
                     {
                         hmacAlgorithm.Key = key;
                         var percentageDone = 0;
@@ -182,7 +232,7 @@ namespace CryptographyHelpers.HMAC
                                 {
                                     percentageDone = tmpPercentageDone;
 
-                                    RaiseOnProgressEvent(percentageDone, (percentageDone != 100 ? $"Computing HMAC ({percentageDone}%)..." : $"HMAC computed ({percentageDone}%)."));
+                                    OnFileHMACProgress?.Invoke(percentageDone, (percentageDone != 100 ? $"Computing HMAC ({percentageDone}%)..." : $"HMAC computed ({percentageDone}%)."));
                                 }
                             }
                             else
@@ -199,7 +249,7 @@ namespace CryptographyHelpers.HMAC
                 {
                     Success = true,
                     Message = MessageStrings.HMAC_ComputeSuccess,
-                    HMACAlgorithmType = _hmacAlgorithmType,
+                    HashAlgorithmType = _hashAlgorithmType,
                     Key = key,
                     OutputEncodingType = outputEncodingType,
                     HashBytes = hashBytes,
@@ -219,10 +269,23 @@ namespace CryptographyHelpers.HMAC
         }
 
 
+        public HMACResult VerifyHMAC(string stringToVerifyHMAC, string key, string verificationHMACString, SeekOptions seekOptions, EncodingType keyAndVerificationHMACStringEncodingType)
+        {
+            var stringToVerifyHMACBytes = stringToVerifyHMAC.ToUTF8Bytes();
+            var keyBytes = keyAndVerificationHMACStringEncodingType == EncodingType.Hexadecimal
+                ? Hexadecimal.ToByteArray(key)
+                : Base64.ToByteArray(key);
+            var verificationHMACBytes = keyAndVerificationHMACStringEncodingType == EncodingType.Hexadecimal
+                ? Hexadecimal.ToByteArray(verificationHMACString)
+                : Base64.ToByteArray(verificationHMACString);
+
+            return VerifyHMAC(stringToVerifyHMACBytes, keyBytes, verificationHMACBytes, seekOptions);
+        }
+
+        [ExcludeFromCodeCoverage]
         public HMACResult VerifyHMAC(byte[] bytesToVerifyHMAC, byte[] key, byte[] verificationHMACBytes) =>
             VerifyHMAC(bytesToVerifyHMAC, key, verificationHMACBytes, new SeekOptions());
 
-        [ExcludeFromCodeCoverage]
         public HMACResult VerifyHMAC(byte[] bytesToVerifyHMAC, byte[] key, byte[] verificationHMACBytes, SeekOptions seekOptions)
         {
             var HMACResult = ComputeHMAC(bytesToVerifyHMAC, key, seekOptions);
@@ -236,19 +299,6 @@ namespace CryptographyHelpers.HMAC
             }
 
             return HMACResult;
-        }
-
-        public HMACResult VerifyHMAC(string stringToVerifyHMAC, string key, string verificationHMACString, SeekOptions seekOptions, EncodingType keyAndVerificationKeyEncodingType)
-        {
-            var stringToVerifyHMACBytes = stringToVerifyHMAC.ToUTF8Bytes();
-            var keyBytes = keyAndVerificationKeyEncodingType == EncodingType.Hexadecimal
-                ? Hexadecimal.ToByteArray(key)
-                : Base64.ToByteArray(key);
-            var verificationHMACBytes = keyAndVerificationKeyEncodingType == EncodingType.Hexadecimal 
-                ? Hexadecimal.ToByteArray(verificationHMACString)
-                : Base64.ToByteArray(verificationHMACString);
-
-            return VerifyHMAC(stringToVerifyHMACBytes, keyBytes, verificationHMACBytes);
         }
 
         
@@ -273,10 +323,5 @@ namespace CryptographyHelpers.HMAC
 
             return hmacResult;
         }
-
-
-        [ExcludeFromCodeCoverage]
-        private void RaiseOnProgressEvent(int percentageDone, string message) =>
-            OnProgress?.Invoke(percentageDone, message);
     }
 }

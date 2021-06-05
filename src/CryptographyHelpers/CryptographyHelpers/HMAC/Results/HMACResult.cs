@@ -1,16 +1,9 @@
-﻿using CryptographyHelpers.Encoding.Enums;
-using CryptographyHelpers.HMAC.Enums;
+﻿using CryptographyHelpers.Hash.Results;
 
 namespace CryptographyHelpers.HMAC.Results
 {
-    public class HMACResult
+    public class HMACResult : HashResult
     {
-        public bool Success { get; set; }
-        public string Message { get; set; }
-        public HMACAlgorithmType HMACAlgorithmType { get; set; }
         public byte[] Key { get; set; }
-        public EncodingType OutputEncodingType { get; set; }
-        public byte[] HashBytes { get; set; }
-        public string HashString { get; set; }
     }
 }
