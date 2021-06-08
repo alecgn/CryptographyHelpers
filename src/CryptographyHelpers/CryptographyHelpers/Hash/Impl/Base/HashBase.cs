@@ -1,8 +1,8 @@
 ﻿using CryptographyHelpers.Encoding;
 using CryptographyHelpers.Encoding.Enums;
+using CryptographyHelpers.EventHandlers;
 using CryptographyHelpers.Extensions;
 using CryptographyHelpers.Hash.Enums;
-using CryptographyHelpers.EventHandlers;
 using CryptographyHelpers.Hash.Results;
 using CryptographyHelpers.Options;
 using CryptographyHelpers.Resources;
@@ -16,7 +16,7 @@ namespace CryptographyHelpers.Hash
 {
     public abstract class HashBase : IHash
     {
-        public event OnProgressHandler OnFileHashProgress;
+        public event OnProgressHandler OnComputeFileHashProgress;
         private const int FileReadBufferSize = 1024 * 4;
         private const EncodingType DefaultEncodingType = EncodingType.Hexadecimal;
         private readonly HashAlgorithmType _hashAlgorithmType;
@@ -28,13 +28,13 @@ namespace CryptographyHelpers.Hash
 
         [ExcludeFromCodeCoverage]
         public HashResult ComputeHash(string stringToComputeHash) =>
-            ComputeHash(stringToComputeHash, new SeekOptions(), DefaultEncodingType);
+            ComputeHash(stringToComputeHash, outputEncodingType: DefaultEncodingType, new SeekOptions());
 
         [ExcludeFromCodeCoverage]
-        public HashResult ComputeHash(string stringToComputeHash, SeekOptions seekOptions) =>
-            ComputeHash(stringToComputeHash, seekOptions, DefaultEncodingType);
+        public HashResult ComputeHash(string stringToComputeHash, EncodingType outputEncodingType) =>
+            ComputeHash(stringToComputeHash, outputEncodingType, new SeekOptions());
 
-        public HashResult ComputeHash(string stringToComputeHash, SeekOptions seekOptions, EncodingType outputEncodingType)
+        public HashResult ComputeHash(string stringToComputeHash, EncodingType outputEncodingType, SeekOptions seekOptions)
         {
             if (string.IsNullOrWhiteSpace(stringToComputeHash))
             {
@@ -47,18 +47,18 @@ namespace CryptographyHelpers.Hash
 
             var stringToComputeHashBytes = stringToComputeHash.ToUTF8Bytes();
 
-            return ComputeHash(stringToComputeHashBytes, seekOptions, outputEncodingType);
+            return ComputeHash(stringToComputeHashBytes, outputEncodingType, seekOptions);
         }
 
         [ExcludeFromCodeCoverage]
         public HashResult ComputeHash(byte[] bytesToComputeHash) =>
-            ComputeHash(bytesToComputeHash, new SeekOptions(), DefaultEncodingType);
+            ComputeHash(bytesToComputeHash, outputEncodingType: DefaultEncodingType, new SeekOptions());
 
         [ExcludeFromCodeCoverage]
-        public HashResult ComputeHash(byte[] bytesToComputeHash, SeekOptions seekOptions) =>
-            ComputeHash(bytesToComputeHash, seekOptions, DefaultEncodingType);
+        public HashResult ComputeHash(byte[] bytesToComputeHash, EncodingType outputEncodingType) =>
+            ComputeHash(bytesToComputeHash, outputEncodingType, new SeekOptions());
 
-        public HashResult ComputeHash(byte[] bytesToComputeHash, SeekOptions seekOptions, EncodingType outputEncodingType)
+        public HashResult ComputeHash(byte[] bytesToComputeHash, EncodingType outputEncodingType, SeekOptions seekOptions)
         {
             if (bytesToComputeHash is null || bytesToComputeHash.Length == 0)
             {
@@ -83,8 +83,8 @@ namespace CryptographyHelpers.Hash
                     OutputEncodingType = outputEncodingType,
                     HashBytes = hashBytes,
                     HashString = outputEncodingType == EncodingType.Hexadecimal 
-                        ? Hexadecimal.ToHexadecimalString(hashBytes)
-                        : Base64.ToBase64String(hashBytes),
+                        ? Hexadecimal.EncodeToString(hashBytes)
+                        : Base64.EncodeToString(hashBytes),
                 };
             }
             catch (Exception ex)
@@ -100,13 +100,13 @@ namespace CryptographyHelpers.Hash
 
         [ExcludeFromCodeCoverage]
         public HashResult ComputeFileHash(string fileToComputeHash) =>
-            ComputeFileHash(fileToComputeHash, new LongSeekOptions(), DefaultEncodingType);
+            ComputeFileHash(fileToComputeHash, outputEncodingType: DefaultEncodingType, new LongSeekOptions());
 
         [ExcludeFromCodeCoverage]
-        public HashResult ComputeFileHash(string fileToComputeHash, LongSeekOptions seekOptions) =>
-            ComputeFileHash(fileToComputeHash, seekOptions, DefaultEncodingType);
+        public HashResult ComputeFileHash(string fileToComputeHash, EncodingType outputEncodingType) =>
+            ComputeFileHash(fileToComputeHash, outputEncodingType, new LongSeekOptions());
 
-        public HashResult ComputeFileHash(string fileToComputeHash, LongSeekOptions seekOptions, EncodingType outputEncodingType)
+        public HashResult ComputeFileHash(string fileToComputeHash, EncodingType outputEncodingType, LongSeekOptions seekOptions)
         {
             if (!File.Exists(fileToComputeHash))
             {
@@ -153,7 +153,7 @@ namespace CryptographyHelpers.Hash
                                 {
                                     percentageDone = tmpPercentageDone;
 
-                                    OnFileHashProgress?.Invoke(percentageDone, (percentageDone != 100 ? $"Computing hash ({percentageDone}%)..." : $"Hash computed ({percentageDone}%)."));
+                                    OnComputeFileHashProgress?.Invoke(percentageDone, (percentageDone != 100 ? $"Computing hash ({percentageDone}%)..." : $"Hash computed ({percentageDone}%)."));
                                 }
                             }
                         }
@@ -166,8 +166,8 @@ namespace CryptographyHelpers.Hash
                             OutputEncodingType = outputEncodingType,
                             HashBytes = hashAlgorithm.Hash,
                             HashString = outputEncodingType == EncodingType.Hexadecimal
-                                ? Hexadecimal.ToHexadecimalString(hashAlgorithm.Hash)
-                                : Base64.ToBase64String(hashAlgorithm.Hash),
+                                ? Hexadecimal.EncodeToString(hashAlgorithm.Hash)
+                                : Base64.EncodeToString(hashAlgorithm.Hash),
                         };
                     }
                 }
@@ -185,13 +185,13 @@ namespace CryptographyHelpers.Hash
 
         [ExcludeFromCodeCoverage]
         public HashResult VerifyHash(string stringToVerifyHash, string verificationHashString) =>
-            VerifyHash(stringToVerifyHash, verificationHashString, new SeekOptions(), DefaultEncodingType);
+            VerifyHash(stringToVerifyHash, verificationHashString, verificationHashStringEncodingType: DefaultEncodingType, new SeekOptions());
 
         [ExcludeFromCodeCoverage]
-        public HashResult VerifyHash(string stringToVerifyHash, string verificationHashString, SeekOptions seekOptions) =>
-            VerifyHash(stringToVerifyHash, verificationHashString, seekOptions, DefaultEncodingType);
+        public HashResult VerifyHash(string stringToVerifyHash, string verificationHashString, EncodingType verificationHashStringEncodingType) =>
+            VerifyHash(stringToVerifyHash, verificationHashString, verificationHashStringEncodingType, new SeekOptions());
 
-        public HashResult VerifyHash(string stringToVerifyHash, string verificationHashString, SeekOptions seekOptions, EncodingType verificationHashStringEncodingType)
+        public HashResult VerifyHash(string stringToVerifyHash, string verificationHashString, EncodingType verificationHashStringEncodingType, SeekOptions seekOptions)
         {
             if (string.IsNullOrWhiteSpace(stringToVerifyHash))
             {
@@ -212,8 +212,8 @@ namespace CryptographyHelpers.Hash
             }
 
             var verificationHashBytes = verificationHashStringEncodingType == EncodingType.Hexadecimal
-                ? Hexadecimal.ToByteArray(verificationHashString)
-                : Base64.ToByteArray(verificationHashString);
+                ? Hexadecimal.DecodeString(verificationHashString)
+                : Base64.DecodeString(verificationHashString);
 
             //if (verificationHashStringEncodingType == EncodingType.Hexadecimal)
             //{
@@ -263,7 +263,7 @@ namespace CryptographyHelpers.Hash
                 };
             }
 
-            var hashResult = ComputeHash(bytesToVerifyHash, seekOptions);
+            var hashResult = ComputeHash(bytesToVerifyHash, outputEncodingType: DefaultEncodingType, seekOptions);
 
             if (hashResult.Success)
             {
@@ -279,13 +279,13 @@ namespace CryptographyHelpers.Hash
 
         [ExcludeFromCodeCoverage]
         public HashResult VerifyFileHash(string fileToVerifyHash, string verificationHashString) =>
-            VerifyFileHash(fileToVerifyHash, verificationHashString, new LongSeekOptions(), DefaultEncodingType);
+            VerifyFileHash(fileToVerifyHash, verificationHashString, verificationHashStringEncodingType: DefaultEncodingType, new LongSeekOptions());
 
         [ExcludeFromCodeCoverage]
-        public HashResult VerifyFileHash(string fileToVerifyHash, string verificationHashString, LongSeekOptions seekOptions) =>
-            VerifyFileHash(fileToVerifyHash, verificationHashString, seekOptions, DefaultEncodingType);
+        public HashResult VerifyFileHash(string fileToVerifyHash, string verificationHashString, EncodingType verificationHashStringEncodingType) =>
+            VerifyFileHash(fileToVerifyHash, verificationHashString, verificationHashStringEncodingType, new LongSeekOptions());
 
-        public HashResult VerifyFileHash(string fileToVerifyHash, string verificationHashString, LongSeekOptions seekOptions, EncodingType verificationHashStringEncodingType)
+        public HashResult VerifyFileHash(string fileToVerifyHash, string verificationHashString, EncodingType verificationHashStringEncodingType, LongSeekOptions seekOptions)
         {
             if (string.IsNullOrWhiteSpace(verificationHashString))
             {
@@ -309,7 +309,7 @@ namespace CryptographyHelpers.Hash
                     };
                 }
 
-                verificationHashBytes = Hexadecimal.ToByteArray(verificationHashString);
+                verificationHashBytes = Hexadecimal.DecodeString(verificationHashString);
             }
 
             if (verificationHashStringEncodingType == EncodingType.Base64)
@@ -323,7 +323,7 @@ namespace CryptographyHelpers.Hash
                     };
                 }
 
-                verificationHashBytes = Base64.ToByteArray(verificationHashString);
+                verificationHashBytes = Base64.DecodeString(verificationHashString);
             }
 
             return VerifyFileHash(fileToVerifyHash, verificationHashBytes, seekOptions);
@@ -344,7 +344,7 @@ namespace CryptographyHelpers.Hash
                 };
             }
 
-            var hashResult = ComputeFileHash(fileToVerifyHash, seekOptions);
+            var hashResult = ComputeFileHash(fileToVerifyHash, outputEncodingType: DefaultEncodingType, seekOptions);
 
             if (hashResult.Success)
             {

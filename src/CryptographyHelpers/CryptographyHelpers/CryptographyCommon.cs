@@ -97,6 +97,6 @@ namespace CryptographyHelpers
         }
 
         public static string EncodeBytesToString(EncodingType encodingType, byte[] bytes) =>
-            encodingType == EncodingType.Base64 ? Base64.ToBase64String(bytes) : Hexadecimal.ToHexadecimalString(bytes);
+            encodingType == EncodingType.Base64 ? Base64.EncodeToString(bytes) : Hexadecimal.EncodeToString(bytes);
     }
 }

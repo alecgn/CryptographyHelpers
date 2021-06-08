@@ -160,7 +160,7 @@ namespace CryptographyHelpers.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Input bytes to compute HMAC required..
+        ///   Looks up a localized string similar to Input bytes to compute/verify HMAC required..
         /// </summary>
         internal static string HMAC_InputBytesRequired {
             get {
@@ -169,11 +169,29 @@ namespace CryptographyHelpers.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Input string to compute HMAC required..
+        ///   Looks up a localized string similar to Input key string to compute/verify HMAC required..
+        /// </summary>
+        internal static string HMAC_InputKeyStringRequired {
+            get {
+                return ResourceManager.GetString("HMAC.InputKeyStringRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Input string to compute/verify HMAC required..
         /// </summary>
         internal static string HMAC_InputStringRequired {
             get {
                 return ResourceManager.GetString("HMAC.InputStringRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Verification HMAC string required..
+        /// </summary>
+        internal static string HMAC_VerificationHMACStringRequired {
+            get {
+                return ResourceManager.GetString("HMAC.VerificationHMACStringRequired", resourceCulture);
             }
         }
         

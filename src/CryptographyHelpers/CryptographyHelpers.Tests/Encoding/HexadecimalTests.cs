@@ -27,9 +27,9 @@ namespace CryptographyHelpers.Tests.Encoding
         [DataRow(null)]
         [DataRow("")]
         [DataRow("   ")]
-        public void ShouldThrowArgumentException_InToHexadecimalString_WhenProvidedNullEmptyOrWhiteSpaceString(string invalidString)
+        public void ShouldThrowArgumentException_InEncodeToString_WhenProvidedNullEmptyOrWhiteSpaceString(string invalidString)
         {
-            Func<string> func = () => Hexadecimal.ToHexadecimalString(invalidString);
+            Func<string> func = () => Hexadecimal.EncodeToString(invalidString);
 
             func.Should()
                 .ThrowExactly<ArgumentException>()
@@ -39,9 +39,9 @@ namespace CryptographyHelpers.Tests.Encoding
         [TestMethod]
         [DataRow(null)]
         [DataRow(new byte[0])]
-        public void ShouldThrowArgumentException_InToHexadecimalString_WhenProvidedNullOrEmptyByteArray(byte[] invalidByteArray)
+        public void ShouldThrowArgumentException_InEncodeToString_WhenProvidedNullOrEmptyByteArray(byte[] invalidByteArray)
         {
-            Func<string> func = () => Hexadecimal.ToHexadecimalString(invalidByteArray);
+            Func<string> func = () => Hexadecimal.EncodeToString(invalidByteArray);
 
             func.Should()
                 .ThrowExactly<ArgumentException>()
@@ -52,9 +52,9 @@ namespace CryptographyHelpers.Tests.Encoding
         [DataRow(null)]
         [DataRow("")]
         [DataRow("   ")]
-        public void ShouldThrowArgumentException_InToString_WhenProvidedNullEmptyOrWhiteSpaceHexadecimalString(string nullEmptyOrWhiteSpaceHexadecimalString)
+        public void ShouldThrowArgumentException_InDecodeToString_WhenProvidedNullEmptyOrWhiteSpaceHexadecimalString(string nullEmptyOrWhiteSpaceHexadecimalString)
         {
-            Func<string> func = () => Hexadecimal.ToString(nullEmptyOrWhiteSpaceHexadecimalString);
+            Func<string> func = () => Hexadecimal.DecodeToString(nullEmptyOrWhiteSpaceHexadecimalString);
 
             func.Should()
                 .ThrowExactly<ArgumentException>()
@@ -62,9 +62,9 @@ namespace CryptographyHelpers.Tests.Encoding
         }
 
         [TestMethod]
-        public void ShouldThrowArgumentException_InToString_WhenProvidedInvalidHexadecimalString()
+        public void ShouldThrowArgumentException_InDecodeToString_WhenProvidedInvalidHexadecimalString()
         {
-            Func<string> func = () => Hexadecimal.ToString(InvalidHexadecimalTestString);
+            Func<string> func = () => Hexadecimal.DecodeToString(InvalidHexadecimalTestString);
 
             func.Should()
                 .ThrowExactly<ArgumentException>()
@@ -75,9 +75,9 @@ namespace CryptographyHelpers.Tests.Encoding
         [DataRow(null)]
         [DataRow("")]
         [DataRow("   ")]
-        public void ShouldThrowArgumentException_InToByteArray_WhenProvidedNullEmptyOrWhiteSpaceHexadecimalString(string nullEmptyOrWhiteSpaceHexadecimalString)
+        public void ShouldThrowArgumentException_InDecodeString_WhenProvidedNullEmptyOrWhiteSpaceHexadecimalString(string nullEmptyOrWhiteSpaceHexadecimalString)
         {
-            Func<byte[]> func = () => Hexadecimal.ToByteArray(nullEmptyOrWhiteSpaceHexadecimalString);
+            Func<byte[]> func = () => Hexadecimal.DecodeString(nullEmptyOrWhiteSpaceHexadecimalString);
 
             func.Should()
                 .ThrowExactly<ArgumentException>()
@@ -85,9 +85,9 @@ namespace CryptographyHelpers.Tests.Encoding
         }
 
         [TestMethod]
-        public void ShouldThrowArgumentException_InToByteArray_WhenProvidedInvalidHexadecimalString()
+        public void ShouldThrowArgumentException_InDecodeString_WhenProvidedInvalidHexadecimalString()
         {
-            Func<byte[]> func = () => Hexadecimal.ToByteArray(InvalidHexadecimalTestString);
+            Func<byte[]> func = () => Hexadecimal.DecodeString(InvalidHexadecimalTestString);
 
             func.Should()
                 .ThrowExactly<ArgumentException>()
@@ -101,10 +101,10 @@ namespace CryptographyHelpers.Tests.Encoding
         [DataRow(true, CharacterCasing.Lower, LowercaseHexadecimalTestStringWithPrefix)]
         [DataRow(false, CharacterCasing.Normal, LowercaseHexadecimalTestStringWithoutPrefix)]
         [DataRow(true, CharacterCasing.Normal, LowercaseHexadecimalTestStringWithPrefix)]
-        public void ShouldEncodeToHexadecimalStringAndMatch_InToHexadecimalString_WhenProvidedPlainString(bool includeHexIndicatorPrefix, CharacterCasing outputCharacterCasing, string expectedHexadecimalString)
+        public void ShouldEncodeToHexadecimalStringAndMatch_InEncodeToString_WhenProvidedPlainString(bool includeHexIndicatorPrefix, CharacterCasing outputCharacterCasing, string expectedHexadecimalString)
         {
             HexadecimalEncodingOptions hexadecimalEncodingOptions = new(includeHexIndicatorPrefix, outputCharacterCasing);
-            var hexadecimalEncodedString = Hexadecimal.ToHexadecimalString(PlainTestString, hexadecimalEncodingOptions);
+            var hexadecimalEncodedString = Hexadecimal.EncodeToString(PlainTestString, hexadecimalEncodingOptions);
 
             hexadecimalEncodedString.Should().Be(expectedHexadecimalString);
         }
@@ -116,10 +116,10 @@ namespace CryptographyHelpers.Tests.Encoding
         [DataRow(true, CharacterCasing.Lower, LowercaseHexadecimalTestStringWithPrefix)]
         [DataRow(false, CharacterCasing.Normal, LowercaseHexadecimalTestStringWithoutPrefix)]
         [DataRow(true, CharacterCasing.Normal, LowercaseHexadecimalTestStringWithPrefix)]
-        public void ShouldEncodeToHexadecimalStringAndMatch_InToHexadecimalString_WhenProvidedByteArray(bool includeHexIndicatorPrefix, CharacterCasing outputCharacterCasing, string expectedHexadecimalString)
+        public void ShouldEncodeToHexadecimalStringAndMatch_InEncodeToString_WhenProvidedByteArray(bool includeHexIndicatorPrefix, CharacterCasing outputCharacterCasing, string expectedHexadecimalString)
         {
             HexadecimalEncodingOptions hexadecimalEncodingOptions = new(includeHexIndicatorPrefix, outputCharacterCasing);
-            var hexadecimalEncodedString = Hexadecimal.ToHexadecimalString(_testByteArray, hexadecimalEncodingOptions);
+            var hexadecimalEncodedString = Hexadecimal.EncodeToString(_testByteArray, hexadecimalEncodingOptions);
 
             hexadecimalEncodedString.Should().Be(expectedHexadecimalString);
         }
@@ -129,9 +129,9 @@ namespace CryptographyHelpers.Tests.Encoding
         [DataRow(UppercaseHexadecimalTestStringWithPrefix)]
         [DataRow(LowercaseHexadecimalTestStringWithoutPrefix)]
         [DataRow(LowercaseHexadecimalTestStringWithPrefix)]
-        public void ShouldDecodeFromHexadecimalStringAndMatch_InToString(string hexadecimalString)
+        public void ShouldDecodeFromHexadecimalStringAndMatch_InDecodeToString(string hexadecimalString)
         {
-            var decodedPlainString = Hexadecimal.ToString(hexadecimalString);
+            var decodedPlainString = Hexadecimal.DecodeToString(hexadecimalString);
 
             decodedPlainString.Should().Be(PlainTestString);
         }
@@ -141,9 +141,9 @@ namespace CryptographyHelpers.Tests.Encoding
         [DataRow(UppercaseHexadecimalTestStringWithPrefix)]
         [DataRow(LowercaseHexadecimalTestStringWithoutPrefix)]
         [DataRow(LowercaseHexadecimalTestStringWithPrefix)]
-        public void ShouldConvertToByteArrayAndMatch_InToByteArray(string hexadecimalString)
+        public void ShouldConvertToByteArrayAndMatch_InDecodeString(string hexadecimalString)
         {
-            var byteArray = Hexadecimal.ToByteArray(hexadecimalString);
+            var byteArray = Hexadecimal.DecodeString(hexadecimalString);
 
             byteArray.Should().BeEquivalentTo(_testByteArray);
         }

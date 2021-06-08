@@ -77,7 +77,7 @@ namespace CryptographyHelpers.KeyDerivation
                 {
                     Success = true,
                     Message = MessageStrings.KeyDerivation_DerivationSuccess,
-                    DerivedKeyBase64String = Base64.ToBase64String(derivedKey),
+                    DerivedKeyBase64String = Base64.EncodeToString(derivedKey),
                     DerivedKeyBytes = derivedKey,
                     Salt = salt,
                     PseudoRandomFunction = _pseudoRandomFunction,

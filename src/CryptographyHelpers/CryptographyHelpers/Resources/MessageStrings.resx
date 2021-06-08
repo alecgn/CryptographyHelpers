@@ -151,10 +151,16 @@
     <value>HMAC computed succesfully.</value>
   </data>
   <data name="HMAC.InputBytesRequired" xml:space="preserve">
-    <value>Input bytes to compute HMAC required.</value>
+    <value>Input bytes to compute/verify HMAC required.</value>
+  </data>
+  <data name="HMAC.InputKeyStringRequired" xml:space="preserve">
+    <value>Input key string to compute/verify HMAC required.</value>
   </data>
   <data name="HMAC.InputStringRequired" xml:space="preserve">
-    <value>Input string to compute HMAC required.</value>
+    <value>Input string to compute/verify HMAC required.</value>
+  </data>
+  <data name="HMAC.VerificationHMACStringRequired" xml:space="preserve">
+    <value>Verification HMAC string required.</value>
   </data>
   <data name="KeyDerivation.DerivationSuccess" xml:space="preserve">
     <value>Key derived succesfully.</value>

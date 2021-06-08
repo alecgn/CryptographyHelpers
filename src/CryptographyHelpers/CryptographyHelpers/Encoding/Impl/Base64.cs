@@ -11,7 +11,7 @@ namespace CryptographyHelpers.Encoding
         private static Regex _regexBase64String = null;
 
 
-        public static string ToBase64String(string plainString)
+        public static string EncodeToString(string plainString)
         {
             if (string.IsNullOrWhiteSpace(plainString))
             {
@@ -20,10 +20,10 @@ namespace CryptographyHelpers.Encoding
 
             var plainStringBytes = plainString.ToUTF8Bytes();
 
-            return ToBase64String(plainStringBytes);
+            return EncodeToString(plainStringBytes);
         }
 
-        public static string ToBase64String(byte[] byteArray)
+        public static string EncodeToString(byte[] byteArray)
         {
             if (byteArray is null || byteArray.Length == 0)
             {
@@ -33,7 +33,7 @@ namespace CryptographyHelpers.Encoding
             return byteArray.ToBase64String();
         }
 
-        public static string ToString(string base64String)
+        public static string DecodeToString(string base64String)
         {
             if (string.IsNullOrWhiteSpace(base64String))
             {
@@ -45,12 +45,12 @@ namespace CryptographyHelpers.Encoding
                 throw new ArgumentException(MessageStrings.Strings_InvalidInputBase64String, nameof(base64String));
             }
 
-            var byteArray = ToByteArray(base64String);
+            var byteArray = DecodeString(base64String);
 
             return byteArray.ToUTF8String();
         }
 
-        public static byte[] ToByteArray(string base64String)
+        public static byte[] DecodeString(string base64String)
         {
             if (string.IsNullOrWhiteSpace(base64String))
             {

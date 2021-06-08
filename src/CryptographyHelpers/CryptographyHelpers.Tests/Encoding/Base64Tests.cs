@@ -22,9 +22,9 @@ namespace CryptographyHelpers.Tests.Encoding
         [DataRow(null)]
         [DataRow("")]
         [DataRow("   ")]
-        public void ShouldThrowArgumentException_InToBase64String_WhenProvidedNullEmptyOrWhiteSpaceString(string invalidString)
+        public void ShouldThrowArgumentException_InEncodeToString_WhenProvidedNullEmptyOrWhiteSpaceString(string invalidString)
         {
-            Func<string> func = () => Base64.ToBase64String(invalidString);
+            Func<string> func = () => Base64.EncodeToString(invalidString);
 
             func.Should()
                 .ThrowExactly<ArgumentException>()
@@ -34,9 +34,9 @@ namespace CryptographyHelpers.Tests.Encoding
         [TestMethod]
         [DataRow(null)]
         [DataRow(new byte[0])]
-        public void ShouldThrowArgumentException_InToBase64String_WhenProvidedNullOrEmptyByteArray(byte[] invalidByteArray)
+        public void ShouldThrowArgumentException_InEncodeToString_WhenProvidedNullOrEmptyByteArray(byte[] invalidByteArray)
         {
-            Func<string> func = () => Base64.ToBase64String(invalidByteArray);
+            Func<string> func = () => Base64.EncodeToString(invalidByteArray);
 
             func.Should()
                 .ThrowExactly<ArgumentException>()
@@ -47,9 +47,9 @@ namespace CryptographyHelpers.Tests.Encoding
         [DataRow(null)]
         [DataRow("")]
         [DataRow("   ")]
-        public void ShouldThrowArgumentException_InToString_WhenProvidedNullEmptyOrWhiteSpaceBase64String(string nullEmptyOrWhiteSpaceBase64String)
+        public void ShouldThrowArgumentException_InDecodeToString_WhenProvidedNullEmptyOrWhiteSpaceBase64String(string nullEmptyOrWhiteSpaceBase64String)
         {
-            Func<string> func = () => Base64.ToString(nullEmptyOrWhiteSpaceBase64String);
+            Func<string> func = () => Base64.DecodeToString(nullEmptyOrWhiteSpaceBase64String);
 
             func.Should()
                 .ThrowExactly<ArgumentException>()
@@ -57,9 +57,9 @@ namespace CryptographyHelpers.Tests.Encoding
         }
 
         [TestMethod]
-        public void ShouldThrowArgumentException_InToString_WhenProvidedInvalidBase64String()
+        public void ShouldThrowArgumentException_InDecodeToString_WhenProvidedInvalidBase64String()
         {
-            Func<string> func = () => Base64.ToString(InvalidBase64TestString);
+            Func<string> func = () => Base64.DecodeToString(InvalidBase64TestString);
 
             func.Should()
                 .ThrowExactly<ArgumentException>()
@@ -70,9 +70,9 @@ namespace CryptographyHelpers.Tests.Encoding
         [DataRow(null)]
         [DataRow("")]
         [DataRow("   ")]
-        public void ShouldThrowArgumentException_InToByteArray_WhenProvidedNullEmptyOrWhiteSpaceBase64String(string nullEmptyOrWhiteSpaceBase64String)
+        public void ShouldThrowArgumentException_InDecodeString_WhenProvidedNullEmptyOrWhiteSpaceBase64String(string nullEmptyOrWhiteSpaceBase64String)
         {
-            Func<byte[]> func = () => Base64.ToByteArray(nullEmptyOrWhiteSpaceBase64String);
+            Func<byte[]> func = () => Base64.DecodeString(nullEmptyOrWhiteSpaceBase64String);
 
             func.Should()
                 .ThrowExactly<ArgumentException>()
@@ -80,9 +80,9 @@ namespace CryptographyHelpers.Tests.Encoding
         }
 
         [TestMethod]
-        public void ShouldThrowArgumentException_InToByteArray_WhenProvidedInvalidBase64String()
+        public void ShouldThrowArgumentException_InDecodeString_WhenProvidedInvalidBase64String()
         {
-            Func<byte[]> func = () => Base64.ToByteArray(InvalidBase64TestString);
+            Func<byte[]> func = () => Base64.DecodeString(InvalidBase64TestString);
 
             func.Should()
                 .ThrowExactly<ArgumentException>()
@@ -90,33 +90,33 @@ namespace CryptographyHelpers.Tests.Encoding
         }
 
         [TestMethod]
-        public void ShouldEncodeToBase64StringAndMatch_InToBase64String_WhenProvidedPlainString()
+        public void ShouldEncodeToBase64StringAndMatch_InEncodeToString_WhenProvidedPlainString()
         {
-            var base64EncodedString = Base64.ToBase64String(PlainTestString);
+            var base64EncodedString = Base64.EncodeToString(PlainTestString);
 
             base64EncodedString.Should().Be(Base64TestString);
         }
 
         [TestMethod]
-        public void ShouldEncodeToBase64StringAndMatch_InToBase64String_WhenProvidedByteArray()
+        public void ShouldEncodeToBase64StringAndMatch_InEncodeToString_WhenProvidedByteArray()
         {
-            var base64EncodedString = Base64.ToBase64String(_testByteArray);
+            var base64EncodedString = Base64.EncodeToString(_testByteArray);
 
             base64EncodedString.Should().Be(Base64TestString);
         }
 
         [TestMethod]
-        public void ShouldDecodeFromBase64StringAndMatch_InToString()
+        public void ShouldDecodeFromBase64StringAndMatch_InDecodeToString()
         {
-            var decodedPlainString = Base64.ToString(Base64TestString);
+            var decodedPlainString = Base64.DecodeToString(Base64TestString);
 
             decodedPlainString.Should().Be(PlainTestString);
         }
 
         [TestMethod]
-        public void ShouldConvertToByteArrayAndMatch_InToByteArray()
+        public void ShouldConvertToByteArrayAndMatch_InDecodeString()
         {
-            var byteArray = Base64.ToByteArray(Base64TestString);
+            var byteArray = Base64.DecodeString(Base64TestString);
 
             byteArray.Should().BeEquivalentTo(_testByteArray);
         }

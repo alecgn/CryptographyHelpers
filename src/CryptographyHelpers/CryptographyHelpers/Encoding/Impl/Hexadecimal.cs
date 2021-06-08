@@ -19,10 +19,10 @@ namespace CryptographyHelpers.Encoding
         private static Regex _regexHexadecimalString = null;
 
 
-        public static string ToHexadecimalString(string plainString) =>
-            ToHexadecimalString(plainString, new HexadecimalEncodingOptions());
+        public static string EncodeToString(string plainString) =>
+            EncodeToString(plainString, new HexadecimalEncodingOptions());
 
-        public static string ToHexadecimalString(string plainString, HexadecimalEncodingOptions hexadecimalOutputEncodingOptions)
+        public static string EncodeToString(string plainString, HexadecimalEncodingOptions hexadecimalOutputEncodingOptions)
         {
             if (string.IsNullOrWhiteSpace(plainString))
             {
@@ -31,13 +31,13 @@ namespace CryptographyHelpers.Encoding
 
             var plainStringBytes = plainString.ToUTF8Bytes();
 
-            return ToHexadecimalString(plainStringBytes, hexadecimalOutputEncodingOptions);
+            return EncodeToString(plainStringBytes, hexadecimalOutputEncodingOptions);
         }
 
-        public static string ToHexadecimalString(byte[] byteArray) =>
-            ToHexadecimalString(byteArray, new HexadecimalEncodingOptions());
+        public static string EncodeToString(byte[] byteArray) =>
+            EncodeToString(byteArray, new HexadecimalEncodingOptions());
 
-        public static string ToHexadecimalString(byte[] byteArray, HexadecimalEncodingOptions hexadecimalOutputEncodingOptions)
+        public static string EncodeToString(byte[] byteArray, HexadecimalEncodingOptions hexadecimalOutputEncodingOptions)
         {
             if (byteArray is null || byteArray.Length == 0)
             {
@@ -61,7 +61,7 @@ namespace CryptographyHelpers.Encoding
             return hexadecimalString.ToString();
         }
 
-        public static string ToString(string hexadecimalString)
+        public static string DecodeToString(string hexadecimalString)
         {
             if (string.IsNullOrWhiteSpace(hexadecimalString))
             {
@@ -78,12 +78,12 @@ namespace CryptographyHelpers.Encoding
                 hexadecimalString = hexadecimalString[2..];
             }
 
-            var byteArray = ToByteArray(hexadecimalString);
+            var byteArray = DecodeString(hexadecimalString);
 
             return byteArray.ToUTF8String();
         }
 
-        public static byte[] ToByteArray(string hexadecimalString)
+        public static byte[] DecodeString(string hexadecimalString)
         {
             if (string.IsNullOrWhiteSpace(hexadecimalString))
             {
