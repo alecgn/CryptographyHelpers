@@ -17,6 +17,7 @@ namespace CryptographyHelpers.Hash
         private const int FileReadBufferSize = 1024 * 4;
         private const EncodingType DefaultEncodingType = EncodingType.Hexadecimal;
         private readonly HashAlgorithmType _hashAlgorithmType;
+        private readonly InternalServiceLocator _serviceLocator = InternalServiceLocator.Instance;
 
 
         public HashBase(HashAlgorithmType hashAlgorithmType) =>
@@ -80,8 +81,8 @@ namespace CryptographyHelpers.Hash
                     OutputEncodingType = outputEncodingType,
                     HashBytes = hashBytes,
                     HashString = outputEncodingType == EncodingType.Hexadecimal 
-                        ? InternalServiceLocator.Instance.GetService<IHexadecimal>().EncodeToString(hashBytes)
-                        : InternalServiceLocator.Instance.GetService<IBase64>().EncodeToString(hashBytes),
+                        ? _serviceLocator.GetService<IHexadecimal>().EncodeToString(hashBytes)
+                        : _serviceLocator.GetService<IBase64>().EncodeToString(hashBytes),
                 };
             }
             catch (Exception ex)
@@ -163,8 +164,8 @@ namespace CryptographyHelpers.Hash
                             OutputEncodingType = outputEncodingType,
                             HashBytes = hashAlgorithm.Hash,
                             HashString = outputEncodingType == EncodingType.Hexadecimal
-                                ? InternalServiceLocator.Instance.GetService<IHexadecimal>().EncodeToString(hashAlgorithm.Hash)
-                                : InternalServiceLocator.Instance.GetService<IBase64>().EncodeToString(hashAlgorithm.Hash),
+                                ? _serviceLocator.GetService<IHexadecimal>().EncodeToString(hashAlgorithm.Hash)
+                                : _serviceLocator.GetService<IBase64>().EncodeToString(hashAlgorithm.Hash),
                         };
                     }
                 }
@@ -211,8 +212,8 @@ namespace CryptographyHelpers.Hash
             try
             {
                 var verificationHashBytes = verificationHashStringEncodingType == EncodingType.Hexadecimal
-                    ? InternalServiceLocator.Instance.GetService<IHexadecimal>().DecodeString(verificationHashString)
-                    : InternalServiceLocator.Instance.GetService<IBase64>().DecodeString(verificationHashString);
+                    ? _serviceLocator.GetService<IHexadecimal>().DecodeString(verificationHashString)
+                    : _serviceLocator.GetService<IBase64>().DecodeString(verificationHashString);
 
                 //if (verificationHashStringEncodingType == EncodingType.Hexadecimal)
                 //{
@@ -308,7 +309,7 @@ namespace CryptographyHelpers.Hash
 
             if (verificationHashStringEncodingType == EncodingType.Hexadecimal)
             {
-                if (!InternalServiceLocator.Instance.GetService<IHexadecimal>().IsValidEncodedString(verificationHashString))
+                if (!_serviceLocator.GetService<IHexadecimal>().IsValidEncodedString(verificationHashString))
                 {
                     return new HashResult()
                     {
@@ -317,12 +318,12 @@ namespace CryptographyHelpers.Hash
                     };
                 }
 
-                verificationHashBytes = InternalServiceLocator.Instance.GetService<IHexadecimal>().DecodeString(verificationHashString);
+                verificationHashBytes = _serviceLocator.GetService<IHexadecimal>().DecodeString(verificationHashString);
             }
 
             if (verificationHashStringEncodingType == EncodingType.Base64)
             {
-                if (!InternalServiceLocator.Instance.GetService<IBase64>().IsValidEncodedString(verificationHashString))
+                if (!_serviceLocator.GetService<IBase64>().IsValidEncodedString(verificationHashString))
                 {
                     return new HashResult()
                     {
@@ -331,7 +332,7 @@ namespace CryptographyHelpers.Hash
                     };
                 }
 
-                verificationHashBytes = InternalServiceLocator.Instance.GetService<IBase64>().DecodeString(verificationHashString);
+                verificationHashBytes = _serviceLocator.GetService<IBase64>().DecodeString(verificationHashString);
             }
 
             return VerifyFileHash(fileToVerifyHash, verificationHashBytes, seekOptions);

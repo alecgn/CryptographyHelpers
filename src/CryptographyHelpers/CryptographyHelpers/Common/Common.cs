@@ -9,6 +9,8 @@ namespace CryptographyHelpers
 {
     public static class Common
     {
+        private static readonly InternalServiceLocator _serviceLocator = InternalServiceLocator.Instance;
+
         public static byte[] GenerateRandomBytes(int length)
         {
             var randomBytes = new byte[length];
@@ -98,7 +100,7 @@ namespace CryptographyHelpers
 
         public static string EncodeBytesToString(EncodingType encodingType, byte[] bytes) =>
             encodingType == EncodingType.Base64 
-            ? InternalServiceLocator.Instance.GetService<IBase64>().EncodeToString(bytes) 
-            : InternalServiceLocator.Instance.GetService<IHexadecimal>().EncodeToString(bytes);
+            ? _serviceLocator.GetService<IBase64>().EncodeToString(bytes) 
+            : _serviceLocator.GetService<IHexadecimal>().EncodeToString(bytes);
     }
 }

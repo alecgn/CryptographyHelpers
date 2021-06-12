@@ -13,7 +13,8 @@ namespace CryptographyHelpers.KeyDerivation
     public abstract class PBKDF2Base : IPBKDF2
     {
         private const int MinimumIterationCount = 10000;
-        private HMACAlgorithmType _pseudoRandomFunction;
+        private readonly HMACAlgorithmType _pseudoRandomFunction;
+        private readonly InternalServiceLocator _serviceLocator = InternalServiceLocator.Instance;
 
         public PBKDF2Base(HMACAlgorithmType pseudoRandomFunction)
         {
@@ -78,7 +79,7 @@ namespace CryptographyHelpers.KeyDerivation
                 {
                     Success = true,
                     Message = MessageStrings.KeyDerivation_DerivationSuccess,
-                    DerivedKeyBase64String = InternalServiceLocator.Instance.GetService<IBase64>().EncodeToString(derivedKey),
+                    DerivedKeyBase64String = _serviceLocator.GetService<IBase64>().EncodeToString(derivedKey),
                     DerivedKeyBytes = derivedKey,
                     Salt = salt,
                     PseudoRandomFunction = _pseudoRandomFunction,
