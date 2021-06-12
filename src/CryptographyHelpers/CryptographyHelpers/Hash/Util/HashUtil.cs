@@ -1,9 +1,10 @@
-﻿using CryptographyHelpers.Hash.Enums;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
-namespace CryptographyHelpers.Hash.Util
+namespace CryptographyHelpers.Hash
 {
+    [ExcludeFromCodeCoverage]
     public static class HashUtil
     {
         private const int BitsPerByte = 8;

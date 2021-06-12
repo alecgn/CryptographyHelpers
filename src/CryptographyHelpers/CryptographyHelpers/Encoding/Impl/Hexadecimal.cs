@@ -1,7 +1,6 @@
-﻿using CryptographyHelpers.Encoding.Options;
-using CryptographyHelpers.Enums;
-using CryptographyHelpers.Extensions;
+﻿using CryptographyHelpers.Extensions;
 using CryptographyHelpers.Resources;
+using CryptographyHelpers.Text;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -9,7 +8,7 @@ using System.Text.RegularExpressions;
 
 namespace CryptographyHelpers.Encoding
 {
-    public static class Hexadecimal
+    public class Hexadecimal : IHexadecimal
     {
         private const int HexadecimalChunkSize = 2;
         private const int HexadecimalBase = 16;
@@ -19,10 +18,10 @@ namespace CryptographyHelpers.Encoding
         private static Regex _regexHexadecimalString = null;
 
 
-        public static string EncodeToString(string plainString) =>
+        public string EncodeToString(string plainString) =>
             EncodeToString(plainString, new HexadecimalEncodingOptions());
 
-        public static string EncodeToString(string plainString, HexadecimalEncodingOptions hexadecimalOutputEncodingOptions)
+        public string EncodeToString(string plainString, HexadecimalEncodingOptions hexadecimalOutputEncodingOptions)
         {
             if (string.IsNullOrWhiteSpace(plainString))
             {
@@ -34,10 +33,10 @@ namespace CryptographyHelpers.Encoding
             return EncodeToString(plainStringBytes, hexadecimalOutputEncodingOptions);
         }
 
-        public static string EncodeToString(byte[] byteArray) =>
+        public string EncodeToString(byte[] byteArray) =>
             EncodeToString(byteArray, new HexadecimalEncodingOptions());
 
-        public static string EncodeToString(byte[] byteArray, HexadecimalEncodingOptions hexadecimalOutputEncodingOptions)
+        public string EncodeToString(byte[] byteArray, HexadecimalEncodingOptions hexadecimalOutputEncodingOptions)
         {
             if (byteArray is null || byteArray.Length == 0)
             {
@@ -61,14 +60,14 @@ namespace CryptographyHelpers.Encoding
             return hexadecimalString.ToString();
         }
 
-        public static string DecodeToString(string hexadecimalString)
+        public string DecodeToString(string hexadecimalString)
         {
             if (string.IsNullOrWhiteSpace(hexadecimalString))
             {
                 throw new ArgumentException(MessageStrings.Strings_InvalidInputString, nameof(hexadecimalString));
             }
 
-            if (!IsValidHexadecimalString(hexadecimalString))
+            if (!IsValidEncodedString(hexadecimalString))
             {
                 throw new ArgumentException(MessageStrings.Strings_InvalidInputHexadecimalString, nameof(hexadecimalString));
             }
@@ -83,14 +82,14 @@ namespace CryptographyHelpers.Encoding
             return byteArray.ToUTF8String();
         }
 
-        public static byte[] DecodeString(string hexadecimalString)
+        public byte[] DecodeString(string hexadecimalString)
         {
             if (string.IsNullOrWhiteSpace(hexadecimalString))
             {
                 throw new ArgumentException(MessageStrings.Strings_InvalidInputString, nameof(hexadecimalString));
             }
 
-            if (!IsValidHexadecimalString(hexadecimalString))
+            if (!IsValidEncodedString(hexadecimalString))
             {
                 throw new ArgumentException(MessageStrings.Strings_InvalidInputHexadecimalString, nameof(hexadecimalString));
             }
@@ -112,7 +111,7 @@ namespace CryptographyHelpers.Encoding
             return byteArray;
         }
 
-        public static bool IsValidHexadecimalString(string hexadecimalString)
+        public bool IsValidEncodedString(string hexadecimalString)
         {
             _regexHexadecimalString ??= new Regex(RegexStrings.HexadecimalString);
 

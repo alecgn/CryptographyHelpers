@@ -5,13 +5,13 @@ using System.Text.RegularExpressions;
 
 namespace CryptographyHelpers.Encoding
 {
-    public static class Base64
+    public class Base64 : IBase64
     {
         private const int Base64ChunkSize = 4;
         private static Regex _regexBase64String = null;
 
 
-        public static string EncodeToString(string plainString)
+        public string EncodeToString(string plainString)
         {
             if (string.IsNullOrWhiteSpace(plainString))
             {
@@ -23,7 +23,7 @@ namespace CryptographyHelpers.Encoding
             return EncodeToString(plainStringBytes);
         }
 
-        public static string EncodeToString(byte[] byteArray)
+        public string EncodeToString(byte[] byteArray)
         {
             if (byteArray is null || byteArray.Length == 0)
             {
@@ -33,14 +33,14 @@ namespace CryptographyHelpers.Encoding
             return byteArray.ToBase64String();
         }
 
-        public static string DecodeToString(string base64String)
+        public string DecodeToString(string base64String)
         {
             if (string.IsNullOrWhiteSpace(base64String))
             {
                 throw new ArgumentException(MessageStrings.Strings_InvalidInputString, nameof(base64String));
             }
 
-            if (!IsValidBase64String(base64String))
+            if (!IsValidEncodedString(base64String))
             {
                 throw new ArgumentException(MessageStrings.Strings_InvalidInputBase64String, nameof(base64String));
             }
@@ -50,14 +50,14 @@ namespace CryptographyHelpers.Encoding
             return byteArray.ToUTF8String();
         }
 
-        public static byte[] DecodeString(string base64String)
+        public byte[] DecodeString(string base64String)
         {
             if (string.IsNullOrWhiteSpace(base64String))
             {
                 throw new ArgumentException(MessageStrings.Strings_InvalidInputString, nameof(base64String));
             }
 
-            if (!IsValidBase64String(base64String))
+            if (!IsValidEncodedString(base64String))
             {
                 throw new ArgumentException(MessageStrings.Strings_InvalidInputBase64String, nameof(base64String));
             }
@@ -65,7 +65,7 @@ namespace CryptographyHelpers.Encoding
             return base64String.FromBase64StringToByteArray();
         }
 
-        public static bool IsValidBase64String(string base64String)
+        public bool IsValidEncodedString(string base64String)
         {
             _regexBase64String ??= new Regex(RegexStrings.Base64String);
 

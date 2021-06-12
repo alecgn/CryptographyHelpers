@@ -1,10 +1,9 @@
-﻿using CryptographyHelpers.Hash.Enums;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 
 namespace CryptographyHelpers.Hash
 {
     [ExcludeFromCodeCoverage]
-    public class MD5 : HashBase
+    public class MD5 : HashBase, IMD5
     {
         private const HashAlgorithmType HashAlgorithm = HashAlgorithmType.MD5;
 

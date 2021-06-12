@@ -21,19 +21,26 @@ namespace CryptographyHelpers.Extensions
         internal static string ToBase64String(this byte[] byteArray) =>
             Convert.ToBase64String(byteArray);
 
-        internal static TDest Cast<TSource, TDest>(this TSource enumSource)
-            where TSource : struct, IComparable, IFormattable, IConvertible
-            where TDest : struct, IComparable, IFormattable, IConvertible
+        internal static TTo Cast<TFrom, TTo>(this TFrom enumFrom)
+            where TFrom : struct, IComparable, IFormattable, IConvertible
+            where TTo : struct, IComparable, IFormattable, IConvertible
         {
-            if (!typeof(TSource).IsEnum)
-                throw new ArgumentException($"{typeof(TSource)} is not an enum type.", nameof(TSource));
+            if (!typeof(TFrom).IsEnum)
+                throw new ArgumentException($"{typeof(TFrom)} is not an enum type.", nameof(TFrom));
 
-            if (!typeof(TDest).IsEnum)
-                throw new ArgumentException($"{typeof(TSource)} is not an enum type.", nameof(TDest));
+            if (!typeof(TTo).IsEnum)
+                throw new ArgumentException($"{typeof(TTo)} is not an enum type.", nameof(TTo));
 
-            TDest enumDest = (TDest)Enum.Parse(typeof(TDest), enumSource.ToString());
+            try
+            {
+                TTo enumTo = (TTo)Enum.Parse(typeof(TTo), enumFrom.ToString());
 
-            return enumDest;
+                return enumTo;
+            }
+            catch
+            {
+                throw new InvalidCastException($"Invalid casting from enum {typeof(TFrom)} to enum {typeof(TTo)}.");
+            }
         }
     }
 }

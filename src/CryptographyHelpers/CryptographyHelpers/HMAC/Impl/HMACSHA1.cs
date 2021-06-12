@@ -1,10 +1,10 @@
-﻿using CryptographyHelpers.Hash.Enums;
+﻿using CryptographyHelpers.Hash;
 using System.Diagnostics.CodeAnalysis;
 
 namespace CryptographyHelpers.HMAC
 {
     [ExcludeFromCodeCoverage]
-    public class HMACSHA1 : HMACBase
+    public class HMACSHA1 : HMACBase, IHMACSHA1
     {
         private const HashAlgorithmType HashAlgorithm = HashAlgorithmType.SHA1;
 

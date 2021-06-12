@@ -1,6 +1,6 @@
-﻿using CryptographyHelpers.Hash.Results;
+﻿using CryptographyHelpers.Hash;
 
-namespace CryptographyHelpers.HMAC.Results
+namespace CryptographyHelpers.HMAC
 {
     public class HMACResult : HashResult
     {

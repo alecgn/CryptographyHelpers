@@ -1,10 +1,7 @@
 ﻿using CryptographyHelpers.Encoding;
-using CryptographyHelpers.Encoding.Enums;
 using CryptographyHelpers.EventHandlers;
 using CryptographyHelpers.Extensions;
-using CryptographyHelpers.Hash.Enums;
-using CryptographyHelpers.Hash.Results;
-using CryptographyHelpers.Options;
+using CryptographyHelpers.IoC;
 using CryptographyHelpers.Resources;
 using System;
 using System.Diagnostics.CodeAnalysis;
@@ -83,8 +80,8 @@ namespace CryptographyHelpers.Hash
                     OutputEncodingType = outputEncodingType,
                     HashBytes = hashBytes,
                     HashString = outputEncodingType == EncodingType.Hexadecimal 
-                        ? Hexadecimal.EncodeToString(hashBytes)
-                        : Base64.EncodeToString(hashBytes),
+                        ? InternalServiceLocator.Instance.GetService<IHexadecimal>().EncodeToString(hashBytes)
+                        : InternalServiceLocator.Instance.GetService<IBase64>().EncodeToString(hashBytes),
                 };
             }
             catch (Exception ex)
@@ -166,8 +163,8 @@ namespace CryptographyHelpers.Hash
                             OutputEncodingType = outputEncodingType,
                             HashBytes = hashAlgorithm.Hash,
                             HashString = outputEncodingType == EncodingType.Hexadecimal
-                                ? Hexadecimal.EncodeToString(hashAlgorithm.Hash)
-                                : Base64.EncodeToString(hashAlgorithm.Hash),
+                                ? InternalServiceLocator.Instance.GetService<IHexadecimal>().EncodeToString(hashAlgorithm.Hash)
+                                : InternalServiceLocator.Instance.GetService<IBase64>().EncodeToString(hashAlgorithm.Hash),
                         };
                     }
                 }
@@ -211,41 +208,52 @@ namespace CryptographyHelpers.Hash
                 };
             }
 
-            var verificationHashBytes = verificationHashStringEncodingType == EncodingType.Hexadecimal
-                ? Hexadecimal.DecodeString(verificationHashString)
-                : Base64.DecodeString(verificationHashString);
+            try
+            {
+                var verificationHashBytes = verificationHashStringEncodingType == EncodingType.Hexadecimal
+                    ? InternalServiceLocator.Instance.GetService<IHexadecimal>().DecodeString(verificationHashString)
+                    : InternalServiceLocator.Instance.GetService<IBase64>().DecodeString(verificationHashString);
 
-            //if (verificationHashStringEncodingType == EncodingType.Hexadecimal)
-            //{
-            //    if (!Hexadecimal.IsValidHexadecimalString(verificationHashString))
-            //    {
-            //        return new HashResult()
-            //        {
-            //            Success = false,
-            //            Message = MessageStrings.Strings_InvalidInputHexadecimalString,
-            //        };
-            //    }
+                //if (verificationHashStringEncodingType == EncodingType.Hexadecimal)
+                //{
+                //    if (!Hexadecimal.IsValidHexadecimalString(verificationHashString))
+                //    {
+                //        return new HashResult()
+                //        {
+                //            Success = false,
+                //            Message = MessageStrings.Strings_InvalidInputHexadecimalString,
+                //        };
+                //    }
 
-            //    verificationHashBytes = Hexadecimal.ToByteArray(verificationHashString);
-            //}
+                //    verificationHashBytes = Hexadecimal.ToByteArray(verificationHashString);
+                //}
 
-            //if (verificationHashStringEncodingType == EncodingType.Base64)
-            //{
-            //    if (!Base64.IsValidBase64String(verificationHashString))
-            //    {
-            //        return new HashResult()
-            //        {
-            //            Success = false,
-            //            Message = MessageStrings.Strings_InvalidInputBase64String,
-            //        };
-            //    }
+                //if (verificationHashStringEncodingType == EncodingType.Base64)
+                //{
+                //    if (!Base64.IsValidBase64String(verificationHashString))
+                //    {
+                //        return new HashResult()
+                //        {
+                //            Success = false,
+                //            Message = MessageStrings.Strings_InvalidInputBase64String,
+                //        };
+                //    }
 
-            //    verificationHashBytes = Base64.ToByteArray(verificationHashString);
-            //}
+                //    verificationHashBytes = Base64.ToByteArray(verificationHashString);
+                //}
 
-            var stringToVerifyHashBytes = stringToVerifyHash.ToUTF8Bytes();
+                var stringToVerifyHashBytes = stringToVerifyHash.ToUTF8Bytes();
 
-            return VerifyHash(stringToVerifyHashBytes, verificationHashBytes, seekOptions);
+                return VerifyHash(stringToVerifyHashBytes, verificationHashBytes, seekOptions);
+            }
+            catch (Exception ex)
+            {
+                return new HashResult()
+                {
+                    Success = false,
+                    Message = ex.ToString()
+                };
+            }
         }
 
         [ExcludeFromCodeCoverage]
@@ -300,7 +308,7 @@ namespace CryptographyHelpers.Hash
 
             if (verificationHashStringEncodingType == EncodingType.Hexadecimal)
             {
-                if (!Hexadecimal.IsValidHexadecimalString(verificationHashString))
+                if (!InternalServiceLocator.Instance.GetService<IHexadecimal>().IsValidEncodedString(verificationHashString))
                 {
                     return new HashResult()
                     {
@@ -309,12 +317,12 @@ namespace CryptographyHelpers.Hash
                     };
                 }
 
-                verificationHashBytes = Hexadecimal.DecodeString(verificationHashString);
+                verificationHashBytes = InternalServiceLocator.Instance.GetService<IHexadecimal>().DecodeString(verificationHashString);
             }
 
             if (verificationHashStringEncodingType == EncodingType.Base64)
             {
-                if (!Base64.IsValidBase64String(verificationHashString))
+                if (!InternalServiceLocator.Instance.GetService<IBase64>().IsValidEncodedString(verificationHashString))
                 {
                     return new HashResult()
                     {
@@ -323,7 +331,7 @@ namespace CryptographyHelpers.Hash
                     };
                 }
 
-                verificationHashBytes = Base64.DecodeString(verificationHashString);
+                verificationHashBytes = InternalServiceLocator.Instance.GetService<IBase64>().DecodeString(verificationHashString);
             }
 
             return VerifyFileHash(fileToVerifyHash, verificationHashBytes, seekOptions);

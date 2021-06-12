@@ -1,6 +1,7 @@
 ﻿using CryptographyHelpers.Encoding;
 using CryptographyHelpers.Extensions;
-using CryptographyHelpers.HMAC.Enums;
+using CryptographyHelpers.HMAC;
+using CryptographyHelpers.IoC;
 using CryptographyHelpers.KeyDerivation.Results;
 using CryptographyHelpers.Resources;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
@@ -50,7 +51,7 @@ namespace CryptographyHelpers.KeyDerivation
 
             if (salt is null || salt.Length == 0)
             {
-                salt = CryptographyCommon.GenerateSalt();
+                salt = Common.GenerateSalt();
             }
 
             KeyDerivationPrf pseudoRandomFunction;
@@ -77,7 +78,7 @@ namespace CryptographyHelpers.KeyDerivation
                 {
                     Success = true,
                     Message = MessageStrings.KeyDerivation_DerivationSuccess,
-                    DerivedKeyBase64String = Base64.EncodeToString(derivedKey),
+                    DerivedKeyBase64String = InternalServiceLocator.Instance.GetService<IBase64>().EncodeToString(derivedKey),
                     DerivedKeyBytes = derivedKey,
                     Salt = salt,
                     PseudoRandomFunction = _pseudoRandomFunction,

@@ -1,11 +1,8 @@
 ﻿using CryptographyHelpers.Encoding;
-using CryptographyHelpers.Encoding.Enums;
 using CryptographyHelpers.EventHandlers;
 using CryptographyHelpers.Extensions;
-using CryptographyHelpers.Hash.Enums;
-using CryptographyHelpers.Hash.Util;
-using CryptographyHelpers.HMAC.Results;
-using CryptographyHelpers.Options;
+using CryptographyHelpers.Hash;
+using CryptographyHelpers.IoC;
 using CryptographyHelpers.Resources;
 using System;
 using System.Diagnostics.CodeAnalysis;
@@ -58,8 +55,8 @@ namespace CryptographyHelpers.HMAC
                 if (!string.IsNullOrWhiteSpace(key))
                 {
                     keyBytes = keyAndOutputEncodingType == EncodingType.Hexadecimal
-                        ? Hexadecimal.DecodeString(key)
-                        : Base64.DecodeString(key);
+                        ? InternalServiceLocator.Instance.GetService<IHexadecimal>().DecodeString(key)
+                        : InternalServiceLocator.Instance.GetService<IBase64>().DecodeString(key);
                 }
 
                 return ComputeHMAC(stringToComputeHMACBytes, keyBytes, keyAndOutputEncodingType, seekOptions);
@@ -101,7 +98,7 @@ namespace CryptographyHelpers.HMAC
             {
                 if (key is null || key.Length == 0)
                 {
-                    key = CryptographyCommon.GenerateRandomBytes(HashUtil.HashAlgorithmOutputBytesSizeMapper[_hashAlgorithmType]);
+                    key = Common.GenerateRandomBytes(HashUtil.HashAlgorithmOutputBytesSizeMapper[_hashAlgorithmType]);
                 }
 
                 using var hmacAlgorithm = (System.Security.Cryptography.HMAC)CryptoConfig.CreateFromName($"HMAC{_hashAlgorithmType}");
@@ -118,8 +115,8 @@ namespace CryptographyHelpers.HMAC
                     OutputEncodingType = outputEncodingType,
                     HashBytes = hashBytes,
                     HashString = outputEncodingType == EncodingType.Hexadecimal
-                        ? Hexadecimal.EncodeToString(hashBytes)
-                        : Base64.EncodeToString(hashBytes),
+                        ? InternalServiceLocator.Instance.GetService<IHexadecimal>().EncodeToString(hashBytes)
+                        : InternalServiceLocator.Instance.GetService<IBase64>().EncodeToString(hashBytes),
                 };
             }
             catch (Exception ex)
@@ -154,8 +151,8 @@ namespace CryptographyHelpers.HMAC
                 if (!string.IsNullOrWhiteSpace(key))
                 {
                     keyBytes = keyAndOutputEncodingType == EncodingType.Hexadecimal
-                        ? Hexadecimal.DecodeString(key)
-                        : Base64.DecodeString(key);
+                        ? InternalServiceLocator.Instance.GetService<IHexadecimal>().DecodeString(key)
+                        : InternalServiceLocator.Instance.GetService<IBase64>().DecodeString(key);
                 }
 
                 return ComputeFileHMAC(filePathToComputeHMAC, keyBytes, keyAndOutputEncodingType, seekOptions);
@@ -193,7 +190,7 @@ namespace CryptographyHelpers.HMAC
             {
                 if (key == null || key.Length == 0)
                 {
-                    key = CryptographyCommon.GenerateRandomBytes(HashUtil.HashAlgorithmOutputBytesSizeMapper[_hashAlgorithmType]);
+                    key = Common.GenerateRandomBytes(HashUtil.HashAlgorithmOutputBytesSizeMapper[_hashAlgorithmType]);
                 }
 
                 byte[] hashBytes = null;
@@ -255,8 +252,8 @@ namespace CryptographyHelpers.HMAC
                     OutputEncodingType = outputEncodingType,
                     HashBytes = hashBytes,
                     HashString = outputEncodingType == EncodingType.Hexadecimal
-                        ? Hexadecimal.EncodeToString(hashBytes)
-                        : Base64.EncodeToString(hashBytes),
+                        ? InternalServiceLocator.Instance.GetService<IHexadecimal>().EncodeToString(hashBytes)
+                        : InternalServiceLocator.Instance.GetService<IBase64>().EncodeToString(hashBytes),
                 };
             }
             catch (Exception ex)
@@ -311,11 +308,11 @@ namespace CryptographyHelpers.HMAC
             {
                 var stringToVerifyHMACBytes = stringToVerifyHMAC.ToUTF8Bytes();
                 var keyBytes = keyAndVerificationHMACStringEncodingType == EncodingType.Hexadecimal
-                    ? Hexadecimal.DecodeString(key)
-                    : Base64.DecodeString(key);
+                    ? InternalServiceLocator.Instance.GetService<IHexadecimal>().DecodeString(key)
+                    : InternalServiceLocator.Instance.GetService<IBase64>().DecodeString(key);
                 var verificationHMACBytes = keyAndVerificationHMACStringEncodingType == EncodingType.Hexadecimal
-                    ? Hexadecimal.DecodeString(verificationHMACString)
-                    : Base64.DecodeString(verificationHMACString);
+                    ? InternalServiceLocator.Instance.GetService<IHexadecimal>().DecodeString(verificationHMACString)
+                    : InternalServiceLocator.Instance.GetService<IBase64>().DecodeString(verificationHMACString);
 
                 return VerifyHMAC(stringToVerifyHMACBytes, keyBytes, verificationHMACBytes, seekOptions);
             }
@@ -354,11 +351,11 @@ namespace CryptographyHelpers.HMAC
             try
             {
                 var keyBytes = keyAndVerificationHMACStringEncodingType == EncodingType.Hexadecimal
-                    ? Hexadecimal.DecodeString(key)
-                    : Base64.DecodeString(key);
+                    ? InternalServiceLocator.Instance.GetService<IHexadecimal>().DecodeString(key)
+                    : InternalServiceLocator.Instance.GetService<IBase64>().DecodeString(key);
                 var verificationHMACBytes = keyAndVerificationHMACStringEncodingType == EncodingType.Hexadecimal
-                    ? Hexadecimal.DecodeString(verificationHMACString)
-                    : Base64.DecodeString(verificationHMACString);
+                    ? InternalServiceLocator.Instance.GetService<IHexadecimal>().DecodeString(verificationHMACString)
+                    : InternalServiceLocator.Instance.GetService<IBase64>().DecodeString(verificationHMACString);
 
                 return VerifyFileHMAC(filePathToVerifyHMAC, keyBytes, verificationHMACBytes, seekOptions);
             }

@@ -1,8 +1,7 @@
-﻿using CryptographyHelpers.Encoding.Enums;
-using CryptographyHelpers.Hash.Enums;
+﻿using CryptographyHelpers.Encoding;
 using System.Diagnostics.CodeAnalysis;
 
-namespace CryptographyHelpers.Hash.Results
+namespace CryptographyHelpers.Hash
 {
     [ExcludeFromCodeCoverage]
     public class HashResult

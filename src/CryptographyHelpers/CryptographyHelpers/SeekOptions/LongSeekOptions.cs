@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-namespace CryptographyHelpers.Options
+namespace CryptographyHelpers
 {
     [ExcludeFromCodeCoverage]
     public class LongSeekOptions

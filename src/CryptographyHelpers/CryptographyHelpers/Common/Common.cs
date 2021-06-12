@@ -1,5 +1,5 @@
 ﻿using CryptographyHelpers.Encoding;
-using CryptographyHelpers.Encoding.Enums;
+using CryptographyHelpers.IoC;
 using CryptographyHelpers.Resources;
 using System;
 using System.IO;
@@ -7,7 +7,7 @@ using System.Security.Cryptography;
 
 namespace CryptographyHelpers
 {
-    public static class CryptographyCommon
+    public static class Common
     {
         public static byte[] GenerateRandomBytes(int length)
         {
@@ -97,6 +97,8 @@ namespace CryptographyHelpers
         }
 
         public static string EncodeBytesToString(EncodingType encodingType, byte[] bytes) =>
-            encodingType == EncodingType.Base64 ? Base64.EncodeToString(bytes) : Hexadecimal.EncodeToString(bytes);
+            encodingType == EncodingType.Base64 
+            ? InternalServiceLocator.Instance.GetService<IBase64>().EncodeToString(bytes) 
+            : InternalServiceLocator.Instance.GetService<IHexadecimal>().EncodeToString(bytes);
     }
 }

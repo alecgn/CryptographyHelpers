@@ -1,10 +1,9 @@
-﻿using CryptographyHelpers.Hash.Enums;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 
 namespace CryptographyHelpers.Hash
 {
     [ExcludeFromCodeCoverage]
-    public class SHA256 : HashBase
+    public class SHA256 : HashBase, ISHA256
     {
         private const HashAlgorithmType HashAlgorithm = HashAlgorithmType.SHA256;
 
