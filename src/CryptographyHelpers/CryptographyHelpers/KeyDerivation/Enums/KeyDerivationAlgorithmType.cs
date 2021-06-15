@@ -1,4 +1,4 @@
-﻿namespace CryptographyHelpers.KeyDerivation.Enums
+﻿namespace CryptographyHelpers.KeyDerivation
 {
     public enum KeyDerivationAlgorithmType { PBKDF2, }
 }

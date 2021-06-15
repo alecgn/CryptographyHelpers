@@ -1,6 +1,7 @@
 ﻿using CryptographyHelpers.Encoding;
 using CryptographyHelpers.Hash;
 using CryptographyHelpers.HMAC;
+using CryptographyHelpers.KeyDerivation;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -8,15 +9,15 @@ using System.Reflection;
 
 namespace CryptographyHelpers.IoC
 {
-    internal sealed class InternalServiceLocator
+    internal sealed class ServiceLocator
     {
-        internal static InternalServiceLocator Instance { get { return _lazyInstance.Value; } }
+        internal static ServiceLocator Instance { get { return _lazyInstance.Value; } }
         
-        private static readonly Lazy<InternalServiceLocator> _lazyInstance = new(() => new InternalServiceLocator());
+        private static readonly Lazy<ServiceLocator> _lazyInstance = new(() => new ServiceLocator());
         private IDictionary<Type, Type> _servicesType;
         private IDictionary<Type, object> _instantiatedServices;
 
-        private InternalServiceLocator()
+        private ServiceLocator()
         {
             this._servicesType = new ConcurrentDictionary<Type, Type>();
             this._instantiatedServices = new ConcurrentDictionary<Type, object>();
@@ -67,6 +68,9 @@ namespace CryptographyHelpers.IoC
             _servicesType.Add(typeof(IHMACSHA256), typeof(HMACSHA256));
             _servicesType.Add(typeof(IHMACSHA384), typeof(HMACSHA384));
             _servicesType.Add(typeof(IHMACSHA512), typeof(HMACSHA512));
+            _servicesType.Add(typeof(IPBKDF2HMACSHA1), typeof(PBKDF2HMACSHA1));
+            _servicesType.Add(typeof(IPBKDF2HMACSHA256), typeof(PBKDF2HMACSHA256));
+            _servicesType.Add(typeof(IPBKDF2HMACSHA512), typeof(PBKDF2HMACSHA512));
         }
     }
 }

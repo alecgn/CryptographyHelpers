@@ -9,7 +9,8 @@ namespace CryptographyHelpers
 {
     public static class Common
     {
-        private static readonly InternalServiceLocator _serviceLocator = InternalServiceLocator.Instance;
+        private const int BitsPerByte = 8;
+        private static readonly ServiceLocator _serviceLocator = ServiceLocator.Instance;
 
         public static byte[] GenerateRandomBytes(int length)
         {
@@ -24,13 +25,13 @@ namespace CryptographyHelpers
         }
 
         public static byte[] Generate128BitKey() =>
-            GenerateRandomBytes(128 / 8);
+            GenerateRandomBytes(128 / BitsPerByte);
 
         public static byte[] GenerateSalt(int saltLength = 0) =>
         saltLength == 0 ? Generate128BitKey() : GenerateRandomBytes(saltLength);
 
         public static byte[] Generate256BitKey() =>
-            GenerateRandomBytes(256 / 8);
+            GenerateRandomBytes(256 / BitsPerByte);
 
         public static void ClearFileAttributes(string filePath)
         {

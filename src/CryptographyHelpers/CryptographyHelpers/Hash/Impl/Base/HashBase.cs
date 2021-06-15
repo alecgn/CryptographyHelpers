@@ -17,7 +17,7 @@ namespace CryptographyHelpers.Hash
         private const int FileReadBufferSize = 1024 * 4;
         private const EncodingType DefaultEncodingType = EncodingType.Hexadecimal;
         private readonly HashAlgorithmType _hashAlgorithmType;
-        private readonly InternalServiceLocator _serviceLocator = InternalServiceLocator.Instance;
+        private readonly ServiceLocator _serviceLocator = ServiceLocator.Instance;
 
 
         public HashBase(HashAlgorithmType hashAlgorithmType) =>

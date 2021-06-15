@@ -1,7 +1,6 @@
-﻿using CryptographyHelpers.HMAC;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 
-namespace CryptographyHelpers.KeyDerivation.Results
+namespace CryptographyHelpers.KeyDerivation
 {
     [ExcludeFromCodeCoverage]
     public class PBKDF2KeyDerivationResult
@@ -11,7 +10,7 @@ namespace CryptographyHelpers.KeyDerivation.Results
         public string DerivedKeyBase64String { get; set; }
         public byte[] DerivedKeyBytes { get; set; }
         public byte[] Salt { get; set; }
-        public HMACAlgorithmType PseudoRandomFunction { get; set; }
+        public PseudoRandomFunction PseudoRandomFunction { get; set; }
         public int IterationCount { get; set; }
     }
 }

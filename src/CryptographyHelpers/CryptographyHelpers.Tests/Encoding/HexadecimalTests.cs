@@ -26,7 +26,7 @@ namespace CryptographyHelpers.Tests.Encoding
 
         public HexadecimalTests()
         {
-            _hexadecimal = InternalServiceLocator.Instance.GetService<IHexadecimal>();
+            _hexadecimal = ServiceLocator.Instance.GetService<IHexadecimal>();
         }
 
         [TestMethod]

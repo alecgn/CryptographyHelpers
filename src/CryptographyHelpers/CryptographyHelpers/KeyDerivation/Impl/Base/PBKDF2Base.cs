@@ -1,27 +1,33 @@
 ﻿using CryptographyHelpers.Encoding;
 using CryptographyHelpers.Extensions;
-using CryptographyHelpers.HMAC;
 using CryptographyHelpers.IoC;
-using CryptographyHelpers.KeyDerivation.Results;
 using CryptographyHelpers.Resources;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
 
 namespace CryptographyHelpers.KeyDerivation
 {
     public abstract class PBKDF2Base : IPBKDF2
     {
-        private const int MinimumIterationCount = 10000;
-        private readonly HMACAlgorithmType _pseudoRandomFunction;
-        private readonly InternalServiceLocator _serviceLocator = InternalServiceLocator.Instance;
+        private readonly PseudoRandomFunction _pseudoRandomFunction;
+        private readonly int _iterationCount;
+        private readonly ServiceLocator _serviceLocator = ServiceLocator.Instance;
 
-        public PBKDF2Base(HMACAlgorithmType pseudoRandomFunction)
+        public PBKDF2Base(PseudoRandomFunction pseudoRandomFunction, int iterationCount)
         {
             _pseudoRandomFunction = pseudoRandomFunction;
+            _iterationCount = iterationCount;
         }
 
-        public PBKDF2KeyDerivationResult DeriveKey(string password, int bytesRequested, byte[] salt = null, int iterationCount = MinimumIterationCount)
+
+        [ExcludeFromCodeCoverage]
+        public PBKDF2KeyDerivationResult DeriveKey(string password, int bytesRequested) =>
+            DeriveKey(password, bytesRequested, salt: null);
+
+
+        public PBKDF2KeyDerivationResult DeriveKey(string password, int bytesRequested, byte[] salt)
         {
             if (string.IsNullOrWhiteSpace(password))
             {
@@ -41,15 +47,6 @@ namespace CryptographyHelpers.KeyDerivation
                 };
             }
 
-            if (iterationCount < MinimumIterationCount)
-            {
-                return new PBKDF2KeyDerivationResult()
-                {
-                    Success = false,
-                    Message = string.Format(MessageStrings.KeyDerivation_IterationCountInvalid, MinimumIterationCount),
-                };
-            }
-
             if (salt is null || salt.Length == 0)
             {
                 salt = Common.GenerateSalt();
@@ -59,11 +56,11 @@ namespace CryptographyHelpers.KeyDerivation
 
             try
             {
-                pseudoRandomFunction = _pseudoRandomFunction.Cast<HMACAlgorithmType, KeyDerivationPrf>();
+                pseudoRandomFunction = _pseudoRandomFunction.Cast<PseudoRandomFunction, KeyDerivationPrf>();
             }
             catch
             {
-                throw new CryptographicException($"{nameof(HMACAlgorithmType)}.{_pseudoRandomFunction} not supported.");
+                throw new CryptographicException($"{nameof(PseudoRandomFunction)}.{_pseudoRandomFunction} not supported.");
             }
 
             try
@@ -72,7 +69,7 @@ namespace CryptographyHelpers.KeyDerivation
                     password,
                     salt,
                     pseudoRandomFunction,
-                    iterationCount,
+                    _iterationCount,
                     bytesRequested);
 
                 return new PBKDF2KeyDerivationResult()
@@ -83,7 +80,7 @@ namespace CryptographyHelpers.KeyDerivation
                     DerivedKeyBytes = derivedKey,
                     Salt = salt,
                     PseudoRandomFunction = _pseudoRandomFunction,
-                    IterationCount = iterationCount,
+                    IterationCount = _iterationCount,
                 };
             }
             catch (Exception ex)
