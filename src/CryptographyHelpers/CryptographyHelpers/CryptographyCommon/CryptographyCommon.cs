@@ -1,4 +1,5 @@
 ﻿using CryptographyHelpers.Encoding;
+using CryptographyHelpers.Encryption.Symmetric.AES;
 using CryptographyHelpers.IoC;
 using CryptographyHelpers.Resources;
 using System;
@@ -7,31 +8,29 @@ using System.Security.Cryptography;
 
 namespace CryptographyHelpers
 {
-    public static class Common
+    public static class CryptographyCommon
     {
-        private const int BitsPerByte = 8;
         private static readonly ServiceLocator _serviceLocator = ServiceLocator.Instance;
 
         public static byte[] GenerateRandomBytes(int length)
         {
             var randomBytes = new byte[length];
-
-            using (RNGCryptoServiceProvider RNGCryptoServiceProvider = new())
-            {
-                RNGCryptoServiceProvider.GetBytes(randomBytes);
-            }
+            RandomNumberGenerator.Fill(randomBytes);
 
             return randomBytes;
         }
 
-        public static byte[] Generate128BitKey() =>
-            GenerateRandomBytes(128 / BitsPerByte);
+        public static byte[] GenerateRandom128BitsKey() =>
+            GenerateRandomBytes(128 / Constants.BitsPerByte);
+
+        public static byte[] GenerateRandom192BitsKey() =>
+            GenerateRandomBytes(192 / Constants.BitsPerByte);
+
+        public static byte[] GenerateRandom256BitsKey() =>
+            GenerateRandomBytes(256 / Constants.BitsPerByte);
 
         public static byte[] GenerateSalt(int saltLength = 0) =>
-        saltLength == 0 ? Generate128BitKey() : GenerateRandomBytes(saltLength);
-
-        public static byte[] Generate256BitKey() =>
-            GenerateRandomBytes(256 / BitsPerByte);
+        saltLength == 0 ? GenerateRandom128BitsKey() : GenerateRandomBytes(saltLength);
 
         public static void ClearFileAttributes(string filePath)
         {
@@ -100,8 +99,16 @@ namespace CryptographyHelpers
         }
 
         public static string EncodeBytesToString(EncodingType encodingType, byte[] bytes) =>
-            encodingType == EncodingType.Base64 
-            ? _serviceLocator.GetService<IBase64>().EncodeToString(bytes) 
+            encodingType == EncodingType.Base64
+            ? _serviceLocator.GetService<IBase64>().EncodeToString(bytes)
             : _serviceLocator.GetService<IHexadecimal>().EncodeToString(bytes);
+
+        public static void ValidateAESKey(AESKeySizes expectedAesKeySize, byte[] key)
+        {
+            if (key is null || key.Length != (int)expectedAesKeySize / Constants.BitsPerByte)
+            {
+                throw new ArgumentException($"{MessageStrings.Cryptography_InvalidKey}", nameof(key));
+            }
+        }
     }
 }

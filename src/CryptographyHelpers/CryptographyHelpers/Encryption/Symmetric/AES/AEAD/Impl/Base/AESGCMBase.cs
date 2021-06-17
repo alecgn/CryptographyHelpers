@@ -1,66 +1,57 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using CryptographyHelpers.Resources;
+using System;
 using System.Security.Cryptography;
 
 namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
 {
-    public class AESGGMBase
+    public abstract class AESGGMBase
     {
-        private const int NonceLength = 12;
-        private const int TagLength = 16;
         private readonly byte[] _key;
 
-        public AESGGMBase(byte[] key) => 
+
+        public AESGGMBase(byte[] key) =>
             _key = key;
 
-        public AESGCMEncryptionResult Encrypt(byte[] data, byte[] nonce = null, byte[] associatedData = null)
+        public AESGGMBase(AESKeySizes keySizeToGenerateRandomKey) =>
+            _key = keySizeToGenerateRandomKey switch
+            {
+                AESKeySizes.KeySize128Bits => CryptographyCommon.GenerateRandom128BitsKey(),
+                AESKeySizes.KeySize192Bits => CryptographyCommon.GenerateRandom192BitsKey(),
+                AESKeySizes.KeySize256Bits => CryptographyCommon.GenerateRandom256BitsKey(),
+                _ => throw new ArgumentException($"Invalid enum value for {nameof(keySizeToGenerateRandomKey)} parameter of type {typeof(AESKeySizes)}.", nameof(keySizeToGenerateRandomKey)),
+            };
+
+
+        public AESGCMEncryptionResult Encrypt(byte[] data, byte[] associatedData = null)
         {
-            if (data == null || data.Length == 0)
+            if (data is null || data.Length == 0)
             {
                 return new()
                 {
                     Success = false,
-                    Message = "MessageStrings.Encryption_InputRequired",
+                    Message = MessageStrings.Encryption_InputBytesRequired,
                 };
             }
 
-            if (nonce == null || nonce.Length == 0)
-            {
-                nonce = Common.GenerateRandomBytes(NonceLength);
-            }
-            else
-            {
-                if (!IsValidNonceSize(nonce.Length))
-                {
-                    return new()
-                    {
-                        Success = false,
-                        Message = "MessageStrings.Encryption_InputRequired",
-                    };
-                }
-            }
-
+            // Avoid nonce reuse (catastrophic security breach), randomly generate a new one in every method call
+            var nonce = CryptographyCommon.GenerateRandomBytes(AesGcm.NonceByteSizes.MaxSize);
             var encryptedData = new byte[data.Length];
-            var tag = new byte[TagLength];
+            var tag = new byte[AesGcm.TagByteSizes.MaxSize];
 
             try
             {
-                using (var aesGcm = new AesGcm(_key))
-                {
-                    aesGcm.Encrypt(nonce, data, encryptedData, tag, associatedData);
-                    var teste = AesGcm.NonceByteSizes;
-                    var teste2 = AesGcm.TagByteSizes;
-
-                }
+                using AesGcm aesGcm = new(_key);
+                aesGcm.Encrypt(nonce, data, encryptedData, tag, associatedData);
 
                 return new()
                 {
                     Success = true,
-                    Message = "MessageStrings.Encryption_EncryptSuccess",
+                    Message = MessageStrings.Encryption_Success,
                     EncryptedData = encryptedData,
                     Key = _key,
                     Nonce = nonce,
                     Tag = tag,
+                    AssociatedData = associatedData,
                 };
             }
             catch (Exception ex)
@@ -80,25 +71,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
                 return new()
                 {
                     Success = false,
-                    Message = "MessageStrings.Decryption_InputRequired",
-                };
-            }
-
-            if (nonce == null || nonce.Length == 0)
-            {
-                return new()
-                {
-                    Success = false,
-                    Message = "MessageStrings.Decryption_InputRequired",
-                };
-            }
-
-            if (tag == null || tag.Length == 0)
-            {
-                return new()
-                {
-                    Success = false,
-                    Message = "MessageStrings.Decryption_InputRequired",
+                    Message = MessageStrings.Decryption_InputBytesRequired,
                 };
             }
 
@@ -106,19 +79,18 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
 
             try
             {
-                using (AesGcm aesGcm = new(_key))
-                {
-                    aesGcm.Decrypt(nonce, encryptedData, tag, decryptedData, associatedData);
-                }
+                using AesGcm aesGcm = new(_key);
+                aesGcm.Decrypt(nonce, encryptedData, tag, decryptedData, associatedData);
 
                 return new()
                 {
                     Success = true,
-                    Message = "MessageStrings.Encryption_EncryptSuccess",
+                    Message = MessageStrings.Decryption_Success,
                     DecryptedData = decryptedData,
                     Key = _key,
                     Nonce = nonce,
                     Tag = tag,
+                    AssociatedData = associatedData,
                 };
 
             }
@@ -130,18 +102,6 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
                     Message = ex.ToString(),
                 };
             }
-        }
-
-        private bool IsValidNonceSize(int nonceSize)
-        {
-            List<int> allowedNonceSizes = new();
-
-            for (var tmpNonceSize = AesGcm.NonceByteSizes.MinSize; tmpNonceSize < AesGcm.NonceByteSizes.MaxSize; tmpNonceSize += AesGcm.NonceByteSizes.SkipSize)
-            {
-                allowedNonceSizes.Add(tmpNonceSize);
-            }
-
-            return allowedNonceSizes.Contains(nonceSize);
         }
     }
 }

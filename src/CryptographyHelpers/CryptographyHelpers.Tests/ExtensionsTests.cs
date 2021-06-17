@@ -1,7 +1,7 @@
 ﻿using CryptographyHelpers.Extensions;
 using CryptographyHelpers.KeyDerivation;
 using FluentAssertions;
-using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using Microsoft.AspNet.Cryptography.KeyDerivation;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 

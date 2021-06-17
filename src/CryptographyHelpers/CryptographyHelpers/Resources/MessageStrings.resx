@@ -123,6 +123,27 @@
   <data name="ByteArray.InvalidInputByteArray" xml:space="preserve">
     <value>Input byte array cannot be null or empty.</value>
   </data>
+  <data name="Cryptography.InvalidKey" xml:space="preserve">
+    <value>Invalid key (null or wrong size).</value>
+  </data>
+  <data name="Decryption.InputBytesRequired" xml:space="preserve">
+    <value>Input bytes to decrypt required.</value>
+  </data>
+  <data name="Decryption.NonceBytesRequired" xml:space="preserve">
+    <value>Nonce bytes required.</value>
+  </data>
+  <data name="Decryption.Success" xml:space="preserve">
+    <value>Data succesfully decrypted.</value>
+  </data>
+  <data name="Decryption.TagBytesRequired" xml:space="preserve">
+    <value>Tag bytes required.</value>
+  </data>
+  <data name="Encryption.InputBytesRequired" xml:space="preserve">
+    <value>Input bytes to encrypt required.</value>
+  </data>
+  <data name="Encryption.Success" xml:space="preserve">
+    <value>Data succesfully encrypted.</value>
+  </data>
   <data name="File.PathNotFound" xml:space="preserve">
     <value>File not found:</value>
   </data>

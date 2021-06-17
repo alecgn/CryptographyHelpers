@@ -51,7 +51,7 @@ namespace CryptographyHelpers.KeyDerivation
 
             if (salt is null || salt.Length == 0)
             {
-                salt = Common.GenerateSalt();
+                salt = CryptographyCommon.GenerateSalt();
             }
 
             try

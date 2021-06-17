@@ -79,6 +79,69 @@ namespace CryptographyHelpers.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid key (null or wrong size)..
+        /// </summary>
+        internal static string Cryptography_InvalidKey {
+            get {
+                return ResourceManager.GetString("Cryptography.InvalidKey", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Input bytes to decrypt required..
+        /// </summary>
+        internal static string Decryption_InputBytesRequired {
+            get {
+                return ResourceManager.GetString("Decryption.InputBytesRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nonce bytes required..
+        /// </summary>
+        internal static string Decryption_NonceBytesRequired {
+            get {
+                return ResourceManager.GetString("Decryption.NonceBytesRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Data succesfully decrypted..
+        /// </summary>
+        internal static string Decryption_Success {
+            get {
+                return ResourceManager.GetString("Decryption.Success", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tag bytes required..
+        /// </summary>
+        internal static string Decryption_TagBytesRequired {
+            get {
+                return ResourceManager.GetString("Decryption.TagBytesRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Input bytes to encrypt required..
+        /// </summary>
+        internal static string Encryption_InputBytesRequired {
+            get {
+                return ResourceManager.GetString("Encryption.InputBytesRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Data succesfully encrypted..
+        /// </summary>
+        internal static string Encryption_Success {
+            get {
+                return ResourceManager.GetString("Encryption.Success", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to File not found:.
         /// </summary>
         internal static string File_PathNotFound {

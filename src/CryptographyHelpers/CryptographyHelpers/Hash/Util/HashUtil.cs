@@ -7,8 +7,6 @@ namespace CryptographyHelpers.Hash
     [ExcludeFromCodeCoverage]
     public static class HashUtil
     {
-        private const int BitsPerByte = 8;
-
         public static readonly IDictionary<HashAlgorithmType, int> HashAlgorithmOutputBitsSizeMapper = new ConcurrentDictionary<HashAlgorithmType, int>()
         {
             [HashAlgorithmType.MD5] = 128,
@@ -20,11 +18,11 @@ namespace CryptographyHelpers.Hash
 
         public static readonly IDictionary<HashAlgorithmType, int> HashAlgorithmOutputBytesSizeMapper = new ConcurrentDictionary<HashAlgorithmType, int>()
         {
-            [HashAlgorithmType.MD5] = HashAlgorithmOutputBitsSizeMapper[HashAlgorithmType.MD5] / BitsPerByte,
-            [HashAlgorithmType.SHA1] = HashAlgorithmOutputBitsSizeMapper[HashAlgorithmType.SHA1] / BitsPerByte,
-            [HashAlgorithmType.SHA256] = HashAlgorithmOutputBitsSizeMapper[HashAlgorithmType.SHA256] / BitsPerByte,
-            [HashAlgorithmType.SHA384] = HashAlgorithmOutputBitsSizeMapper[HashAlgorithmType.SHA384] / BitsPerByte,
-            [HashAlgorithmType.SHA512] = HashAlgorithmOutputBitsSizeMapper[HashAlgorithmType.SHA512] / BitsPerByte,
+            [HashAlgorithmType.MD5] = HashAlgorithmOutputBitsSizeMapper[HashAlgorithmType.MD5] / Constants.BitsPerByte,
+            [HashAlgorithmType.SHA1] = HashAlgorithmOutputBitsSizeMapper[HashAlgorithmType.SHA1] / Constants.BitsPerByte,
+            [HashAlgorithmType.SHA256] = HashAlgorithmOutputBitsSizeMapper[HashAlgorithmType.SHA256] / Constants.BitsPerByte,
+            [HashAlgorithmType.SHA384] = HashAlgorithmOutputBitsSizeMapper[HashAlgorithmType.SHA384] / Constants.BitsPerByte,
+            [HashAlgorithmType.SHA512] = HashAlgorithmOutputBitsSizeMapper[HashAlgorithmType.SHA512] / Constants.BitsPerByte,
         };
     }
 }
