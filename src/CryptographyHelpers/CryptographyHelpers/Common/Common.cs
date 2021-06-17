@@ -16,9 +16,9 @@ namespace CryptographyHelpers
         {
             var randomBytes = new byte[length];
 
-            using (var rngCSP = new RNGCryptoServiceProvider())
+            using (RNGCryptoServiceProvider RNGCryptoServiceProvider = new())
             {
-                rngCSP.GetBytes(randomBytes);
+                RNGCryptoServiceProvider.GetBytes(randomBytes);
             }
 
             return randomBytes;

@@ -8,7 +8,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
     {
         public bool Success { get; set; }
         public string Message { get; set; }
-        public byte[] EncryptedDataBytes { get; set; }
+        public byte[] EncryptedData { get; set; }
         public EncodingType EncryptedDataStringEncodingType { get; set; }
         public string EncryptedDataString { get; set; }
         public byte[] Key { get; set; }

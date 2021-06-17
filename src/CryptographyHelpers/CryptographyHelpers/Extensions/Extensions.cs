@@ -3,22 +3,22 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace CryptographyHelpers.Extensions
 {
-    internal static class Extensions
+    public static class Extensions
     {
         [ExcludeFromCodeCoverage]
-        internal static byte[] ToUTF8Bytes(this string @string) =>
+        public static byte[] ToUTF8Bytes(this string @string) =>
             System.Text.Encoding.UTF8.GetBytes(@string);
 
         [ExcludeFromCodeCoverage]
-        internal static string ToUTF8String(this byte[] byteArray) =>
+        public static string ToUTF8String(this byte[] byteArray) =>
             System.Text.Encoding.UTF8.GetString(byteArray);
 
         [ExcludeFromCodeCoverage]
-        internal static byte[] FromBase64StringToByteArray(this string base64String) =>
+        public static byte[] FromBase64StringToByteArray(this string base64String) =>
             Convert.FromBase64String(base64String);
 
         [ExcludeFromCodeCoverage]
-        internal static string ToBase64String(this byte[] byteArray) =>
+        public static string ToBase64String(this byte[] byteArray) =>
             Convert.ToBase64String(byteArray);
 
         internal static TTo Cast<TFrom, TTo>(this TFrom enumFrom)

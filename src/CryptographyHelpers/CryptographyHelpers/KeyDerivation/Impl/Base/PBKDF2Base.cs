@@ -1,33 +1,35 @@
 ﻿using CryptographyHelpers.Encoding;
-using CryptographyHelpers.Extensions;
 using CryptographyHelpers.IoC;
 using CryptographyHelpers.Resources;
-using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using Microsoft.AspNet.Cryptography.KeyDerivation;
 using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Security.Cryptography;
 
 namespace CryptographyHelpers.KeyDerivation
 {
     public abstract class PBKDF2Base : IPBKDF2
     {
-        private readonly PseudoRandomFunction _pseudoRandomFunction;
-        private readonly int _iterationCount;
+        private const EncodingType DefaultEncodingType = EncodingType.Base64;
+        private readonly KeyDerivationPrf _pseudoRandomFunction;
+        private readonly int _iterations;
         private readonly ServiceLocator _serviceLocator = ServiceLocator.Instance;
 
-        public PBKDF2Base(PseudoRandomFunction pseudoRandomFunction, int iterationCount)
+        public PBKDF2Base(KeyDerivationPrf pseudoRandomFunction, int iterations)
         {
             _pseudoRandomFunction = pseudoRandomFunction;
-            _iterationCount = iterationCount;
+            _iterations = iterations;
         }
 
 
         [ExcludeFromCodeCoverage]
         public PBKDF2KeyDerivationResult DeriveKey(string password, int bytesRequested) =>
-            DeriveKey(password, bytesRequested, salt: null);
+            DeriveKey(password, bytesRequested, salt: null, outputEncodingType: DefaultEncodingType);
 
+        [ExcludeFromCodeCoverage]
+        public PBKDF2KeyDerivationResult DeriveKey(string password, int bytesRequested, byte[] salt) =>
+            DeriveKey(password, bytesRequested, salt, outputEncodingType: DefaultEncodingType);
 
-        public PBKDF2KeyDerivationResult DeriveKey(string password, int bytesRequested, byte[] salt)
+        public PBKDF2KeyDerivationResult DeriveKey(string password, int bytesRequested, byte[] salt, EncodingType outputEncodingType)
         {
             if (string.IsNullOrWhiteSpace(password))
             {
@@ -52,35 +54,27 @@ namespace CryptographyHelpers.KeyDerivation
                 salt = Common.GenerateSalt();
             }
 
-            KeyDerivationPrf pseudoRandomFunction;
-
             try
             {
-                pseudoRandomFunction = _pseudoRandomFunction.Cast<PseudoRandomFunction, KeyDerivationPrf>();
-            }
-            catch
-            {
-                throw new CryptographicException($"{nameof(PseudoRandomFunction)}.{_pseudoRandomFunction} not supported.");
-            }
-
-            try
-            {
-                var derivedKey = Microsoft.AspNetCore.Cryptography.KeyDerivation.KeyDerivation.Pbkdf2(
+                var derivedKey = Microsoft.AspNet.Cryptography.KeyDerivation.KeyDerivation.Pbkdf2(
                     password,
                     salt,
-                    pseudoRandomFunction,
-                    _iterationCount,
+                    _pseudoRandomFunction,
+                    _iterations,
                     bytesRequested);
 
                 return new PBKDF2KeyDerivationResult()
                 {
                     Success = true,
                     Message = MessageStrings.KeyDerivation_DerivationSuccess,
-                    DerivedKeyBase64String = _serviceLocator.GetService<IBase64>().EncodeToString(derivedKey),
+                    OutputEncodingType = outputEncodingType,
+                    DerivedKeyString = outputEncodingType == EncodingType.Base64
+                        ? _serviceLocator.GetService<IBase64>().EncodeToString(derivedKey)
+                        : _serviceLocator.GetService<IHexadecimal>().EncodeToString(derivedKey),
                     DerivedKeyBytes = derivedKey,
                     Salt = salt,
                     PseudoRandomFunction = _pseudoRandomFunction,
-                    IterationCount = _iterationCount,
+                    Iterations = _iterations,
                 };
             }
             catch (Exception ex)
