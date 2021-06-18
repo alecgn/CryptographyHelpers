@@ -27,17 +27,17 @@ namespace CryptographyHelpers.HMAC
 
         [ExcludeFromCodeCoverage]
         public HMACResult ComputeHMAC(string stringToComputeHMAC) =>
-            ComputeHMAC(stringToComputeHMAC, key: null, keyAndOutputEncodingType: DefaultEncodingType, new SeekOptions());
+            ComputeHMAC(stringToComputeHMAC, key: null, keyAndOutputEncodingType: DefaultEncodingType, new RangeOptions());
 
         [ExcludeFromCodeCoverage]
         public HMACResult ComputeHMAC(string stringToComputeHMAC, string key) =>
-            ComputeHMAC(stringToComputeHMAC, key, keyAndOutputEncodingType: DefaultEncodingType, new SeekOptions());
+            ComputeHMAC(stringToComputeHMAC, key, keyAndOutputEncodingType: DefaultEncodingType, new RangeOptions());
 
         [ExcludeFromCodeCoverage]
         public HMACResult ComputeHMAC(string stringToComputeHMAC, string key, EncodingType keyAndOutputEncodingType) =>
-            ComputeHMAC(stringToComputeHMAC, key, keyAndOutputEncodingType, new SeekOptions());
+            ComputeHMAC(stringToComputeHMAC, key, keyAndOutputEncodingType, new RangeOptions());
 
-        public HMACResult ComputeHMAC(string stringToComputeHMAC, string key, EncodingType keyAndOutputEncodingType, SeekOptions seekOptions)
+        public HMACResult ComputeHMAC(string stringToComputeHMAC, string key, EncodingType keyAndOutputEncodingType, RangeOptions rangeOptions)
         {
             if (string.IsNullOrWhiteSpace(stringToComputeHMAC))
             {
@@ -60,7 +60,7 @@ namespace CryptographyHelpers.HMAC
                         : _serviceLocator.GetService<IBase64>().DecodeString(key);
                 }
 
-                return ComputeHMAC(stringToComputeHMACBytes, keyBytes, keyAndOutputEncodingType, seekOptions);
+                return ComputeHMAC(stringToComputeHMACBytes, keyBytes, keyAndOutputEncodingType, rangeOptions);
             }
             catch (Exception ex)
             {
@@ -74,17 +74,17 @@ namespace CryptographyHelpers.HMAC
 
         [ExcludeFromCodeCoverage]
         public HMACResult ComputeHMAC(byte[] bytesToComputeHMAC) =>
-            ComputeHMAC(bytesToComputeHMAC, key: null, outputEncodingType: DefaultEncodingType, new SeekOptions());
+            ComputeHMAC(bytesToComputeHMAC, key: null, outputEncodingType: DefaultEncodingType, new RangeOptions());
 
         [ExcludeFromCodeCoverage]
         public HMACResult ComputeHMAC(byte[] bytesToComputeHMAC, byte[] key) =>
-            ComputeHMAC(bytesToComputeHMAC, key, outputEncodingType: DefaultEncodingType, new SeekOptions());
+            ComputeHMAC(bytesToComputeHMAC, key, outputEncodingType: DefaultEncodingType, new RangeOptions());
 
         [ExcludeFromCodeCoverage]
         public HMACResult ComputeHMAC(byte[] bytesToComputeHMAC, byte[] key, EncodingType outputEncodingType) =>
-            ComputeHMAC(bytesToComputeHMAC, key, outputEncodingType, new SeekOptions());
+            ComputeHMAC(bytesToComputeHMAC, key, outputEncodingType, new RangeOptions());
 
-        public HMACResult ComputeHMAC(byte[] bytesToComputeHMAC, byte[] key, EncodingType outputEncodingType, SeekOptions seekOptions)
+        public HMACResult ComputeHMAC(byte[] bytesToComputeHMAC, byte[] key, EncodingType outputEncodingType, RangeOptions rangeOptions)
         {
             if (bytesToComputeHMAC is null || bytesToComputeHMAC.Length == 0)
             {
@@ -104,8 +104,8 @@ namespace CryptographyHelpers.HMAC
 
                 using var hmacAlgorithm = (System.Security.Cryptography.HMAC)CryptoConfig.CreateFromName($"HMAC{_hashAlgorithmType}");
                 hmacAlgorithm.Key = key;
-                var count = (seekOptions.Count == 0 ? bytesToComputeHMAC.Length : seekOptions.Count);
-                var hashBytes = hmacAlgorithm.ComputeHash(bytesToComputeHMAC, seekOptions.Offset, count);
+                var count = (rangeOptions.End == 0 ? bytesToComputeHMAC.Length : rangeOptions.End);
+                var hashBytes = hmacAlgorithm.ComputeHash(bytesToComputeHMAC, rangeOptions.Start, count);
 
                 return new HMACResult()
                 {
@@ -133,17 +133,17 @@ namespace CryptographyHelpers.HMAC
 
         [ExcludeFromCodeCoverage]
         public HMACResult ComputeFileHMAC(string filePathToComputeHMAC) =>
-            ComputeFileHMAC(filePathToComputeHMAC, key: null, outputEncodingType: DefaultEncodingType, new LongSeekOptions());
+            ComputeFileHMAC(filePathToComputeHMAC, key: null, outputEncodingType: DefaultEncodingType, new LongRangeOptions());
 
         [ExcludeFromCodeCoverage]
         public HMACResult ComputeFileHMAC(string filePathToComputeHMAC, string key) =>
-            ComputeFileHMAC(filePathToComputeHMAC, key, keyAndOutputEncodingType: DefaultEncodingType, new LongSeekOptions());
+            ComputeFileHMAC(filePathToComputeHMAC, key, keyAndOutputEncodingType: DefaultEncodingType, new LongRangeOptions());
 
         [ExcludeFromCodeCoverage]
         public HMACResult ComputeFileHMAC(string filePathToComputeHMAC, string key, EncodingType outputEncodingType) =>
-            ComputeFileHMAC(filePathToComputeHMAC, key, outputEncodingType, new LongSeekOptions());
+            ComputeFileHMAC(filePathToComputeHMAC, key, outputEncodingType, new LongRangeOptions());
 
-        public HMACResult ComputeFileHMAC(string filePathToComputeHMAC, string key, EncodingType keyAndOutputEncodingType, LongSeekOptions seekOptions)
+        public HMACResult ComputeFileHMAC(string filePathToComputeHMAC, string key, EncodingType keyAndOutputEncodingType, LongRangeOptions rangeOptions)
         {
             try
             {
@@ -156,7 +156,7 @@ namespace CryptographyHelpers.HMAC
                         : _serviceLocator.GetService<IBase64>().DecodeString(key);
                 }
 
-                return ComputeFileHMAC(filePathToComputeHMAC, keyBytes, keyAndOutputEncodingType, seekOptions);
+                return ComputeFileHMAC(filePathToComputeHMAC, keyBytes, keyAndOutputEncodingType, rangeOptions);
             }
             catch (Exception ex)
             {
@@ -170,13 +170,13 @@ namespace CryptographyHelpers.HMAC
 
         [ExcludeFromCodeCoverage]
         public HMACResult ComputeFileHMAC(string filePathToComputeHMAC, byte[] key) =>
-            ComputeFileHMAC(filePathToComputeHMAC, key, outputEncodingType: DefaultEncodingType, new LongSeekOptions());
+            ComputeFileHMAC(filePathToComputeHMAC, key, outputEncodingType: DefaultEncodingType, new LongRangeOptions());
 
         [ExcludeFromCodeCoverage]
         public HMACResult ComputeFileHMAC(string filePathToComputeHMAC, byte[] key, EncodingType outputEncodingType) =>
-            ComputeFileHMAC(filePathToComputeHMAC, key, outputEncodingType, new LongSeekOptions());
+            ComputeFileHMAC(filePathToComputeHMAC, key, outputEncodingType, new LongRangeOptions());
 
-        public HMACResult ComputeFileHMAC(string filePathToComputeHMAC, byte[] key, EncodingType outputEncodingType, LongSeekOptions seekOptions)
+        public HMACResult ComputeFileHMAC(string filePathToComputeHMAC, byte[] key, EncodingType outputEncodingType, LongRangeOptions rangeOptions)
         {
             if (!File.Exists(filePathToComputeHMAC))
             {
@@ -198,10 +198,10 @@ namespace CryptographyHelpers.HMAC
 
                 using (var fStream = new FileStream(filePathToComputeHMAC, FileMode.Open, FileAccess.Read, FileShare.None))
                 {
-                    var count = seekOptions.Count == 0 ? fStream.Length : seekOptions.Count;
-                    fStream.Position = seekOptions.Offset;
+                    var count = rangeOptions.End == 0 ? fStream.Length : rangeOptions.End;
+                    fStream.Position = rangeOptions.Start;
                     var buffer = new byte[FileReadBufferSize];
-                    var amount = (count - seekOptions.Offset);
+                    var amount = (count - rangeOptions.Start);
 
                     using (var hmacAlgorithm = (System.Security.Cryptography.HMAC)CryptoConfig.CreateFromName($"HMAC{_hashAlgorithmType}"))
                     {
@@ -270,13 +270,13 @@ namespace CryptographyHelpers.HMAC
 
         [ExcludeFromCodeCoverage]
         public HMACResult VerifyHMAC(string stringToVerifyHMAC, string key, string verificationHMACString) =>
-            VerifyHMAC(stringToVerifyHMAC, key, verificationHMACString, keyAndVerificationHMACStringEncodingType: DefaultEncodingType, new SeekOptions());
+            VerifyHMAC(stringToVerifyHMAC, key, verificationHMACString, keyAndVerificationHMACStringEncodingType: DefaultEncodingType, new RangeOptions());
 
         [ExcludeFromCodeCoverage]
         public HMACResult VerifyHMAC(string stringToVerifyHMAC, string key, string verificationHMACString, EncodingType keyAndVerificationHMACStringEncodingType) =>
-            VerifyHMAC(stringToVerifyHMAC, key, verificationHMACString, keyAndVerificationHMACStringEncodingType, new SeekOptions());
+            VerifyHMAC(stringToVerifyHMAC, key, verificationHMACString, keyAndVerificationHMACStringEncodingType, new RangeOptions());
 
-        public HMACResult VerifyHMAC(string stringToVerifyHMAC, string key, string verificationHMACString, EncodingType keyAndVerificationHMACStringEncodingType, SeekOptions seekOptions)
+        public HMACResult VerifyHMAC(string stringToVerifyHMAC, string key, string verificationHMACString, EncodingType keyAndVerificationHMACStringEncodingType, RangeOptions rangeOptions)
         {
             if (string.IsNullOrWhiteSpace(stringToVerifyHMAC))
             {
@@ -315,7 +315,7 @@ namespace CryptographyHelpers.HMAC
                     ? _serviceLocator.GetService<IHexadecimal>().DecodeString(verificationHMACString)
                     : _serviceLocator.GetService<IBase64>().DecodeString(verificationHMACString);
 
-                return VerifyHMAC(stringToVerifyHMACBytes, keyBytes, verificationHMACBytes, seekOptions);
+                return VerifyHMAC(stringToVerifyHMACBytes, keyBytes, verificationHMACBytes, rangeOptions);
             }
             catch (Exception ex)
             {
@@ -329,11 +329,11 @@ namespace CryptographyHelpers.HMAC
 
         [ExcludeFromCodeCoverage]
         public HMACResult VerifyHMAC(byte[] bytesToVerifyHMAC, byte[] key, byte[] verificationHMACBytes) =>
-            VerifyHMAC(bytesToVerifyHMAC, key, verificationHMACBytes, new SeekOptions());
+            VerifyHMAC(bytesToVerifyHMAC, key, verificationHMACBytes, new RangeOptions());
 
-        public HMACResult VerifyHMAC(byte[] bytesToVerifyHMAC, byte[] key, byte[] verificationHMACBytes, SeekOptions seekOptions)
+        public HMACResult VerifyHMAC(byte[] bytesToVerifyHMAC, byte[] key, byte[] verificationHMACBytes, RangeOptions rangeOptions)
         {
-            var HMACResult = ComputeHMAC(bytesToVerifyHMAC, key, DefaultEncodingType, seekOptions);
+            var HMACResult = ComputeHMAC(bytesToVerifyHMAC, key, DefaultEncodingType, rangeOptions);
 
             if (HMACResult.Success)
             {
@@ -347,7 +347,7 @@ namespace CryptographyHelpers.HMAC
         }
 
         
-        public HMACResult VerifyFileHMAC(string filePathToVerifyHMAC, string key, string verificationHMACString, EncodingType keyAndVerificationHMACStringEncodingType, LongSeekOptions seekOptions)
+        public HMACResult VerifyFileHMAC(string filePathToVerifyHMAC, string key, string verificationHMACString, EncodingType keyAndVerificationHMACStringEncodingType, LongRangeOptions rangeOptions)
         {
             try
             {
@@ -358,7 +358,7 @@ namespace CryptographyHelpers.HMAC
                     ? _serviceLocator.GetService<IHexadecimal>().DecodeString(verificationHMACString)
                     : _serviceLocator.GetService<IBase64>().DecodeString(verificationHMACString);
 
-                return VerifyFileHMAC(filePathToVerifyHMAC, keyBytes, verificationHMACBytes, seekOptions);
+                return VerifyFileHMAC(filePathToVerifyHMAC, keyBytes, verificationHMACBytes, rangeOptions);
             }
             catch (Exception ex)
             {
@@ -370,9 +370,9 @@ namespace CryptographyHelpers.HMAC
             }
         }
 
-        public HMACResult VerifyFileHMAC(string filePathToVerifyHMAC, byte[] key, byte[] verificationHMACBytes, LongSeekOptions seekOptions)
+        public HMACResult VerifyFileHMAC(string filePathToVerifyHMAC, byte[] key, byte[] verificationHMACBytes, LongRangeOptions rangeOptions)
         {
-            var hmacResult = ComputeFileHMAC(filePathToVerifyHMAC, key, DefaultEncodingType, seekOptions);
+            var hmacResult = ComputeFileHMAC(filePathToVerifyHMAC, key, DefaultEncodingType, rangeOptions);
 
             if (hmacResult.Success)
             {

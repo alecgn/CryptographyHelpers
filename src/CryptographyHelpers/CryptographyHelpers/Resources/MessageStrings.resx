@@ -126,26 +126,38 @@
   <data name="Cryptography.InvalidKey" xml:space="preserve">
     <value>Invalid key (null or wrong size).</value>
   </data>
+  <data name="Decryption.DataDecryptionSuccess" xml:space="preserve">
+    <value>Data succesfully decrypted.</value>
+  </data>
+  <data name="Decryption.FileDecryptionSuccess" xml:space="preserve">
+    <value>File succesfully decrypted.</value>
+  </data>
   <data name="Decryption.InputBytesRequired" xml:space="preserve">
     <value>Input bytes to decrypt required.</value>
   </data>
   <data name="Decryption.NonceBytesRequired" xml:space="preserve">
     <value>Nonce bytes required.</value>
   </data>
-  <data name="Decryption.Success" xml:space="preserve">
-    <value>Data succesfully decrypted.</value>
-  </data>
   <data name="Decryption.TagBytesRequired" xml:space="preserve">
     <value>Tag bytes required.</value>
+  </data>
+  <data name="Directory.PathNotFound" xml:space="preserve">
+    <value>Directory not found:</value>
+  </data>
+  <data name="Encryption.DataEncryptionSuccess" xml:space="preserve">
+    <value>Data succesfully encrypted.</value>
+  </data>
+  <data name="Encryption.FileEncryptionSuccess" xml:space="preserve">
+    <value>File succesfully encrypted.</value>
   </data>
   <data name="Encryption.InputBytesRequired" xml:space="preserve">
     <value>Input bytes to encrypt required.</value>
   </data>
-  <data name="Encryption.Success" xml:space="preserve">
-    <value>Data succesfully encrypted.</value>
-  </data>
   <data name="File.PathNotFound" xml:space="preserve">
     <value>File not found:</value>
+  </data>
+  <data name="File.SourceAndDestinationPathsEqual" xml:space="preserve">
+    <value>Source and destination file paths cannot be equal.</value>
   </data>
   <data name="Hash.ComputeSuccess" xml:space="preserve">
     <value>Hash computed succesfully.</value>

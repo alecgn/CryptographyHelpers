@@ -13,7 +13,7 @@ namespace CryptographyHelpers.HMAC
 
         HMACResult ComputeHMAC(string stringToComputeHMAC, string key, EncodingType keyAndOutputEncodingType);
 
-        HMACResult ComputeHMAC(string stringToComputeHMAC, string key, EncodingType keyAndOutputEncodingType, SeekOptions seekOptions);
+        HMACResult ComputeHMAC(string stringToComputeHMAC, string key, EncodingType keyAndOutputEncodingType, RangeOptions rangeOptions);
 
         HMACResult ComputeHMAC(byte[] bytesToComputeHMAC);
 
@@ -21,7 +21,7 @@ namespace CryptographyHelpers.HMAC
 
         HMACResult ComputeHMAC(byte[] bytesToComputeHMAC, byte[] key, EncodingType outputEncodingType);
 
-        HMACResult ComputeHMAC(byte[] bytesToComputeHMAC, byte[] key, EncodingType outputEncodingType, SeekOptions seekOptions);
+        HMACResult ComputeHMAC(byte[] bytesToComputeHMAC, byte[] key, EncodingType outputEncodingType, RangeOptions rangeOptions);
 
 
         HMACResult ComputeFileHMAC(string filePathToComputeHMAC);
@@ -30,13 +30,13 @@ namespace CryptographyHelpers.HMAC
 
         HMACResult ComputeFileHMAC(string filePathToComputeHMAC, string key, EncodingType outputEncodingType);
 
-        HMACResult ComputeFileHMAC(string filePathToComputeHMAC, string key, EncodingType keyAndOutputEncodingType, LongSeekOptions seekOptions);
+        HMACResult ComputeFileHMAC(string filePathToComputeHMAC, string key, EncodingType keyAndOutputEncodingType, LongRangeOptions rangeOptions);
 
         HMACResult ComputeFileHMAC(string filePathToComputeHMAC, byte[] key);
 
         HMACResult ComputeFileHMAC(string filePathToComputeHMAC, byte[] key, EncodingType outputEncodingType);
 
-        HMACResult ComputeFileHMAC(string filePathToComputeHMAC, byte[] key, EncodingType outputEncodingType, LongSeekOptions seekOptions);
+        HMACResult ComputeFileHMAC(string filePathToComputeHMAC, byte[] key, EncodingType outputEncodingType, LongRangeOptions rangeOptions);
 
 
         HMACResult VerifyHMAC(string stringToVerifyHMAC, string key, string verificationHMACString);
@@ -44,15 +44,15 @@ namespace CryptographyHelpers.HMAC
         HMACResult VerifyHMAC(string stringToVerifyHMAC, string key, string verificationHMACString, EncodingType keyAndVerificationHMACStringEncodingType);
 
 
-        HMACResult VerifyHMAC(string stringToVerifyHMAC, string key, string verificationHMACString, EncodingType keyAndVerificationHMACStringEncodingType, SeekOptions seekOptions);
+        HMACResult VerifyHMAC(string stringToVerifyHMAC, string key, string verificationHMACString, EncodingType keyAndVerificationHMACStringEncodingType, RangeOptions rangeOptions);
 
         HMACResult VerifyHMAC(byte[] bytesToVerifyHMAC, byte[] key, byte[] verificationHMACBytes);
 
-        HMACResult VerifyHMAC(byte[] bytesToVerifyHMAC, byte[] key, byte[] verificationHMACBytes, SeekOptions seekOptions);
+        HMACResult VerifyHMAC(byte[] bytesToVerifyHMAC, byte[] key, byte[] verificationHMACBytes, RangeOptions rangeOptions);
 
 
-        HMACResult VerifyFileHMAC(string filePathToVerifyHMAC, string key, string verificationHMACString, EncodingType keyAndVerificationHMACStringEncodingType, LongSeekOptions seekOptions);
+        HMACResult VerifyFileHMAC(string filePathToVerifyHMAC, string key, string verificationHMACString, EncodingType keyAndVerificationHMACStringEncodingType, LongRangeOptions rangeOptions);
 
-        HMACResult VerifyFileHMAC(string filePathToVerifyHMAC, byte[] key, byte[] verificationHMACBytes, LongSeekOptions seekOptions);
+        HMACResult VerifyFileHMAC(string filePathToVerifyHMAC, byte[] key, byte[] verificationHMACBytes, LongRangeOptions rangeOptions);
     }
 }

@@ -3,14 +3,14 @@ using System;
 
 namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
 {
-    public class AESGCM192 : AESGGMBase
+    public class AES192GCM : AESGGMBase
     {
         private const AESKeySizes AESKeySize = AESKeySizes.KeySize192Bits;
 
 
-        public AESGCM192() : base(keySizeToGenerateRandomKey: AESKeySize) { }
+        public AES192GCM() : base(keySizeToGenerateRandomKey: AESKeySize) { }
 
-        public AESGCM192(byte[] key) : base(key)
+        public AES192GCM(byte[] key) : base(key)
         {
             CryptographyCommon.ValidateAESKey(expectedAesKeySize: AESKeySize, key);
         }

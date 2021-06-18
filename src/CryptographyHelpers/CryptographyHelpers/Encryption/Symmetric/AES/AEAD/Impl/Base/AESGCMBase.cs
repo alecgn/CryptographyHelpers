@@ -46,7 +46,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
                 return new()
                 {
                     Success = true,
-                    Message = MessageStrings.Encryption_Success,
+                    Message = MessageStrings.Encryption_DataEncryptionSuccess,
                     EncryptedData = encryptedData,
                     Key = _key,
                     Nonce = nonce,
@@ -85,7 +85,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
                 return new()
                 {
                     Success = true,
-                    Message = MessageStrings.Decryption_Success,
+                    Message = MessageStrings.Decryption_DataDecryptionSuccess,
                     DecryptedData = decryptedData,
                     Key = _key,
                     Nonce = nonce,

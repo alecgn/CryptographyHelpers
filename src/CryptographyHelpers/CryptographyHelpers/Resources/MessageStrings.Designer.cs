@@ -88,6 +88,24 @@ namespace CryptographyHelpers.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Data succesfully decrypted..
+        /// </summary>
+        internal static string Decryption_DataDecryptionSuccess {
+            get {
+                return ResourceManager.GetString("Decryption.DataDecryptionSuccess", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to File succesfully decrypted..
+        /// </summary>
+        internal static string Decryption_FileDecryptionSuccess {
+            get {
+                return ResourceManager.GetString("Decryption.FileDecryptionSuccess", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Input bytes to decrypt required..
         /// </summary>
         internal static string Decryption_InputBytesRequired {
@@ -106,20 +124,38 @@ namespace CryptographyHelpers.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Data succesfully decrypted..
-        /// </summary>
-        internal static string Decryption_Success {
-            get {
-                return ResourceManager.GetString("Decryption.Success", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Tag bytes required..
         /// </summary>
         internal static string Decryption_TagBytesRequired {
             get {
                 return ResourceManager.GetString("Decryption.TagBytesRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Directory not found:.
+        /// </summary>
+        internal static string Directory_PathNotFound {
+            get {
+                return ResourceManager.GetString("Directory.PathNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Data succesfully encrypted..
+        /// </summary>
+        internal static string Encryption_DataEncryptionSuccess {
+            get {
+                return ResourceManager.GetString("Encryption.DataEncryptionSuccess", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to File succesfully encrypted..
+        /// </summary>
+        internal static string Encryption_FileEncryptionSuccess {
+            get {
+                return ResourceManager.GetString("Encryption.FileEncryptionSuccess", resourceCulture);
             }
         }
         
@@ -133,20 +169,20 @@ namespace CryptographyHelpers.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Data succesfully encrypted..
-        /// </summary>
-        internal static string Encryption_Success {
-            get {
-                return ResourceManager.GetString("Encryption.Success", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to File not found:.
         /// </summary>
         internal static string File_PathNotFound {
             get {
                 return ResourceManager.GetString("File.PathNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Source and destination file paths cannot be equal..
+        /// </summary>
+        internal static string File_SourceAndDestinationPathsEqual {
+            get {
+                return ResourceManager.GetString("File.SourceAndDestinationPathsEqual", resourceCulture);
             }
         }
         

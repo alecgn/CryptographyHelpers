@@ -26,13 +26,13 @@ namespace CryptographyHelpers.Hash
 
         [ExcludeFromCodeCoverage]
         public HashResult ComputeHash(string stringToComputeHash) =>
-            ComputeHash(stringToComputeHash, outputEncodingType: DefaultEncodingType, new SeekOptions());
+            ComputeHash(stringToComputeHash, outputEncodingType: DefaultEncodingType, new RangeOptions());
 
         [ExcludeFromCodeCoverage]
         public HashResult ComputeHash(string stringToComputeHash, EncodingType outputEncodingType) =>
-            ComputeHash(stringToComputeHash, outputEncodingType, new SeekOptions());
+            ComputeHash(stringToComputeHash, outputEncodingType, new RangeOptions());
 
-        public HashResult ComputeHash(string stringToComputeHash, EncodingType outputEncodingType, SeekOptions seekOptions)
+        public HashResult ComputeHash(string stringToComputeHash, EncodingType outputEncodingType, RangeOptions rangeOptions)
         {
             if (string.IsNullOrWhiteSpace(stringToComputeHash))
             {
@@ -45,18 +45,18 @@ namespace CryptographyHelpers.Hash
 
             var stringToComputeHashBytes = stringToComputeHash.ToUTF8Bytes();
 
-            return ComputeHash(stringToComputeHashBytes, outputEncodingType, seekOptions);
+            return ComputeHash(stringToComputeHashBytes, outputEncodingType, rangeOptions);
         }
 
         [ExcludeFromCodeCoverage]
         public HashResult ComputeHash(byte[] bytesToComputeHash) =>
-            ComputeHash(bytesToComputeHash, outputEncodingType: DefaultEncodingType, new SeekOptions());
+            ComputeHash(bytesToComputeHash, outputEncodingType: DefaultEncodingType, new RangeOptions());
 
         [ExcludeFromCodeCoverage]
         public HashResult ComputeHash(byte[] bytesToComputeHash, EncodingType outputEncodingType) =>
-            ComputeHash(bytesToComputeHash, outputEncodingType, new SeekOptions());
+            ComputeHash(bytesToComputeHash, outputEncodingType, new RangeOptions());
 
-        public HashResult ComputeHash(byte[] bytesToComputeHash, EncodingType outputEncodingType, SeekOptions seekOptions)
+        public HashResult ComputeHash(byte[] bytesToComputeHash, EncodingType outputEncodingType, RangeOptions rangeOptions)
         {
             if (bytesToComputeHash is null || bytesToComputeHash.Length == 0)
             {
@@ -70,8 +70,8 @@ namespace CryptographyHelpers.Hash
             try
             {
                 using var hashAlgorithm = (HashAlgorithm)CryptoConfig.CreateFromName(_hashAlgorithmType.ToString());
-                var count = seekOptions.Count == 0 ? bytesToComputeHash.Length : seekOptions.Count;
-                var hashBytes = hashAlgorithm.ComputeHash(bytesToComputeHash, seekOptions.Offset, count);
+                var count = rangeOptions.End == 0 ? bytesToComputeHash.Length : rangeOptions.End;
+                var hashBytes = hashAlgorithm.ComputeHash(bytesToComputeHash, rangeOptions.Start, count);
 
                 return new HashResult()
                 {
@@ -98,13 +98,13 @@ namespace CryptographyHelpers.Hash
 
         [ExcludeFromCodeCoverage]
         public HashResult ComputeFileHash(string fileToComputeHash) =>
-            ComputeFileHash(fileToComputeHash, outputEncodingType: DefaultEncodingType, new LongSeekOptions());
+            ComputeFileHash(fileToComputeHash, outputEncodingType: DefaultEncodingType, new LongRangeOptions());
 
         [ExcludeFromCodeCoverage]
         public HashResult ComputeFileHash(string fileToComputeHash, EncodingType outputEncodingType) =>
-            ComputeFileHash(fileToComputeHash, outputEncodingType, new LongSeekOptions());
+            ComputeFileHash(fileToComputeHash, outputEncodingType, new LongRangeOptions());
 
-        public HashResult ComputeFileHash(string fileToComputeHash, EncodingType outputEncodingType, LongSeekOptions seekOptions)
+        public HashResult ComputeFileHash(string fileToComputeHash, EncodingType outputEncodingType, LongRangeOptions rangeOptions)
         {
             if (!File.Exists(fileToComputeHash))
             {
@@ -119,10 +119,10 @@ namespace CryptographyHelpers.Hash
             {
                 using (var fileStream = new FileStream(fileToComputeHash, FileMode.Open, FileAccess.Read, FileShare.None))
                 {
-                    var count = seekOptions.Count == 0 ? fileStream.Length : seekOptions.Count;
-                    fileStream.Position = seekOptions.Offset;
+                    var count = rangeOptions.End == 0 ? fileStream.Length : rangeOptions.End;
+                    fileStream.Position = rangeOptions.Start;
                     var buffer = new byte[FileReadBufferSize];
-                    var amount = count - seekOptions.Offset;
+                    var amount = count - rangeOptions.Start;
 
                     using (var hashAlgorithm = (HashAlgorithm)CryptoConfig.CreateFromName(_hashAlgorithmType.ToString()))
                     {
@@ -183,13 +183,13 @@ namespace CryptographyHelpers.Hash
 
         [ExcludeFromCodeCoverage]
         public HashResult VerifyHash(string stringToVerifyHash, string verificationHashString) =>
-            VerifyHash(stringToVerifyHash, verificationHashString, verificationHashStringEncodingType: DefaultEncodingType, new SeekOptions());
+            VerifyHash(stringToVerifyHash, verificationHashString, verificationHashStringEncodingType: DefaultEncodingType, new RangeOptions());
 
         [ExcludeFromCodeCoverage]
         public HashResult VerifyHash(string stringToVerifyHash, string verificationHashString, EncodingType verificationHashStringEncodingType) =>
-            VerifyHash(stringToVerifyHash, verificationHashString, verificationHashStringEncodingType, new SeekOptions());
+            VerifyHash(stringToVerifyHash, verificationHashString, verificationHashStringEncodingType, new RangeOptions());
 
-        public HashResult VerifyHash(string stringToVerifyHash, string verificationHashString, EncodingType verificationHashStringEncodingType, SeekOptions seekOptions)
+        public HashResult VerifyHash(string stringToVerifyHash, string verificationHashString, EncodingType verificationHashStringEncodingType, RangeOptions rangeOptions)
         {
             if (string.IsNullOrWhiteSpace(stringToVerifyHash))
             {
@@ -245,7 +245,7 @@ namespace CryptographyHelpers.Hash
 
                 var stringToVerifyHashBytes = stringToVerifyHash.ToUTF8Bytes();
 
-                return VerifyHash(stringToVerifyHashBytes, verificationHashBytes, seekOptions);
+                return VerifyHash(stringToVerifyHashBytes, verificationHashBytes, rangeOptions);
             }
             catch (Exception ex)
             {
@@ -259,9 +259,9 @@ namespace CryptographyHelpers.Hash
 
         [ExcludeFromCodeCoverage]
         public HashResult VerifyHash(byte[] bytesToVerifyHash, byte[] verificationHashBytes) =>
-            VerifyHash(bytesToVerifyHash, verificationHashBytes, new SeekOptions());
+            VerifyHash(bytesToVerifyHash, verificationHashBytes, new RangeOptions());
 
-        public HashResult VerifyHash(byte[] bytesToVerifyHash, byte[] verificationHashBytes, SeekOptions seekOptions)
+        public HashResult VerifyHash(byte[] bytesToVerifyHash, byte[] verificationHashBytes, RangeOptions rangeOptions)
         {
             if (verificationHashBytes is null || verificationHashBytes.Length == 0)
             {
@@ -272,7 +272,7 @@ namespace CryptographyHelpers.Hash
                 };
             }
 
-            var hashResult = ComputeHash(bytesToVerifyHash, outputEncodingType: DefaultEncodingType, seekOptions);
+            var hashResult = ComputeHash(bytesToVerifyHash, outputEncodingType: DefaultEncodingType, rangeOptions);
 
             if (hashResult.Success)
             {
@@ -288,13 +288,13 @@ namespace CryptographyHelpers.Hash
 
         [ExcludeFromCodeCoverage]
         public HashResult VerifyFileHash(string fileToVerifyHash, string verificationHashString) =>
-            VerifyFileHash(fileToVerifyHash, verificationHashString, verificationHashStringEncodingType: DefaultEncodingType, new LongSeekOptions());
+            VerifyFileHash(fileToVerifyHash, verificationHashString, verificationHashStringEncodingType: DefaultEncodingType, new LongRangeOptions());
 
         [ExcludeFromCodeCoverage]
         public HashResult VerifyFileHash(string fileToVerifyHash, string verificationHashString, EncodingType verificationHashStringEncodingType) =>
-            VerifyFileHash(fileToVerifyHash, verificationHashString, verificationHashStringEncodingType, new LongSeekOptions());
+            VerifyFileHash(fileToVerifyHash, verificationHashString, verificationHashStringEncodingType, new LongRangeOptions());
 
-        public HashResult VerifyFileHash(string fileToVerifyHash, string verificationHashString, EncodingType verificationHashStringEncodingType, LongSeekOptions seekOptions)
+        public HashResult VerifyFileHash(string fileToVerifyHash, string verificationHashString, EncodingType verificationHashStringEncodingType, LongRangeOptions rangeOptions)
         {
             if (string.IsNullOrWhiteSpace(verificationHashString))
             {
@@ -335,14 +335,14 @@ namespace CryptographyHelpers.Hash
                 verificationHashBytes = _serviceLocator.GetService<IBase64>().DecodeString(verificationHashString);
             }
 
-            return VerifyFileHash(fileToVerifyHash, verificationHashBytes, seekOptions);
+            return VerifyFileHash(fileToVerifyHash, verificationHashBytes, rangeOptions);
         }
 
         [ExcludeFromCodeCoverage]
         public HashResult VerifyFileHash(string fileToVerifyHash, byte[] verificationHashBytes) =>
-            VerifyFileHash(fileToVerifyHash, verificationHashBytes, new LongSeekOptions());
+            VerifyFileHash(fileToVerifyHash, verificationHashBytes, new LongRangeOptions());
 
-        public HashResult VerifyFileHash(string fileToVerifyHash, byte[] verificationHashBytes, LongSeekOptions seekOptions)
+        public HashResult VerifyFileHash(string fileToVerifyHash, byte[] verificationHashBytes, LongRangeOptions rangeOptions)
         {
             if (verificationHashBytes is null || verificationHashBytes.Length == 0)
             {
@@ -353,7 +353,7 @@ namespace CryptographyHelpers.Hash
                 };
             }
 
-            var hashResult = ComputeFileHash(fileToVerifyHash, outputEncodingType: DefaultEncodingType, seekOptions);
+            var hashResult = ComputeFileHash(fileToVerifyHash, outputEncodingType: DefaultEncodingType, rangeOptions);
 
             if (hashResult.Success)
             {
