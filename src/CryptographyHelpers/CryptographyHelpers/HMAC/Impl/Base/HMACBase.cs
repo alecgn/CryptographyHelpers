@@ -99,7 +99,7 @@ namespace CryptographyHelpers.HMAC
             {
                 if (key is null || key.Length == 0)
                 {
-                    key = CryptographyCommon.GenerateRandomBytes(HashUtil.HashAlgorithmOutputBytesSizeMapper[_hashAlgorithmType]);
+                    key = CryptographyUtils.GenerateRandomBytes(HashUtils.HashAlgorithmOutputBytesSize[_hashAlgorithmType]);
                 }
 
                 using var hmacAlgorithm = (System.Security.Cryptography.HMAC)CryptoConfig.CreateFromName($"HMAC{_hashAlgorithmType}");
@@ -191,7 +191,7 @@ namespace CryptographyHelpers.HMAC
             {
                 if (key == null || key.Length == 0)
                 {
-                    key = CryptographyCommon.GenerateRandomBytes(HashUtil.HashAlgorithmOutputBytesSizeMapper[_hashAlgorithmType]);
+                    key = CryptographyUtils.GenerateRandomBytes(HashUtils.HashAlgorithmOutputBytesSize[_hashAlgorithmType]);
                 }
 
                 byte[] hashBytes = null;

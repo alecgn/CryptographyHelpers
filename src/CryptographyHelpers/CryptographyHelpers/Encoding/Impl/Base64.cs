@@ -23,14 +23,14 @@ namespace CryptographyHelpers.Encoding
             return EncodeToString(plainStringBytes);
         }
 
-        public string EncodeToString(byte[] byteArray)
+        public string EncodeToString(byte[] bytes)
         {
-            if (byteArray is null || byteArray.Length == 0)
+            if (bytes is null || bytes.Length == 0)
             {
-                throw new ArgumentException(MessageStrings.ByteArray_InvalidInputByteArray, nameof(byteArray));
+                throw new ArgumentException(MessageStrings.ByteArray_InvalidInputByteArray, nameof(bytes));
             }
 
-            return byteArray.ToBase64String();
+            return bytes.ToBase64String();
         }
 
         public string DecodeToString(string base64String)
@@ -45,9 +45,9 @@ namespace CryptographyHelpers.Encoding
                 throw new ArgumentException(MessageStrings.Strings_InvalidInputBase64String, nameof(base64String));
             }
 
-            var byteArray = DecodeString(base64String);
+            var bytes = DecodeString(base64String);
 
-            return byteArray.ToUTF8String();
+            return bytes.ToUTF8String();
         }
 
         public byte[] DecodeString(string base64String)
@@ -62,7 +62,7 @@ namespace CryptographyHelpers.Encoding
                 throw new ArgumentException(MessageStrings.Strings_InvalidInputBase64String, nameof(base64String));
             }
 
-            return base64String.FromBase64StringToByteArray();
+            return base64String.ToBytesFromBase64String();
         }
 
         public bool IsValidEncodedString(string base64String)

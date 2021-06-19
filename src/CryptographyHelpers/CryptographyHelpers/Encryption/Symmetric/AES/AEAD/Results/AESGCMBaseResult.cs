@@ -1,6 +1,4 @@
-﻿using CryptographyHelpers.Encoding;
-
-namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
+﻿namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
 {
     public class AESGCMBaseResult : AESBaseResult
     {

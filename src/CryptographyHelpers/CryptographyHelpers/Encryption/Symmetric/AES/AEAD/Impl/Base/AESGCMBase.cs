@@ -4,7 +4,7 @@ using System.Security.Cryptography;
 
 namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
 {
-    public abstract class AESGGMBase
+    public abstract class AESGGMBase : IAESGCM
     {
         private readonly byte[] _key;
 
@@ -15,9 +15,9 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
         public AESGGMBase(AESKeySizes keySizeToGenerateRandomKey) =>
             _key = keySizeToGenerateRandomKey switch
             {
-                AESKeySizes.KeySize128Bits => CryptographyCommon.GenerateRandom128BitsKey(),
-                AESKeySizes.KeySize192Bits => CryptographyCommon.GenerateRandom192BitsKey(),
-                AESKeySizes.KeySize256Bits => CryptographyCommon.GenerateRandom256BitsKey(),
+                AESKeySizes.KeySize128Bits => CryptographyUtils.GenerateRandom128BitsKey(),
+                AESKeySizes.KeySize192Bits => CryptographyUtils.GenerateRandom192BitsKey(),
+                AESKeySizes.KeySize256Bits => CryptographyUtils.GenerateRandom256BitsKey(),
                 _ => throw new ArgumentException($"Invalid enum value for {nameof(keySizeToGenerateRandomKey)} parameter of type {typeof(AESKeySizes)}.", nameof(keySizeToGenerateRandomKey)),
             };
 
@@ -34,7 +34,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
             }
 
             // Avoid nonce reuse (catastrophic security breach), randomly generate a new one in every method call
-            var nonce = CryptographyCommon.GenerateRandomBytes(AesGcm.NonceByteSizes.MaxSize);
+            var nonce = CryptographyUtils.GenerateRandomBytes(AesGcm.NonceByteSizes.MaxSize);
             var encryptedData = new byte[data.Length];
             var tag = new byte[AesGcm.TagByteSizes.MaxSize];
 

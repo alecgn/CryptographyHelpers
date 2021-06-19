@@ -4,15 +4,9 @@ using System.Diagnostics.CodeAnalysis;
 namespace CryptographyHelpers.Encoding
 {
     [ExcludeFromCodeCoverage]
-    public class HexadecimalEncodingOptions
+    public struct HexadecimalEncodingOptions
     {
-        public HexadecimalEncodingOptions()
-        {
-            IncludeHexadecimalIndicatorPrefix = false;
-            OutputCharacterCasing = CharacterCasing.Upper;
-        }
-
-        public HexadecimalEncodingOptions(bool includeHexadecimalIndicatorPrefix, CharacterCasing outputCharacterCasing)
+        public HexadecimalEncodingOptions(bool includeHexadecimalIndicatorPrefix = false, CharacterCasing outputCharacterCasing = CharacterCasing.Upper)
         {
             IncludeHexadecimalIndicatorPrefix = includeHexadecimalIndicatorPrefix;
             OutputCharacterCasing = outputCharacterCasing;

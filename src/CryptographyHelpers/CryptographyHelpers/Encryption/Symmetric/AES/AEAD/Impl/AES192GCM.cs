@@ -1,9 +1,6 @@
-﻿using CryptographyHelpers.Resources;
-using System;
-
-namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
+﻿namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
 {
-    public class AES192GCM : AESGGMBase
+    public class AES192GCM : AESGGMBase, IAES192GCM
     {
         private const AESKeySizes AESKeySize = AESKeySizes.KeySize192Bits;
 
@@ -12,7 +9,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
 
         public AES192GCM(byte[] key) : base(key)
         {
-            CryptographyCommon.ValidateAESKey(expectedAesKeySize: AESKeySize, key);
+            CryptographyUtils.ValidateAESKey(expectedAesKeySize: AESKeySize, key);
         }
     }
 }

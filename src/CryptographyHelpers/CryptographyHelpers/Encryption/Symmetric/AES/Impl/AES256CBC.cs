@@ -2,7 +2,7 @@
 
 namespace CryptographyHelpers.Encryption.Symmetric.AES
 {
-    public class AES256CBC : AESBase
+    public class AES256CBC : AESBase, IAES256CBC
     {
         private const CipherMode Mode = CipherMode.CBC;
         private const PaddingMode Padding = PaddingMode.PKCS7;
@@ -10,7 +10,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
 
         public AES256CBC(byte[] key, byte[] IV) : base(key, IV, Mode, Padding)
         {
-            CryptographyCommon.ValidateAESKey(expectedAesKeySize: AESKeySize, key);
+            CryptographyUtils.ValidateAESKey(expectedAesKeySize: AESKeySize, key);
         }
     }
 }

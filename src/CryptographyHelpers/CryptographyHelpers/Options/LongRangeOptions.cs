@@ -1,18 +1,10 @@
 ﻿using System;
-using System.Diagnostics.CodeAnalysis;
 
 namespace CryptographyHelpers
 {
-    [ExcludeFromCodeCoverage]
-    public class RangeOptions
+    public struct LongRangeOptions
     {
-        public RangeOptions()
-        {
-            Start = 0;
-            End = 0;
-        }
-
-        public RangeOptions(int start, int end)
+        public LongRangeOptions(long start = 0, long end = 0)
         {
             if (end > start)
             {
@@ -23,8 +15,8 @@ namespace CryptographyHelpers
             End = end;
         }
 
-        public int Start { get; private set; }
+        public long Start { get; private set; }
 
-        public int End { get; private set; }
+        public long End { get; private set; }
     }
 }

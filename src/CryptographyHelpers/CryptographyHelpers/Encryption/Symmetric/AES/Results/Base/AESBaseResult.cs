@@ -1,4 +1,6 @@
-﻿namespace CryptographyHelpers.Encryption.Symmetric.AES
+﻿using CryptographyHelpers.Results;
+
+namespace CryptographyHelpers.Encryption.Symmetric.AES
 {
     public class AESBaseResult : BaseResult
     {

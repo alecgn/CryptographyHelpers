@@ -3,6 +3,7 @@ using CryptographyHelpers.Resources;
 using CryptographyHelpers.Text;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -18,6 +19,7 @@ namespace CryptographyHelpers.Encoding
         private static Regex _regexHexadecimalString = null;
 
 
+        [ExcludeFromCodeCoverage]
         public string EncodeToString(string plainString) =>
             EncodeToString(plainString, new HexadecimalEncodingOptions());
 
@@ -33,14 +35,15 @@ namespace CryptographyHelpers.Encoding
             return EncodeToString(plainStringBytes, hexadecimalOutputEncodingOptions);
         }
 
-        public string EncodeToString(byte[] byteArray) =>
-            EncodeToString(byteArray, new HexadecimalEncodingOptions());
+        [ExcludeFromCodeCoverage]
+        public string EncodeToString(byte[] bytes) =>
+            EncodeToString(bytes, new HexadecimalEncodingOptions());
 
-        public string EncodeToString(byte[] byteArray, HexadecimalEncodingOptions hexadecimalOutputEncodingOptions)
+        public string EncodeToString(byte[] bytes, HexadecimalEncodingOptions hexadecimalOutputEncodingOptions)
         {
-            if (byteArray is null || byteArray.Length == 0)
+            if (bytes is null || bytes.Length == 0)
             {
-                throw new ArgumentException(MessageStrings.ByteArray_InvalidInputByteArray, nameof(byteArray));
+                throw new ArgumentException(MessageStrings.ByteArray_InvalidInputByteArray, nameof(bytes));
             }
 
             var hexadecimalString = new StringBuilder();
@@ -52,9 +55,9 @@ namespace CryptographyHelpers.Encoding
 
             var hexadecimalFormat = hexadecimalOutputEncodingOptions.OutputCharacterCasing == CharacterCasing.Upper ? HexadecimalFormatUpper : HexadecimalFormatLower;
 
-            for (var i = 0; i < byteArray.Length; i++)
+            for (var i = 0; i < bytes.Length; i++)
             {
-                hexadecimalString.Append(byteArray[i].ToString(hexadecimalFormat));
+                hexadecimalString.Append(bytes[i].ToString(hexadecimalFormat));
             }
 
             return hexadecimalString.ToString();
@@ -77,9 +80,9 @@ namespace CryptographyHelpers.Encoding
                 hexadecimalString = hexadecimalString[2..];
             }
 
-            var byteArray = DecodeString(hexadecimalString);
+            var bytes = DecodeString(hexadecimalString);
 
-            return byteArray.ToUTF8String();
+            return bytes.ToUTF8String();
         }
 
         public byte[] DecodeString(string hexadecimalString)
@@ -99,16 +102,16 @@ namespace CryptographyHelpers.Encoding
                 hexadecimalString = hexadecimalString[2..];
             }
 
-            var byteArray = new byte[hexadecimalString.Length / HexadecimalChunkSize];
+            var bytes = new byte[hexadecimalString.Length / HexadecimalChunkSize];
             var i = 0;
 
             foreach (var hexadecimalValue in ChunkHexadecimalString(hexadecimalString))
             {
-                byteArray[i] = Convert.ToByte(hexadecimalValue, HexadecimalBase);
+                bytes[i] = Convert.ToByte(hexadecimalValue, HexadecimalBase);
                 i++;
             }
 
-            return byteArray;
+            return bytes;
         }
 
         public bool IsValidEncodedString(string hexadecimalString)

@@ -1,4 +1,4 @@
 ﻿namespace CryptographyHelpers.Encryption.Symmetric.AES
 {
-    public enum AESCipherMode { CBC, GCM, };
+    public interface IAES256CBC : IAES { }
 }

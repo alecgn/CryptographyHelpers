@@ -6,7 +6,7 @@ using System.Security.Cryptography;
 
 namespace CryptographyHelpers.Encryption.Symmetric.AES
 {
-    public abstract class AESBase
+    public abstract class AESBase : IAES
     {
         public event OnMessageHandler OnMessage;
         public event OnProgressHandler OnProgress;
@@ -27,6 +27,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
             _cipherMode = cipherMode;
             _paddingMode = paddingMode;
         }
+
 
         public AESEncryptionResult Encrypt(byte[] data)
         {
@@ -72,7 +73,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
             }
         }
 
-        internal AESDecryptionResult Decrypt(byte[] encryptedData)
+        public AESDecryptionResult Decrypt(byte[] encryptedData)
         {
             if (encryptedData is null || encryptedData.Length == 0)
             {
@@ -116,7 +117,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
             }
         }
 
-        internal AESEncryptionResult EncryptFile(string sourceFilePath, string encryptedFilePath)
+        public AESEncryptionResult EncryptFile(string sourceFilePath, string encryptedFilePath)
         {
             if (!File.Exists(sourceFilePath))
             {
@@ -188,7 +189,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
             }
         }
 
-        internal AESDecryptionResult DecryptFile(string encryptedFilePath, string decryptedFilePath, LongRangeOptions rangeOptions)
+        public AESDecryptionResult DecryptFile(string encryptedFilePath, string decryptedFilePath, LongRangeOptions rangeOptions)
         {
             if (!File.Exists(encryptedFilePath))
             {

@@ -1,4 +1,6 @@
 ﻿using CryptographyHelpers.Encoding;
+using CryptographyHelpers.Encryption.Symmetric.AES;
+using CryptographyHelpers.Encryption.Symmetric.AES.AEAD;
 using CryptographyHelpers.Hash;
 using CryptographyHelpers.HMAC;
 using CryptographyHelpers.KeyDerivation;
@@ -58,6 +60,12 @@ namespace CryptographyHelpers.IoC
         {
             _servicesType.Add(typeof(IBase64), typeof(Base64));
             _servicesType.Add(typeof(IHexadecimal), typeof(Hexadecimal));
+            _servicesType.Add(typeof(IAES128GCM), typeof(AES128GCM));
+            _servicesType.Add(typeof(IAES192GCM), typeof(AES192GCM));
+            _servicesType.Add(typeof(IAES256GCM), typeof(AES256GCM));
+            _servicesType.Add(typeof(IAES128CBC), typeof(AES128CBC));
+            _servicesType.Add(typeof(IAES192CBC), typeof(AES192CBC));
+            _servicesType.Add(typeof(IAES256CBC), typeof(AES256CBC));
             _servicesType.Add(typeof(IMD5), typeof(MD5));
             _servicesType.Add(typeof(ISHA1), typeof(SHA1));
             _servicesType.Add(typeof(ISHA256), typeof(SHA256));

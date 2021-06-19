@@ -1,9 +1,6 @@
-﻿using CryptographyHelpers.Resources;
-using System;
-
-namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
+﻿namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
 {
-    public class AES128GCM : AESGGMBase
+    public class AES128GCM : AESGGMBase, IAES128GCM
     {
         private const AESKeySizes AESKeySize = AESKeySizes.KeySize128Bits;
 
@@ -12,7 +9,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
 
         public AES128GCM(byte[] key) : base(key)
         {
-            CryptographyCommon.ValidateAESKey(expectedAesKeySize: AESKeySize, key);
+            CryptographyUtils.ValidateAESKey(expectedAesKeySize: AESKeySize, key);
         }
     }
 }

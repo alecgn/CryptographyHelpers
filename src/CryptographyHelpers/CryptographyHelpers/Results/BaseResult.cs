@@ -1,4 +1,4 @@
-﻿namespace CryptographyHelpers
+﻿namespace CryptographyHelpers.Results
 {
     public class BaseResult
     {
