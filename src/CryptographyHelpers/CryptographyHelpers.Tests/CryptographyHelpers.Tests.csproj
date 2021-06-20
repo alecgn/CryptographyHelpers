@@ -10,6 +10,18 @@
     <AssemblyVersion>1.0.1</AssemblyVersion>
 
     <FileVersion>1.0.1</FileVersion>
+
+    <Authors>Alessandro Cagliostro Gonçalves Neves</Authors>
+
+    <Copyright>Alessandro Cagliostro Gonçalves Neves, 2021</Copyright>
+
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+
+    <RepositoryUrl>https://github.com/alecgn/CryptographyHelpers</RepositoryUrl>
+
+    <Description>Tests project for CryptographyHelpers lib.</Description>
+
+    <PackageProjectUrl>https://github.com/alecgn/CryptographyHelpers</PackageProjectUrl>
   </PropertyGroup>
 
   <ItemGroup>

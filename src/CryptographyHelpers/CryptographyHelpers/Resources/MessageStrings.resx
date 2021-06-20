@@ -120,8 +120,8 @@
   <data name="Authentication.InvalidTag" xml:space="preserve">
     <value>Invalid authentication tag.</value>
   </data>
-  <data name="ByteArray.InvalidInputByteArray" xml:space="preserve">
-    <value>Input byte array cannot be null or empty.</value>
+  <data name="Bytes.InvalidInputBytes" xml:space="preserve">
+    <value>Input bytes cannot be null or empty.</value>
   </data>
   <data name="Cryptography.InvalidKey" xml:space="preserve">
     <value>Invalid key (null or wrong size).</value>
@@ -163,7 +163,7 @@
     <value>Hash computed succesfully.</value>
   </data>
   <data name="Hash.DoesNotMatch" xml:space="preserve">
-    <value>Input hash and verification hash does not match.</value>
+    <value>Input data and verification hash does not match.</value>
   </data>
   <data name="Hash.InputBytesRequired" xml:space="preserve">
     <value>Input bytes to compute hash required.</value>
@@ -172,7 +172,7 @@
     <value>Input string to compute hash required.</value>
   </data>
   <data name="Hash.Match" xml:space="preserve">
-    <value>Input hash and verification hash does match.</value>
+    <value>Input data and verification hash does match.</value>
   </data>
   <data name="Hash.VerificationHashBytesRequired" xml:space="preserve">
     <value>Verification hash bytes required.</value>
@@ -210,10 +210,10 @@
   <data name="KeyDerivation.PasswordRequired" xml:space="preserve">
     <value>Input password required for key derivation.</value>
   </data>
-  <data name="Strings.InvalidInputBase64String" xml:space="preserve">
+  <data name="Strings.InvalidBase64InputString" xml:space="preserve">
     <value>Invalid base64 input string.</value>
   </data>
-  <data name="Strings.InvalidInputHexadecimalString" xml:space="preserve">
+  <data name="Strings.InvalidHexadecimalInputString" xml:space="preserve">
     <value>Invalid hexadecimal input string.</value>
   </data>
   <data name="Strings.InvalidInputString" xml:space="preserve">

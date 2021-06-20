@@ -1,9 +1,7 @@
-﻿using CryptographyHelpers.Extensions;
-using CryptographyHelpers.Resources;
+﻿using CryptographyHelpers.Resources;
 using CryptographyHelpers.Text;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -19,7 +17,6 @@ namespace CryptographyHelpers.Encoding
         private static Regex _regexHexadecimalString = null;
 
 
-        [ExcludeFromCodeCoverage]
         public string EncodeToString(string plainString) =>
             EncodeToString(plainString, new HexadecimalEncodingOptions());
 
@@ -35,7 +32,6 @@ namespace CryptographyHelpers.Encoding
             return EncodeToString(plainStringBytes, hexadecimalOutputEncodingOptions);
         }
 
-        [ExcludeFromCodeCoverage]
         public string EncodeToString(byte[] bytes) =>
             EncodeToString(bytes, new HexadecimalEncodingOptions());
 
@@ -43,7 +39,7 @@ namespace CryptographyHelpers.Encoding
         {
             if (bytes is null || bytes.Length == 0)
             {
-                throw new ArgumentException(MessageStrings.ByteArray_InvalidInputByteArray, nameof(bytes));
+                throw new ArgumentException(MessageStrings.Bytes_InvalidInputBytes, nameof(bytes));
             }
 
             var hexadecimalString = new StringBuilder();
@@ -72,7 +68,7 @@ namespace CryptographyHelpers.Encoding
 
             if (!IsValidEncodedString(hexadecimalString))
             {
-                throw new ArgumentException(MessageStrings.Strings_InvalidInputHexadecimalString, nameof(hexadecimalString));
+                throw new ArgumentException(MessageStrings.Strings_InvalidHexadecimalInputString, nameof(hexadecimalString));
             }
 
             if (hexadecimalString.StartsWith(HexadecimalPrefix, StringComparison.OrdinalIgnoreCase))
@@ -94,7 +90,7 @@ namespace CryptographyHelpers.Encoding
 
             if (!IsValidEncodedString(hexadecimalString))
             {
-                throw new ArgumentException(MessageStrings.Strings_InvalidInputHexadecimalString, nameof(hexadecimalString));
+                throw new ArgumentException(MessageStrings.Strings_InvalidHexadecimalInputString, nameof(hexadecimalString));
             }
 
             if (hexadecimalString.StartsWith(HexadecimalPrefix, StringComparison.OrdinalIgnoreCase))

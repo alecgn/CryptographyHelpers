@@ -1,6 +1,6 @@
 ﻿using CryptographyHelpers.Encoding;
 using CryptographyHelpers.EventHandlers;
-using CryptographyHelpers.Extensions;
+using CryptographyHelpers.Text;
 using CryptographyHelpers.Hash;
 using CryptographyHelpers.IoC;
 using CryptographyHelpers.Resources;
@@ -9,6 +9,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Security.Authentication;
 
 namespace CryptographyHelpers.HMAC
 {
@@ -113,7 +114,7 @@ namespace CryptographyHelpers.HMAC
                     Message = MessageStrings.HMAC_ComputeSuccess,
                     HashAlgorithmType = _hashAlgorithmType,
                     Key = key,
-                    OutputEncodingType = outputEncodingType,
+                    HashStringEncodingType = outputEncodingType,
                     HashBytes = hashBytes,
                     HashString = outputEncodingType == EncodingType.Hexadecimal
                         ? _serviceLocator.GetService<IHexadecimal>().EncodeToString(hashBytes)
@@ -250,7 +251,7 @@ namespace CryptographyHelpers.HMAC
                     Message = MessageStrings.HMAC_ComputeSuccess,
                     HashAlgorithmType = _hashAlgorithmType,
                     Key = key,
-                    OutputEncodingType = outputEncodingType,
+                    HashStringEncodingType = outputEncodingType,
                     HashBytes = hashBytes,
                     HashString = outputEncodingType == EncodingType.Hexadecimal
                         ? _serviceLocator.GetService<IHexadecimal>().EncodeToString(hashBytes)

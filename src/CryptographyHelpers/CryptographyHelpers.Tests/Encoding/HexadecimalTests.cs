@@ -51,7 +51,7 @@ namespace CryptographyHelpers.Tests.Encoding
 
             func.Should()
                 .ThrowExactly<ArgumentException>()
-                .WithMessage($"{MessageStrings.ByteArray_InvalidInputByteArray}*");
+                .WithMessage($"{MessageStrings.Bytes_InvalidInputBytes}*");
         }
 
         [TestMethod]
@@ -74,7 +74,7 @@ namespace CryptographyHelpers.Tests.Encoding
 
             func.Should()
                 .ThrowExactly<ArgumentException>()
-                .WithMessage($"{MessageStrings.Strings_InvalidInputHexadecimalString}*");
+                .WithMessage($"{MessageStrings.Strings_InvalidHexadecimalInputString}*");
         }
 
         [TestMethod]
@@ -97,7 +97,7 @@ namespace CryptographyHelpers.Tests.Encoding
 
             func.Should()
                 .ThrowExactly<ArgumentException>()
-                .WithMessage($"{MessageStrings.Strings_InvalidInputHexadecimalString}*");
+                .WithMessage($"{MessageStrings.Strings_InvalidHexadecimalInputString}*");
         }
 
         [TestMethod]

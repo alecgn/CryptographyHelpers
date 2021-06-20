@@ -1,11 +1,10 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Security.Authentication;
 
 namespace CryptographyHelpers.Hash
 {
-    [ExcludeFromCodeCoverage]
     public class SHA384 : HashBase, ISHA384
     {
-        private const HashAlgorithmType HashAlgorithm = HashAlgorithmType.SHA384;
+        private const HashAlgorithmType HashAlgorithm = HashAlgorithmType.Sha384;
 
         public SHA384() : base(HashAlgorithm) { }
     }

@@ -1,11 +1,10 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Security.Authentication;
 
 namespace CryptographyHelpers.Hash
 {
-    [ExcludeFromCodeCoverage]
     public class SHA1 : HashBase, ISHA1
     {
-        private const HashAlgorithmType HashAlgorithm = HashAlgorithmType.SHA1;
+        private const HashAlgorithmType HashAlgorithm = HashAlgorithmType.Sha1;
 
         public SHA1() : base(HashAlgorithm) { }
     }

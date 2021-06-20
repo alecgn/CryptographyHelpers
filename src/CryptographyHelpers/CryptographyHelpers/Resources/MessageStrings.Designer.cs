@@ -70,11 +70,11 @@ namespace CryptographyHelpers.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Input byte array cannot be null or empty..
+        ///   Looks up a localized string similar to Input bytes cannot be null or empty..
         /// </summary>
-        internal static string ByteArray_InvalidInputByteArray {
+        internal static string Bytes_InvalidInputBytes {
             get {
-                return ResourceManager.GetString("ByteArray.InvalidInputByteArray", resourceCulture);
+                return ResourceManager.GetString("Bytes.InvalidInputBytes", resourceCulture);
             }
         }
         
@@ -196,7 +196,7 @@ namespace CryptographyHelpers.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Input hash and verification hash does not match..
+        ///   Looks up a localized string similar to Input data and verification hash does not match..
         /// </summary>
         internal static string Hash_DoesNotMatch {
             get {
@@ -223,7 +223,7 @@ namespace CryptographyHelpers.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Input hash and verification hash does match..
+        ///   Looks up a localized string similar to Input data and verification hash does match..
         /// </summary>
         internal static string Hash_Match {
             get {
@@ -342,18 +342,18 @@ namespace CryptographyHelpers.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Invalid base64 input string..
         /// </summary>
-        internal static string Strings_InvalidInputBase64String {
+        internal static string Strings_InvalidBase64InputString {
             get {
-                return ResourceManager.GetString("Strings.InvalidInputBase64String", resourceCulture);
+                return ResourceManager.GetString("Strings.InvalidBase64InputString", resourceCulture);
             }
         }
         
         /// <summary>
         ///   Looks up a localized string similar to Invalid hexadecimal input string..
         /// </summary>
-        internal static string Strings_InvalidInputHexadecimalString {
+        internal static string Strings_InvalidHexadecimalInputString {
             get {
-                return ResourceManager.GetString("Strings.InvalidInputHexadecimalString", resourceCulture);
+                return ResourceManager.GetString("Strings.InvalidHexadecimalInputString", resourceCulture);
             }
         }
         

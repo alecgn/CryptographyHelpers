@@ -1,5 +1,5 @@
-﻿using CryptographyHelpers.Extensions;
-using CryptographyHelpers.Resources;
+﻿using CryptographyHelpers.Resources;
+using CryptographyHelpers.Text;
 using System;
 using System.Text.RegularExpressions;
 
@@ -27,7 +27,7 @@ namespace CryptographyHelpers.Encoding
         {
             if (bytes is null || bytes.Length == 0)
             {
-                throw new ArgumentException(MessageStrings.ByteArray_InvalidInputByteArray, nameof(bytes));
+                throw new ArgumentException(MessageStrings.Bytes_InvalidInputBytes, nameof(bytes));
             }
 
             return bytes.ToBase64String();
@@ -42,7 +42,7 @@ namespace CryptographyHelpers.Encoding
 
             if (!IsValidEncodedString(base64String))
             {
-                throw new ArgumentException(MessageStrings.Strings_InvalidInputBase64String, nameof(base64String));
+                throw new ArgumentException(MessageStrings.Strings_InvalidBase64InputString, nameof(base64String));
             }
 
             var bytes = DecodeString(base64String);
@@ -59,7 +59,7 @@ namespace CryptographyHelpers.Encoding
 
             if (!IsValidEncodedString(base64String))
             {
-                throw new ArgumentException(MessageStrings.Strings_InvalidInputBase64String, nameof(base64String));
+                throw new ArgumentException(MessageStrings.Strings_InvalidBase64InputString, nameof(base64String));
             }
 
             return base64String.ToBytesFromBase64String();
