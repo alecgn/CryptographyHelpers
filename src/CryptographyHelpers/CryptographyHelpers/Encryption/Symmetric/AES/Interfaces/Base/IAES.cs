@@ -1,4 +1,6 @@
-﻿namespace CryptographyHelpers.Encryption.Symmetric.AES
+﻿using CryptographyHelpers.Options;
+
+namespace CryptographyHelpers.Encryption.Symmetric.AES
 {
     public interface IAES
     {

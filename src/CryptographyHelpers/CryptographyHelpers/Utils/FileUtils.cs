@@ -1,8 +1,9 @@
-﻿using CryptographyHelpers.Resources;
+﻿using CryptographyHelpers.Options;
+using CryptographyHelpers.Resources;
 using System;
 using System.IO;
 
-namespace CryptographyHelpers.Util
+namespace CryptographyHelpers.Utils
 {
     public static class FileUtils
     {

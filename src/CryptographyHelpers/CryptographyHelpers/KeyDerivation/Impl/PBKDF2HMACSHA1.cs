@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNet.Cryptography.KeyDerivation;
+﻿using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 
 namespace CryptographyHelpers.KeyDerivation
 {

@@ -331,11 +331,20 @@ namespace CryptographyHelpers.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Input password required for key derivation..
+        ///   Looks up a localized string similar to Input key bytes required for key verification..
         /// </summary>
-        internal static string KeyDerivation_PasswordRequired {
+        internal static string KeyDerivation_KeyBytesRequired {
             get {
-                return ResourceManager.GetString("KeyDerivation.PasswordRequired", resourceCulture);
+                return ResourceManager.GetString("KeyDerivation.KeyBytesRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Input password string required for key derivation..
+        /// </summary>
+        internal static string KeyDerivation_PasswordStringRequired {
+            get {
+                return ResourceManager.GetString("KeyDerivation.PasswordStringRequired", resourceCulture);
             }
         }
         

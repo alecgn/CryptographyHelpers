@@ -1,4 +1,6 @@
-﻿namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
+﻿using CryptographyHelpers.Utils;
+
+namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
 {
     public class AES256GCM : AESGGMBase, IAES256GCM
     {

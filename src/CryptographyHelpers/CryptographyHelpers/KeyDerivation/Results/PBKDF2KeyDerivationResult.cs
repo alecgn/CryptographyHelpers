@@ -1,14 +1,13 @@
 ﻿using CryptographyHelpers.Encoding;
-using Microsoft.AspNet.Cryptography.KeyDerivation;
+using CryptographyHelpers.Results;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using System.Diagnostics.CodeAnalysis;
 
 namespace CryptographyHelpers.KeyDerivation
 {
     [ExcludeFromCodeCoverage]
-    public class PBKDF2KeyDerivationResult
+    public class PBKDF2KeyDerivationResult : BaseResult
     {
-        public bool Success { get; set; }
-        public string Message { get; set; }
         public EncodingType OutputEncodingType { get; set; }
         public string DerivedKeyString { get; set; }
         public byte[] DerivedKeyBytes { get; set; }

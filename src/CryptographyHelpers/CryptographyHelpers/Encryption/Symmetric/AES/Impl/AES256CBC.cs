@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography;
+﻿using CryptographyHelpers.Utils;
+using System.Security.Cryptography;
 
 namespace CryptographyHelpers.Encryption.Symmetric.AES
 {

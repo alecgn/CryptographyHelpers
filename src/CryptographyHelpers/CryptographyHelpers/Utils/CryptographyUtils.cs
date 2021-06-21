@@ -1,16 +1,12 @@
 ﻿using CryptographyHelpers.Encryption.Symmetric.AES;
-using CryptographyHelpers.IoC;
 using CryptographyHelpers.Resources;
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
 
-namespace CryptographyHelpers
+namespace CryptographyHelpers.Utils
 {
     public static class CryptographyUtils
     {
-        private static readonly ServiceLocator _serviceLocator = ServiceLocator.Instance;
-
         public static byte[] GenerateRandomBytes(int length)
         {
             var randomBytes = new byte[length];
@@ -20,19 +16,15 @@ namespace CryptographyHelpers
             return randomBytes;
         }
 
-        [ExcludeFromCodeCoverage]
         public static byte[] GenerateRandom128BitsKey() =>
             GenerateRandomBytes(128 / Constants.BitsPerByte);
 
-        [ExcludeFromCodeCoverage]
         public static byte[] GenerateRandom192BitsKey() =>
             GenerateRandomBytes(192 / Constants.BitsPerByte);
 
-        [ExcludeFromCodeCoverage]
         public static byte[] GenerateRandom256BitsKey() =>
             GenerateRandomBytes(256 / Constants.BitsPerByte);
 
-        [ExcludeFromCodeCoverage]
         public static byte[] GenerateSalt(int? saltLength = null) =>
             saltLength is null || saltLength == 0 ? GenerateRandom128BitsKey() : GenerateRandomBytes(saltLength.Value);
 

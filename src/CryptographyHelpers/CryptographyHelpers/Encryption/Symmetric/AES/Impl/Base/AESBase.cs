@@ -1,4 +1,5 @@
 ﻿using CryptographyHelpers.EventHandlers;
+using CryptographyHelpers.Options;
 using CryptographyHelpers.Resources;
 using System;
 using System.IO;
@@ -8,7 +9,6 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
 {
     public abstract class AESBase : IAES
     {
-        public event OnMessageHandler OnMessage;
         public event OnProgressHandler OnProgress;
 
         private const int BytesPerKilobyte = 1024;

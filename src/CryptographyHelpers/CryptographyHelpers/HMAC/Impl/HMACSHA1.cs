@@ -1,12 +1,10 @@
-﻿using CryptographyHelpers.Hash;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Security.Authentication;
 
 namespace CryptographyHelpers.HMAC
 {
-    [ExcludeFromCodeCoverage]
     public class HMACSHA1 : HMACBase, IHMACSHA1
     {
-        private const HashAlgorithmType HashAlgorithm = HashAlgorithmType.SHA1;
+        private const HashAlgorithmType HashAlgorithm = HashAlgorithmType.Sha1;
 
         public HMACSHA1() : base(HashAlgorithm) { }
     }

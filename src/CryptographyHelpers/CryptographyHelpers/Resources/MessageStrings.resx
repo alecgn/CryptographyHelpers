@@ -207,8 +207,11 @@
   <data name="KeyDerivation.IterationCountInvalid" xml:space="preserve">
     <value>Invalid (and insecure) iteration count: Minimum must be greater or equal {0}.</value>
   </data>
-  <data name="KeyDerivation.PasswordRequired" xml:space="preserve">
-    <value>Input password required for key derivation.</value>
+  <data name="KeyDerivation.KeyBytesRequired" xml:space="preserve">
+    <value>Input key bytes required for key verification.</value>
+  </data>
+  <data name="KeyDerivation.PasswordStringRequired" xml:space="preserve">
+    <value>Input password string required for key derivation.</value>
   </data>
   <data name="Strings.InvalidBase64InputString" xml:space="preserve">
     <value>Invalid base64 input string.</value>

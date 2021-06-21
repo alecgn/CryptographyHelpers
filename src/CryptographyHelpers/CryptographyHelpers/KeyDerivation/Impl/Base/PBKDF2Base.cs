@@ -1,9 +1,10 @@
 ﻿using CryptographyHelpers.Encoding;
 using CryptographyHelpers.IoC;
 using CryptographyHelpers.Resources;
-using Microsoft.AspNet.Cryptography.KeyDerivation;
+using CryptographyHelpers.Utils;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using System;
-using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 
 namespace CryptographyHelpers.KeyDerivation
 {
@@ -21,11 +22,9 @@ namespace CryptographyHelpers.KeyDerivation
         }
 
 
-        [ExcludeFromCodeCoverage]
         public PBKDF2KeyDerivationResult DeriveKey(string password, int bytesRequested) =>
             DeriveKey(password, bytesRequested, salt: null, outputEncodingType: DefaultEncodingType);
 
-        [ExcludeFromCodeCoverage]
         public PBKDF2KeyDerivationResult DeriveKey(string password, int bytesRequested, byte[] salt) =>
             DeriveKey(password, bytesRequested, salt, outputEncodingType: DefaultEncodingType);
 
@@ -36,7 +35,7 @@ namespace CryptographyHelpers.KeyDerivation
                 return new PBKDF2KeyDerivationResult()
                 {
                     Success = false,
-                    Message = MessageStrings.KeyDerivation_PasswordRequired,
+                    Message = MessageStrings.KeyDerivation_PasswordStringRequired,
                 };
             }
 
@@ -56,7 +55,7 @@ namespace CryptographyHelpers.KeyDerivation
 
             try
             {
-                var derivedKey = Microsoft.AspNet.Cryptography.KeyDerivation.KeyDerivation.Pbkdf2(
+                var derivedKey = Microsoft.AspNetCore.Cryptography.KeyDerivation.KeyDerivation.Pbkdf2(
                     password,
                     salt,
                     _pseudoRandomFunction,
@@ -85,6 +84,43 @@ namespace CryptographyHelpers.KeyDerivation
                     Message = $"{MessageStrings.KeyDerivation_ExceptionError}\n{ex}",
                 };
             }
+        }
+
+
+        public PBKDF2KeyDerivationResult VerifyKey(string password, byte[] key, byte[] salt) =>
+            VerifyKey(password, key, salt, outputEncodingType: DefaultEncodingType);
+
+        public PBKDF2KeyDerivationResult VerifyKey(string password, byte[] key, byte[] salt, EncodingType outputEncodingType)
+        {
+            if (string.IsNullOrWhiteSpace(password))
+            {
+                return new()
+                {
+                    Success = false,
+                    Message = MessageStrings.KeyDerivation_PasswordStringRequired,
+                };
+            }
+
+            if (key is null || key.Length == 0)
+            {
+                return new()
+                {
+                    Success = false,
+                    Message = MessageStrings.KeyDerivation_KeyBytesRequired,
+                };
+            }
+
+            var keyDerivationResult = DeriveKey(password, key.Length, salt, outputEncodingType);
+
+            if (keyDerivationResult.Success)
+            {
+                var keysMatch = keyDerivationResult.DerivedKeyBytes.SequenceEqual(key);
+
+                keyDerivationResult.Success = keysMatch;
+                keyDerivationResult.Message = $"{(keysMatch ? MessageStrings.Hash_Match : MessageStrings.Hash_DoesNotMatch)}";
+            }
+
+            return keyDerivationResult;
         }
     }
 }

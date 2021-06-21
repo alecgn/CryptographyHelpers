@@ -1,5 +1,6 @@
 ﻿using CryptographyHelpers.Encoding;
 using CryptographyHelpers.EventHandlers;
+using CryptographyHelpers.Options;
 
 namespace CryptographyHelpers.Hash
 {

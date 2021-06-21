@@ -1,12 +1,10 @@
-﻿using CryptographyHelpers.Hash;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Security.Authentication;
 
 namespace CryptographyHelpers.HMAC
 {
-    [ExcludeFromCodeCoverage]
     public class HMACSHA384 : HMACBase, IHMACSHA384
     {
-        private const HashAlgorithmType HashAlgorithm = HashAlgorithmType.SHA384;
+        private const HashAlgorithmType HashAlgorithm = HashAlgorithmType.Sha384;
 
         public HMACSHA384() : base(HashAlgorithm) { }
     }
