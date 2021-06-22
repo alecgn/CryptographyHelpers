@@ -1,9 +1,8 @@
-﻿using CryptographyHelpers.Encoding;
-using CryptographyHelpers.EventHandlers;
+﻿using CryptographyHelpers.EventHandlers;
 using CryptographyHelpers.IoC;
 using CryptographyHelpers.Options;
 using CryptographyHelpers.Resources;
-using CryptographyHelpers.Text;
+using CryptographyHelpers.Text.Encoding;
 using System;
 using System.IO;
 using System.Linq;
@@ -18,7 +17,7 @@ namespace CryptographyHelpers.Hash
         private const int FileReadBufferSize = 1024 * 4;
         private const EncodingType DefaultEncodingType = EncodingType.Hexadecimal;
         private readonly HashAlgorithmType _hashAlgorithmType;
-        private readonly ServiceLocator _serviceLocator = ServiceLocator.Instance;
+        private readonly InternalServiceLocator _serviceLocator = InternalServiceLocator.Instance;
 
 
         public HashBase(HashAlgorithmType hashAlgorithmType) =>

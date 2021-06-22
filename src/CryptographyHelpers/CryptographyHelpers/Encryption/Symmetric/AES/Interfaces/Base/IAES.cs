@@ -10,6 +10,8 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
 
         AESEncryptionResult EncryptFile(string sourceFilePath, string encryptedFilePath);
 
-        AESDecryptionResult DecryptFile(string encryptedFilePath, string decryptedFilePath, LongRangeOptions rangeOptions);
+        AESDecryptionResult DecryptFile(string encryptedFilePath, string decryptedFilePath);
+
+        AESDecryptionResult DecryptFile(string encryptedFilePath, string decryptedFilePath, LongOffsetOptions offsetOptions);
     }
 }

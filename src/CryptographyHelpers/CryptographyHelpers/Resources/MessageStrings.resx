@@ -130,7 +130,7 @@
     <value>Data succesfully decrypted.</value>
   </data>
   <data name="Decryption.FileDecryptionSuccess" xml:space="preserve">
-    <value>File succesfully decrypted.</value>
+    <value>File decrypted succesfully.</value>
   </data>
   <data name="Decryption.InputBytesRequired" xml:space="preserve">
     <value>Input bytes to decrypt required.</value>
@@ -145,10 +145,10 @@
     <value>Directory not found:</value>
   </data>
   <data name="Encryption.DataEncryptionSuccess" xml:space="preserve">
-    <value>Data succesfully encrypted.</value>
+    <value>Data encrypted succesfully.</value>
   </data>
   <data name="Encryption.FileEncryptionSuccess" xml:space="preserve">
-    <value>File succesfully encrypted.</value>
+    <value>File encrypted succesfully.</value>
   </data>
   <data name="Encryption.InputBytesRequired" xml:space="preserve">
     <value>Input bytes to encrypt required.</value>

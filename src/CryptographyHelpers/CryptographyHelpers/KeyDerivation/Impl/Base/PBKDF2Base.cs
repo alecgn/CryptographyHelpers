@@ -1,6 +1,6 @@
-﻿using CryptographyHelpers.Encoding;
-using CryptographyHelpers.IoC;
+﻿using CryptographyHelpers.IoC;
 using CryptographyHelpers.Resources;
+using CryptographyHelpers.Text.Encoding;
 using CryptographyHelpers.Utils;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 using System;
@@ -13,7 +13,7 @@ namespace CryptographyHelpers.KeyDerivation
         private const EncodingType DefaultEncodingType = EncodingType.Base64;
         private readonly KeyDerivationPrf _pseudoRandomFunction;
         private readonly int _iterations;
-        private readonly ServiceLocator _serviceLocator = ServiceLocator.Instance;
+        private readonly InternalServiceLocator _serviceLocator = InternalServiceLocator.Instance;
 
         public PBKDF2Base(KeyDerivationPrf pseudoRandomFunction, int iterations)
         {

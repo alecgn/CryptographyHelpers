@@ -1,4 +1,4 @@
-﻿using CryptographyHelpers.Encoding;
+﻿using CryptographyHelpers.Text.Encoding;
 
 namespace CryptographyHelpers.KeyDerivation
 {

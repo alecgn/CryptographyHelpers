@@ -9,9 +9,12 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
         private const PaddingMode Padding = PaddingMode.PKCS7;
         private const AESKeySizes AESKeySize = AESKeySizes.KeySize256Bits;
 
+
+        public AES256CBC() : base(keySizeToGenerateRandomKey: AESKeySize) { }
+
         public AES256CBC(byte[] key, byte[] IV) : base(key, IV, Mode, Padding)
         {
-            CryptographyUtils.ValidateAESKey(expectedAesKeySize: AESKeySize, key);
+            CryptographyUtils.ValidateAESKey(key, expectedAesKeySize: AESKeySize);
         }
     }
 }

@@ -11,7 +11,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
 
         public AES192GCM(byte[] key) : base(key)
         {
-            CryptographyUtils.ValidateAESKey(expectedAesKeySize: AESKeySize, key);
+            CryptographyUtils.ValidateAESKey(key, expectedAesKeySize: AESKeySize);
         }
     }
 }

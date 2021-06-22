@@ -1,7 +1,7 @@
-﻿using CryptographyHelpers.Encoding;
-using CryptographyHelpers.IoC;
+﻿using CryptographyHelpers.IoC;
 using CryptographyHelpers.Resources;
 using CryptographyHelpers.Text;
+using CryptographyHelpers.Text.Encoding;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
@@ -26,7 +26,7 @@ namespace CryptographyHelpers.Tests.Encoding
 
         public HexadecimalTests()
         {
-            _hexadecimal = ServiceLocator.Instance.GetService<IHexadecimal>();
+            _hexadecimal = InternalServiceLocator.Instance.GetService<IHexadecimal>();
         }
 
         [TestMethod]

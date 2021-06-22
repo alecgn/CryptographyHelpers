@@ -1,4 +1,4 @@
-﻿namespace CryptographyHelpers.Encoding
+﻿namespace CryptographyHelpers.Text.Encoding
 {
     public interface IHexadecimal : IEncoding
     {

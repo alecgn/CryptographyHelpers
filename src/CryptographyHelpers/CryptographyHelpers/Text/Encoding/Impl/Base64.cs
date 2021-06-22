@@ -1,9 +1,8 @@
 ﻿using CryptographyHelpers.Resources;
-using CryptographyHelpers.Text;
 using System;
 using System.Text.RegularExpressions;
 
-namespace CryptographyHelpers.Encoding
+namespace CryptographyHelpers.Text.Encoding
 {
     public class Base64 : IBase64
     {

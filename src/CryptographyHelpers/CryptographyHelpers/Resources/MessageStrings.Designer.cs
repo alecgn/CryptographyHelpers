@@ -97,7 +97,7 @@ namespace CryptographyHelpers.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to File succesfully decrypted..
+        ///   Looks up a localized string similar to File decrypted succesfully..
         /// </summary>
         internal static string Decryption_FileDecryptionSuccess {
             get {
@@ -142,7 +142,7 @@ namespace CryptographyHelpers.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Data succesfully encrypted..
+        ///   Looks up a localized string similar to Data encrypted succesfully..
         /// </summary>
         internal static string Encryption_DataEncryptionSuccess {
             get {
@@ -151,7 +151,7 @@ namespace CryptographyHelpers.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to File succesfully encrypted..
+        ///   Looks up a localized string similar to File encrypted succesfully..
         /// </summary>
         internal static string Encryption_FileEncryptionSuccess {
             get {

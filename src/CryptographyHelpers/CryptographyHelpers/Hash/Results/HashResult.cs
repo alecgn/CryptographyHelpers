@@ -1,5 +1,5 @@
-﻿using CryptographyHelpers.Encoding;
-using CryptographyHelpers.Results;
+﻿using CryptographyHelpers.Results;
+using CryptographyHelpers.Text.Encoding;
 using System.Security.Authentication;
 
 namespace CryptographyHelpers.Hash

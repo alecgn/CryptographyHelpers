@@ -1,9 +1,9 @@
-﻿using CryptographyHelpers.Encoding;
-using CryptographyHelpers.Encryption.Symmetric.AES;
+﻿using CryptographyHelpers.Encryption.Symmetric.AES;
 using CryptographyHelpers.Encryption.Symmetric.AES.AEAD;
 using CryptographyHelpers.Hash;
 using CryptographyHelpers.HMAC;
 using CryptographyHelpers.KeyDerivation;
+using CryptographyHelpers.Text.Encoding;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -11,15 +11,15 @@ using System.Reflection;
 
 namespace CryptographyHelpers.IoC
 {
-    internal sealed class ServiceLocator
+    internal sealed class InternalServiceLocator
     {
-        internal static ServiceLocator Instance { get { return _lazyInstance.Value; } }
+        internal static InternalServiceLocator Instance { get { return _lazyInstance.Value; } }
         
-        private static readonly Lazy<ServiceLocator> _lazyInstance = new(() => new ServiceLocator());
+        private static readonly Lazy<InternalServiceLocator> _lazyInstance = new(() => new InternalServiceLocator());
         private IDictionary<Type, Type> _servicesType;
         private IDictionary<Type, object> _instantiatedServices;
 
-        private ServiceLocator()
+        private InternalServiceLocator()
         {
             this._servicesType = new ConcurrentDictionary<Type, Type>();
             this._instantiatedServices = new ConcurrentDictionary<Type, object>();

@@ -1,6 +1,4 @@
-﻿using CryptographyHelpers.Text;
-
-namespace CryptographyHelpers.Encoding
+﻿namespace CryptographyHelpers.Text.Encoding
 {
     public struct HexadecimalEncodingOptions
     {

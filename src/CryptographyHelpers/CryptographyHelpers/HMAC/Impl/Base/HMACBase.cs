@@ -1,10 +1,9 @@
-﻿using CryptographyHelpers.Encoding;
-using CryptographyHelpers.EventHandlers;
+﻿using CryptographyHelpers.EventHandlers;
 using CryptographyHelpers.Hash;
 using CryptographyHelpers.IoC;
 using CryptographyHelpers.Options;
 using CryptographyHelpers.Resources;
-using CryptographyHelpers.Text;
+using CryptographyHelpers.Text.Encoding;
 using CryptographyHelpers.Utils;
 using System;
 using System.IO;
@@ -19,7 +18,7 @@ namespace CryptographyHelpers.HMAC
         private const int FileReadBufferSize = 1024 * 4;
         private const EncodingType DefaultEncodingType = EncodingType.Hexadecimal;
         private readonly HashAlgorithmType _hashAlgorithmType;
-        private readonly ServiceLocator _serviceLocator = ServiceLocator.Instance;
+        private readonly InternalServiceLocator _serviceLocator = InternalServiceLocator.Instance;
 
 
         public HMACBase(HashAlgorithmType hashAlgorithmType) =>

@@ -1,11 +1,10 @@
 ﻿using CryptographyHelpers.Resources;
-using CryptographyHelpers.Text;
 using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace CryptographyHelpers.Encoding
+namespace CryptographyHelpers.Text.Encoding
 {
     public class Hexadecimal : IHexadecimal
     {

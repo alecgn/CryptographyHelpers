@@ -1,8 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
-
-namespace CryptographyHelpers
+﻿namespace CryptographyHelpers
 {
-    [ExcludeFromCodeCoverage]
     internal static class Constants
     {
         internal const int BitsPerByte = 8;

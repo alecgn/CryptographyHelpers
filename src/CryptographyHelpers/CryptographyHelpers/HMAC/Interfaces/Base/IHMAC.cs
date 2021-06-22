@@ -1,6 +1,6 @@
-﻿using CryptographyHelpers.Encoding;
-using CryptographyHelpers.EventHandlers;
+﻿using CryptographyHelpers.EventHandlers;
 using CryptographyHelpers.Options;
+using CryptographyHelpers.Text.Encoding;
 
 namespace CryptographyHelpers.HMAC
 {

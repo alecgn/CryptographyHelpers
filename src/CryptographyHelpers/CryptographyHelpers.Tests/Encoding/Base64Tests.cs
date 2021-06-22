@@ -1,6 +1,6 @@
-﻿using CryptographyHelpers.Encoding;
-using CryptographyHelpers.IoC;
+﻿using CryptographyHelpers.IoC;
 using CryptographyHelpers.Resources;
+using CryptographyHelpers.Text.Encoding;
 using FluentAssertions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
@@ -22,7 +22,7 @@ namespace CryptographyHelpers.Tests.Encoding
 
         public Base64Tests()
         {
-            _base64 = ServiceLocator.Instance.GetService<IBase64>();
+            _base64 = InternalServiceLocator.Instance.GetService<IBase64>();
         }
 
         [TestMethod]

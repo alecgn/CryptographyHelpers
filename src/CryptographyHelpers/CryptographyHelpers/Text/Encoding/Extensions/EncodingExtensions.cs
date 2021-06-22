@@ -1,11 +1,11 @@
 ﻿using CryptographyHelpers.IoC;
 using System;
 
-namespace CryptographyHelpers.Encoding
+namespace CryptographyHelpers.Text.Encoding
 {
     public static class EncodingExtensions
     {
-        private static ServiceLocator _serviceLocator = ServiceLocator.Instance;
+        private static InternalServiceLocator _serviceLocator = InternalServiceLocator.Instance;
 
 
         public static byte[] ToBytesFromBase64String(this string base64String) =>
@@ -16,5 +16,11 @@ namespace CryptographyHelpers.Encoding
 
         public static string ToHexadecimalString(this byte[] bytes) =>
             _serviceLocator.GetService<IHexadecimal>().EncodeToString(bytes);
+
+        public static string ToUTF8String(this byte[] bytes) =>
+            System.Text.Encoding.UTF8.GetString(bytes);
+
+        public static byte[] ToUTF8Bytes(this string @string) =>
+            System.Text.Encoding.UTF8.GetBytes(@string);
     }
 }

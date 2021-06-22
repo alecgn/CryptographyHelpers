@@ -25,10 +25,13 @@ namespace CryptographyHelpers.Utils
         public static byte[] GenerateRandom256BitsKey() =>
             GenerateRandomBytes(256 / Constants.BitsPerByte);
 
+        public static byte[] GenerateRandomAESIV() =>
+            GenerateRandom128BitsKey();
+
         public static byte[] GenerateSalt(int? saltLength = null) =>
             saltLength is null || saltLength == 0 ? GenerateRandom128BitsKey() : GenerateRandomBytes(saltLength.Value);
 
-        public static void ValidateAESKey(AESKeySizes expectedAesKeySize, byte[] key)
+        public static void ValidateAESKey(byte[] key, AESKeySizes expectedAesKeySize)
         {
             if (key is null || key.Length != (int)expectedAesKeySize / Constants.BitsPerByte)
             {

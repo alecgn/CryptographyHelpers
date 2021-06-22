@@ -1,11 +1,9 @@
-﻿using CryptographyHelpers.Encoding;
-using CryptographyHelpers.Results;
+﻿using CryptographyHelpers.Results;
+using CryptographyHelpers.Text.Encoding;
 using Microsoft.AspNetCore.Cryptography.KeyDerivation;
-using System.Diagnostics.CodeAnalysis;
 
 namespace CryptographyHelpers.KeyDerivation
 {
-    [ExcludeFromCodeCoverage]
     public class PBKDF2KeyDerivationResult : BaseResult
     {
         public EncodingType OutputEncodingType { get; set; }
