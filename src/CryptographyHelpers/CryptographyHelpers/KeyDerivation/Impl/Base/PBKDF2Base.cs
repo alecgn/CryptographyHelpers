@@ -81,7 +81,7 @@ namespace CryptographyHelpers.KeyDerivation
                 return new PBKDF2KeyDerivationResult()
                 {
                     Success = false,
-                    Message = $"{MessageStrings.KeyDerivation_ExceptionError}\n{ex}",
+                    Message = ex.ToString(),
                 };
             }
         }

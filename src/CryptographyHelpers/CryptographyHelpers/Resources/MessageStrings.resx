@@ -117,14 +117,11 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Authentication.InvalidTag" xml:space="preserve">
-    <value>Invalid authentication tag.</value>
-  </data>
   <data name="Bytes.InvalidInputBytes" xml:space="preserve">
     <value>Input bytes cannot be null or empty.</value>
   </data>
-  <data name="Cryptography.InvalidKey" xml:space="preserve">
-    <value>Invalid key (null or wrong size).</value>
+  <data name="Cryptography.InvalidAESKey" xml:space="preserve">
+    <value>Invalid AES key (null or wrong size).</value>
   </data>
   <data name="Decryption.DataDecryptionSuccess" xml:space="preserve">
     <value>Data succesfully decrypted.</value>
@@ -134,15 +131,6 @@
   </data>
   <data name="Decryption.InputBytesRequired" xml:space="preserve">
     <value>Input bytes to decrypt required.</value>
-  </data>
-  <data name="Decryption.NonceBytesRequired" xml:space="preserve">
-    <value>Nonce bytes required.</value>
-  </data>
-  <data name="Decryption.TagBytesRequired" xml:space="preserve">
-    <value>Tag bytes required.</value>
-  </data>
-  <data name="Directory.PathNotFound" xml:space="preserve">
-    <value>Directory not found:</value>
   </data>
   <data name="Encryption.DataEncryptionSuccess" xml:space="preserve">
     <value>Data encrypted succesfully.</value>
@@ -198,14 +186,8 @@
   <data name="KeyDerivation.DerivationSuccess" xml:space="preserve">
     <value>Key derived succesfully.</value>
   </data>
-  <data name="KeyDerivation.ExceptionError" xml:space="preserve">
-    <value>Error while trying to derive key from password:</value>
-  </data>
   <data name="KeyDerivation.InvalidBytesRequested" xml:space="preserve">
     <value>Number of bytes requested from key derivation required (must be greater than 0).</value>
-  </data>
-  <data name="KeyDerivation.IterationCountInvalid" xml:space="preserve">
-    <value>Invalid (and insecure) iteration count: Minimum must be greater or equal {0}.</value>
   </data>
   <data name="KeyDerivation.KeyBytesRequired" xml:space="preserve">
     <value>Input key bytes required for key verification.</value>

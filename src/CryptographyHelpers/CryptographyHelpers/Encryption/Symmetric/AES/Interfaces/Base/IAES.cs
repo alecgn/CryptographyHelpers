@@ -1,8 +1,9 @@
 ﻿using CryptographyHelpers.Options;
+using System;
 
 namespace CryptographyHelpers.Encryption.Symmetric.AES
 {
-    public interface IAES
+    public interface IAES : IDisposable
     {
         AESEncryptionResult Encrypt(byte[] data);
 

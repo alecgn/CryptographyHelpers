@@ -1,10 +1,7 @@
 ﻿namespace CryptographyHelpers.Encryption.Symmetric.AES
 {
-    public enum AESImplementation
+    public enum AESAlgorithm
     { 
-        AESGCM128, 
-        AESGCM192, 
-        AESGCM256,
         AESCBC128HMACSHA256,
         AESCBC192HMACSHA384,
         AESCBC256HMACSHA384,

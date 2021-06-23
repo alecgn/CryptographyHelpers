@@ -35,7 +35,7 @@ namespace CryptographyHelpers.Utils
         {
             if (key is null || key.Length != (int)expectedAesKeySize / Constants.BitsPerByte)
             {
-                throw new ArgumentException($"{MessageStrings.Cryptography_InvalidKey}", nameof(key));
+                throw new ArgumentException($"{MessageStrings.Cryptography_InvalidAESKey}", nameof(key));
             }
         }
     }

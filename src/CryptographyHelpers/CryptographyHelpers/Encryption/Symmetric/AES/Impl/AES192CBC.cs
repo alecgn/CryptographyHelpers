@@ -3,7 +3,7 @@ using System.Security.Cryptography;
 
 namespace CryptographyHelpers.Encryption.Symmetric.AES
 {
-    public class AES192CBC : AESBase, IAES192CBC
+    public class AES192CBC : AESCore, IAES192CBC
     {
         private const CipherMode Mode = CipherMode.CBC;
         private const PaddingMode Padding = PaddingMode.PKCS7;

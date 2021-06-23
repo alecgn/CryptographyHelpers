@@ -1,14 +1,10 @@
-﻿using CryptographyHelpers.Text.Encoding;
+﻿using System;
 
 namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
 {
-    public interface IAESGCM
+    public interface IAESGCM : IDisposable
     {
-        //AESGCMEncryptionResult EncryptText(string plainText, EncodingType encryptedTextEncodingType, string associatedData = null);
-
         AESGCMEncryptionResult Encrypt(byte[] data, byte[] associatedData = null);
-
-        //AESGCMDecryptionResult DecryptText(string encryptedText, string nonce, string tag, EncodingType inputParametersEncodingType, string associatedData = null);
 
         AESGCMDecryptionResult Decrypt(byte[] encryptedData, byte[] nonce, byte[] tag, byte[] associatedData = null);
     }

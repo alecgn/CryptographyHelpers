@@ -61,15 +61,6 @@ namespace CryptographyHelpers.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Invalid authentication tag..
-        /// </summary>
-        internal static string Authentication_InvalidTag {
-            get {
-                return ResourceManager.GetString("Authentication.InvalidTag", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Input bytes cannot be null or empty..
         /// </summary>
         internal static string Bytes_InvalidInputBytes {
@@ -79,11 +70,11 @@ namespace CryptographyHelpers.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Invalid key (null or wrong size)..
+        ///   Looks up a localized string similar to Invalid AES key (null or wrong size)..
         /// </summary>
-        internal static string Cryptography_InvalidKey {
+        internal static string Cryptography_InvalidAESKey {
             get {
-                return ResourceManager.GetString("Cryptography.InvalidKey", resourceCulture);
+                return ResourceManager.GetString("Cryptography.InvalidAESKey", resourceCulture);
             }
         }
         
@@ -111,33 +102,6 @@ namespace CryptographyHelpers.Resources {
         internal static string Decryption_InputBytesRequired {
             get {
                 return ResourceManager.GetString("Decryption.InputBytesRequired", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Nonce bytes required..
-        /// </summary>
-        internal static string Decryption_NonceBytesRequired {
-            get {
-                return ResourceManager.GetString("Decryption.NonceBytesRequired", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Tag bytes required..
-        /// </summary>
-        internal static string Decryption_TagBytesRequired {
-            get {
-                return ResourceManager.GetString("Decryption.TagBytesRequired", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Directory not found:.
-        /// </summary>
-        internal static string Directory_PathNotFound {
-            get {
-                return ResourceManager.GetString("Directory.PathNotFound", resourceCulture);
             }
         }
         
@@ -304,29 +268,11 @@ namespace CryptographyHelpers.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Error while trying to derive key from password:.
-        /// </summary>
-        internal static string KeyDerivation_ExceptionError {
-            get {
-                return ResourceManager.GetString("KeyDerivation.ExceptionError", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Number of bytes requested from key derivation required (must be greater than 0)..
         /// </summary>
         internal static string KeyDerivation_InvalidBytesRequested {
             get {
                 return ResourceManager.GetString("KeyDerivation.InvalidBytesRequested", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Invalid (and insecure) iteration count: Minimum must be greater or equal {0}..
-        /// </summary>
-        internal static string KeyDerivation_IterationCountInvalid {
-            get {
-                return ResourceManager.GetString("KeyDerivation.IterationCountInvalid", resourceCulture);
             }
         }
         

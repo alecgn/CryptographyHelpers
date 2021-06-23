@@ -60,6 +60,7 @@ namespace CryptographyHelpers.IoC
         {
             _servicesType.Add(typeof(IBase64), typeof(Base64));
             _servicesType.Add(typeof(IHexadecimal), typeof(Hexadecimal));
+            // TODO: remove items below later
             _servicesType.Add(typeof(IAES128GCM), typeof(AES128GCM));
             _servicesType.Add(typeof(IAES192GCM), typeof(AES192GCM));
             _servicesType.Add(typeof(IAES256GCM), typeof(AES256GCM));

@@ -8,7 +8,7 @@ using System.Security.Cryptography;
 
 namespace CryptographyHelpers.Encryption.Symmetric.AES
 {
-    public abstract class AESBase : IAES, IDisposable
+    public class AESCore : IAES
     {
         public event OnProgressHandler OnProgress;
 
@@ -20,7 +20,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
         private readonly Aes _aes;
 
 
-        public AESBase(byte[] key, byte[] IV, CipherMode cipherMode, PaddingMode paddingMode)
+        public AESCore(byte[] key, byte[] IV, CipherMode cipherMode, PaddingMode paddingMode)
         {
             _aes = Aes.Create();
             _aes.Key = key;
@@ -33,7 +33,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
         /// This constructor call creates a random key with specified size, a random IV and defines CipherMode as CBC and PaddingMode as PKCS7.
         /// </summary>
         /// <param name="keySizeToGenerateRandomKey"></param>
-        public AESBase(AESKeySizes keySizeToGenerateRandomKey)
+        public AESCore(AESKeySizes keySizeToGenerateRandomKey)
         {
             _aes = Aes.Create();
             _aes.Key = keySizeToGenerateRandomKey switch
