@@ -1,4 +1,5 @@
 ﻿using CryptographyHelpers.Utils;
+using System;
 
 namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
 {
@@ -9,6 +10,19 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
 
         public AES256GCM() : base(keySizeToGenerateRandomKey: AESKeySize) { }
 
-        public AES256GCM(byte[] key) : base(key, AESKeySize) { }
+        public AES256GCM(byte[] key) : base(ValidateAESKey(key).Invoke()) { }
+
+
+        private static Func<byte[]> ValidateAESKey(byte[] key)
+        {
+            byte[] func()
+            {
+                CryptographyUtils.ValidateAESKey(key, AESKeySize);
+
+                return key;
+            }
+
+            return func;
+        }
     }
 }

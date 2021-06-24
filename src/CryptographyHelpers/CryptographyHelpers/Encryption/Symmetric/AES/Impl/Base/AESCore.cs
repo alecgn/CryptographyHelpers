@@ -147,7 +147,10 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
             }
         }
 
-        public AESEncryptionResult EncryptFile(string sourceFilePath, string encryptedFilePath)
+        public AESFileEncryptionResult EncryptFile(string sourceFilePath, string encryptedFilePath) =>
+            EncryptFile(sourceFilePath, encryptedFilePath, new LongOffsetOptions());
+
+        public AESFileEncryptionResult EncryptFile(string sourceFilePath, string encryptedFilePath, LongOffsetOptions offsetOptions)
         {
             if (!File.Exists(sourceFilePath))
             {
@@ -163,7 +166,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
                 return new()
                 {
                     Success = false,
-                    Message = $"{MessageStrings.File_SourceAndDestinationPathsEqual}.",
+                    Message = MessageStrings.File_SourceAndDestinationPathsEqual,
                 };
             }
 
@@ -177,25 +180,36 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
                 {
                     using (var sourceFileStream = File.Open(sourceFilePath, FileMode.Open, FileAccess.Read, FileShare.Read))
                     {
+                        sourceFileStream.Position = offsetOptions.Offset;
+
                         using (var encryptedFileStream = File.Open(encryptedFilePath, FileMode.Create, FileAccess.Write, FileShare.None))
                         {
                             using (var cryptoStream = new CryptoStream(encryptedFileStream, encryptor, CryptoStreamMode.Write))
                             {
                                 var buffer = new byte[BufferSizeForFileProcessing];
-                                int read;
+                                var totalBytesToRead = (offsetOptions.Count == 0 ? sourceFileStream.Length : offsetOptions.Count) - offsetOptions.Offset;
+                                var totalBytesNotRead = totalBytesToRead;
+                                long totalBytesRead = 0;
                                 var percentageDone = 0;
 
-                                while ((read = sourceFileStream.Read(buffer, 0, buffer.Length)) > 0)
+                                while (totalBytesNotRead > 0)
                                 {
-                                    cryptoStream.Write(buffer, 0, read);
+                                    var bytesRead = sourceFileStream.Read(buffer, 0, (int)Math.Min(buffer.Length, totalBytesNotRead));
 
-                                    var tmpPercentageDone = (int)(sourceFileStream.Position * 100 / sourceFileStream.Length);
-
-                                    if (tmpPercentageDone != percentageDone)
+                                    if (bytesRead > 0)
                                     {
-                                        percentageDone = tmpPercentageDone;
+                                        cryptoStream.Write(buffer, 0, bytesRead);
 
-                                        OnProgress?.Invoke(percentageDone, percentageDone != 100 ? $"Encrypting ({percentageDone}%)..." : $"Encrypted ({percentageDone}%).");
+                                        totalBytesRead += bytesRead;
+                                        totalBytesNotRead -= bytesRead;
+                                        var tmpPercentageDone = (int)(totalBytesRead * 100 / totalBytesToRead);
+
+                                        if (tmpPercentageDone != percentageDone)
+                                        {
+                                            percentageDone = tmpPercentageDone;
+
+                                            OnProgress?.Invoke(percentageDone, percentageDone != 100 ? $"Encrypting ({percentageDone}%)..." : $"Encrypted ({percentageDone}%).");
+                                        }
                                     }
                                 }
                             }
@@ -224,11 +238,10 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
             }
         }
 
-        public AESDecryptionResult DecryptFile(string encryptedFilePath, string decryptedFilePath) =>
+        public AESFileDecryptionResult DecryptFile(string encryptedFilePath, string decryptedFilePath) =>
             DecryptFile(encryptedFilePath, decryptedFilePath, new LongOffsetOptions());
 
-
-        public AESDecryptionResult DecryptFile(string encryptedFilePath, string decryptedFilePath, LongOffsetOptions offsetOptions)
+        public AESFileDecryptionResult DecryptFile(string encryptedFilePath, string decryptedFilePath, LongOffsetOptions offsetOptions)
         {
             if (!File.Exists(encryptedFilePath))
             {
@@ -244,7 +257,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
                 return new()
                 {
                     Success = false,
-                    Message = $"{MessageStrings.File_SourceAndDestinationPathsEqual}.",
+                    Message = MessageStrings.File_SourceAndDestinationPathsEqual,
                 };
             }
 

@@ -70,6 +70,15 @@ namespace CryptographyHelpers.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid AES IV (null or wrong size)..
+        /// </summary>
+        internal static string Cryptography_InvalidAESIV {
+            get {
+                return ResourceManager.GetString("Cryptography.InvalidAESIV", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Invalid AES key (null or wrong size)..
         /// </summary>
         internal static string Cryptography_InvalidAESKey {

@@ -11,10 +11,8 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
         private readonly byte[] _key;
 
 
-        public AESGCMCore(byte[] key, AESKeySizes aesKeySize)
+        public AESGCMCore(byte[] key)
         {
-            CryptographyUtils.ValidateAESKey(key, expectedAesKeySize: aesKeySize);
-
             _key = key;
             _aesGcm = new(_key);
         }

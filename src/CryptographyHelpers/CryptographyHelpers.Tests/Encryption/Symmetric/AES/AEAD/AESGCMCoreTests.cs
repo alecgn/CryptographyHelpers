@@ -14,7 +14,7 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES.AEAD
     [TestClass]
     public class AESGCMCoreTests
     {
-        private const string PlainTestString = "This is a test string!";
+        private const string PlainStringTest = "This is a test string!";
         private static AESGCMCore _aesGcm;
 
         [ClassInitialize]
@@ -32,13 +32,11 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES.AEAD
 
         [TestMethod]
         [DynamicData(nameof(GetInvalidKeys), DynamicDataSourceType.Method)]
-        public void ShouldThrowArgumentException_InConstructor_WhenProvidedInvalidKey(byte[] invalidKey)
+        public void ShouldThrowException_InConstructor_WhenProvidedInvalidKey(byte[] invalidKey)
         {
-            Action act = () => { AESGCMCore aesGcm = new(invalidKey, AESKeySizes.KeySize128Bits); };
+            Action act = () => { AESGCMCore aesGcm = new(invalidKey); };
 
-            act.Should()
-                .ThrowExactly<ArgumentException>()
-                .WithMessage($"{MessageStrings.Cryptography_InvalidAESKey}*");
+            act.Should().Throw<Exception>();
         }
 
         [TestMethod]
@@ -67,7 +65,7 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES.AEAD
         [DynamicData(nameof(GetInvalidNoncesAndTags), DynamicDataSourceType.Method)]
         public void ShouldReturnFalse_InDecrypt_WhenProvidedInvalidNonceOrTag(byte[] nonce, byte[] tag)
         {
-            var aesGcDecryptionResult = _aesGcm.Decrypt(CryptographyUtils.GenerateRandomBytes(PlainTestString.Length), nonce, tag);
+            var aesGcDecryptionResult = _aesGcm.Decrypt(CryptographyUtils.GenerateRandomBytes(PlainStringTest.Length), nonce, tag);
 
             aesGcDecryptionResult.Success.Should().BeFalse();
         }
@@ -76,7 +74,7 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES.AEAD
         [DynamicData(nameof(GetAssociatedData), DynamicDataSourceType.Method)]
         public void ShouldEncryptAndDecryptDataSucessfully_WithAndWithoutAssociatedData(string associatedData)
         {
-            var dataBytes = PlainTestString.ToUTF8Bytes();
+            var dataBytes = PlainStringTest.ToUTF8Bytes();
             var associatedDataBytes = associatedData?.ToUTF8Bytes();
 
             var aesGcmEncryptionResult = _aesGcm.Encrypt(dataBytes, associatedDataBytes);
@@ -97,19 +95,20 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES.AEAD
                 Assert.Fail(aesGcmDecryptionResult.Message);
             }
 
-            aesGcmDecryptionResult.DecryptedData.ToUTF8String().Should().Be(PlainTestString);
+            aesGcmDecryptionResult.DecryptedData.ToUTF8String().Should().Be(PlainStringTest);
         }
 
 
         private static IEnumerable<object[]> GetInvalidKeys()
         {
             var random128BitsKey = CryptographyUtils.GenerateRandom128BitsKey();
+            var invalidSizeKey = random128BitsKey.Take(random128BitsKey.Length - 1).ToArray();
 
             return new List<object[]>()
             {
                 new object[]{ null },
                 new object[]{ Array.Empty<byte>() },
-                new object[]{ random128BitsKey.Take(random128BitsKey.Length - 1).ToArray() }
+                new object[]{ invalidSizeKey }
             };
         }
 
@@ -134,13 +133,11 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES.AEAD
             };
         }
 
-        private static IEnumerable<object[]> GetAssociatedData()
-        {
-            return new List<object[]>()
+        private static IEnumerable<object[]> GetAssociatedData() =>
+            new List<object[]>()
             {
                 new object[]{ null },
                 new object[]{ Guid.NewGuid().ToString() },
             };
-        }
     }
 }

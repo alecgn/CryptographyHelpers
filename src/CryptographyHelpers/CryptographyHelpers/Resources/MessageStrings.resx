@@ -120,6 +120,9 @@
   <data name="Bytes.InvalidInputBytes" xml:space="preserve">
     <value>Input bytes cannot be null or empty.</value>
   </data>
+  <data name="Cryptography.InvalidAESIV" xml:space="preserve">
+    <value>Invalid AES IV (null or wrong size).</value>
+  </data>
   <data name="Cryptography.InvalidAESKey" xml:space="preserve">
     <value>Invalid AES key (null or wrong size).</value>
   </data>
