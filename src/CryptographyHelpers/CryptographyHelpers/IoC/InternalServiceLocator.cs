@@ -1,9 +1,4 @@
-﻿using CryptographyHelpers.Encryption.Symmetric.AES;
-using CryptographyHelpers.Encryption.Symmetric.AES.AEAD;
-using CryptographyHelpers.Hash;
-using CryptographyHelpers.HMAC;
-using CryptographyHelpers.KeyDerivation;
-using CryptographyHelpers.Text.Encoding;
+﻿using CryptographyHelpers.Text.Encoding;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -11,6 +6,7 @@ using System.Reflection;
 
 namespace CryptographyHelpers.IoC
 {
+    // Yeah, I know ServiceLocator is an anti-pattern, but we don't want our user to resolve our internal dependencies do we ?
     internal sealed class InternalServiceLocator
     {
         internal static InternalServiceLocator Instance { get { return _lazyInstance.Value; } }
@@ -60,26 +56,6 @@ namespace CryptographyHelpers.IoC
         {
             _servicesType.Add(typeof(IBase64), typeof(Base64));
             _servicesType.Add(typeof(IHexadecimal), typeof(Hexadecimal));
-            // TODO: remove items below later
-            _servicesType.Add(typeof(IAES128GCM), typeof(AES128GCM));
-            _servicesType.Add(typeof(IAES192GCM), typeof(AES192GCM));
-            _servicesType.Add(typeof(IAES256GCM), typeof(AES256GCM));
-            _servicesType.Add(typeof(IAES128CBC), typeof(AES128CBC));
-            _servicesType.Add(typeof(IAES192CBC), typeof(AES192CBC));
-            _servicesType.Add(typeof(IAES256CBC), typeof(AES256CBC));
-            _servicesType.Add(typeof(IMD5), typeof(MD5));
-            _servicesType.Add(typeof(ISHA1), typeof(SHA1));
-            _servicesType.Add(typeof(ISHA256), typeof(SHA256));
-            _servicesType.Add(typeof(ISHA384), typeof(SHA384));
-            _servicesType.Add(typeof(ISHA512), typeof(SHA512));
-            _servicesType.Add(typeof(IHMACMD5), typeof(HMACMD5));
-            _servicesType.Add(typeof(IHMACSHA1), typeof(HMACSHA1));
-            _servicesType.Add(typeof(IHMACSHA256), typeof(HMACSHA256));
-            _servicesType.Add(typeof(IHMACSHA384), typeof(HMACSHA384));
-            _servicesType.Add(typeof(IHMACSHA512), typeof(HMACSHA512));
-            _servicesType.Add(typeof(IPBKDF2HMACSHA1), typeof(PBKDF2HMACSHA1));
-            _servicesType.Add(typeof(IPBKDF2HMACSHA256), typeof(PBKDF2HMACSHA256));
-            _servicesType.Add(typeof(IPBKDF2HMACSHA512), typeof(PBKDF2HMACSHA512));
         }
     }
 }

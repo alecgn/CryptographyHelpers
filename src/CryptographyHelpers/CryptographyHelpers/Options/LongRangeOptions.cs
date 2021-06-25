@@ -4,7 +4,7 @@ namespace CryptographyHelpers.Options
 {
     public struct LongRangeOptions
     {
-        public LongRangeOptions(long start = 0, long end = 0)
+        public LongRangeOptions(long start = 0L, long end = 0L)
         {
             if (end > start)
             {

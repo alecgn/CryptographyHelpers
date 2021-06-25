@@ -1,4 +1,4 @@
-﻿//namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD.Impl
+﻿//namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
 //{
 //    public class AESGCMTextHandler
 //    {

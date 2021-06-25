@@ -2,14 +2,14 @@
 {
     public struct LongOffsetOptions
     {
-        public LongOffsetOptions(int offset = 0, int count = 0)
+        public LongOffsetOptions(long offset = 0L, long count = 0L)
         {
             Offset = offset;
             Count = count;
         }
 
-        public int Offset { get; private set; }
+        public long Offset { get; private set; }
 
-        public int Count { get; private set; }
+        public long Count { get; private set; }
     }
 }

@@ -2,7 +2,7 @@
 
 namespace CryptographyHelpers.Hash
 {
-    public class MD5 : HashBase, IMD5
+    public class MD5 : HashCore, IMD5
     {
         private const HashAlgorithmType HashAlgorithm = HashAlgorithmType.Md5;
 

@@ -187,12 +187,12 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
                             using (var cryptoStream = new CryptoStream(encryptedFileStream, encryptor, CryptoStreamMode.Write))
                             {
                                 var buffer = new byte[BufferSizeForFileProcessing];
-                                var totalBytesToRead = (offsetOptions.Count == 0 ? sourceFileStream.Length : offsetOptions.Count) - offsetOptions.Offset;
+                                var totalBytesToRead = offsetOptions.Count == 0L ? sourceFileStream.Length : offsetOptions.Count;
                                 var totalBytesNotRead = totalBytesToRead;
-                                long totalBytesRead = 0;
+                                long totalBytesRead = 0L;
                                 var percentageDone = 0;
 
-                                while (totalBytesNotRead > 0)
+                                while (totalBytesNotRead > 0L)
                                 {
                                     var bytesRead = sourceFileStream.Read(buffer, 0, (int)Math.Min(buffer.Length, totalBytesNotRead));
 
@@ -278,12 +278,12 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
                             using (var cryptoStream = new CryptoStream(decryptedFileStream, decryptor, CryptoStreamMode.Write))
                             {
                                 var buffer = new byte[BufferSizeForFileProcessing];
-                                var totalBytesToRead = (offsetOptions.Count == 0 ? encryptedFileStream.Length : offsetOptions.Count) - offsetOptions.Offset;
+                                var totalBytesToRead = offsetOptions.Count == 0L ? encryptedFileStream.Length : offsetOptions.Count;
                                 var totalBytesNotRead = totalBytesToRead;
-                                long totalBytesRead = 0;
+                                long totalBytesRead = 0L;
                                 var percentageDone = 0;
 
-                                while (totalBytesNotRead > 0)
+                                while (totalBytesNotRead > 0L)
                                 {
                                     var bytesRead = encryptedFileStream.Read(buffer, 0, (int)Math.Min(buffer.Length, totalBytesNotRead));
 

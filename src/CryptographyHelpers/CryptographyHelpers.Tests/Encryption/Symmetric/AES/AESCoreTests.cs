@@ -159,24 +159,57 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
             CreateFileAndWriteText(testFilePath, PlainStringTest);
             var encryptedTestFilePath = Path.ChangeExtension(testFilePath, ".encrypted");
 
-            var aesEncryptionResult = _aes.EncryptFile(testFilePath, encryptedTestFilePath, offsetOptions);
+            var aesFileEncryptionResult = _aes.EncryptFile(testFilePath, encryptedTestFilePath, offsetOptions);
 
-            if (!aesEncryptionResult.Success)
+            if (!aesFileEncryptionResult.Success)
             {
-                Assert.Fail(aesEncryptionResult.Message);
+                Assert.Fail(aesFileEncryptionResult.Message);
             }
 
             var decryptedTestFilePath = Path.ChangeExtension(encryptedTestFilePath, ".decrypted");
-            var aesDecryptionResult = _aes.DecryptFile(encryptedTestFilePath, decryptedTestFilePath);
+            var aesFileDecryptionResult = _aes.DecryptFile(encryptedTestFilePath, decryptedTestFilePath);
 
-            if (!aesDecryptionResult.Success)
+            if (!aesFileDecryptionResult.Success)
             {
-                Assert.Fail(aesDecryptionResult.Message);
+                Assert.Fail(aesFileDecryptionResult.Message);
             }
 
-            aesDecryptionResult.Success.Should().BeTrue();
-            var teste = ReadFileText(decryptedTestFilePath);
-            teste.Should().Be(testString);
+            aesFileDecryptionResult.Success.Should().BeTrue();
+            var decryptedText = ReadFileText(decryptedTestFilePath);
+            decryptedText.Should().Be(testString);
+        }
+
+        [TestMethod]
+        public void ShouldDecryptFileWithLongOffsetOptionsSucessfully()
+        {
+            var testFilePath = Path.GetTempFileName();
+            CreateFileAndWriteText(testFilePath, PlainStringTest);
+            var encryptedTestFilePath = Path.ChangeExtension(testFilePath, ".encrypted");
+
+            var aesFileEncryptionResult = _aes.EncryptFile(testFilePath, encryptedTestFilePath);
+
+            if (!aesFileEncryptionResult.Success)
+            {
+                Assert.Fail(aesFileEncryptionResult.Message);
+            }
+
+            var additionalDataLenght = 10L;
+            var additionalData = CryptographyUtils.GenerateRandomBytes((int)additionalDataLenght);
+            FileUtils.AppendBytesToFile(encryptedTestFilePath, additionalData);
+            var encryptedFileSizeWithAdditionalData = GetFileLenght(encryptedTestFilePath);
+            var payloadBytesLenght = encryptedFileSizeWithAdditionalData - additionalDataLenght;
+            var decryptedTestFilePath = Path.ChangeExtension(encryptedTestFilePath, ".decrypted");
+            
+            var aesFileDecryptionResult = _aes.DecryptFile(encryptedTestFilePath, decryptedTestFilePath, new LongOffsetOptions(0, payloadBytesLenght));
+
+            if (!aesFileDecryptionResult.Success)
+            {
+                Assert.Fail(aesFileDecryptionResult.Message);
+            }
+
+            aesFileDecryptionResult.Success.Should().BeTrue();
+            var decryptedText = ReadFileText(decryptedTestFilePath);
+            decryptedText.Should().Be(PlainStringTest);
         }
 
 
@@ -216,6 +249,9 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
 
         private static void CreateFileAndWriteText(string filePath, string text) =>
             File.WriteAllText(filePath, text);
+
+        private long GetFileLenght(string filePath) =>
+            new FileInfo(filePath).Length;
 
         private static string ReadFileText(string filePath) =>
             File.ReadAllText(filePath);

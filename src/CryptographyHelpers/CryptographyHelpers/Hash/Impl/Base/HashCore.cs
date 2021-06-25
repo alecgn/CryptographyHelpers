@@ -11,7 +11,7 @@ using System.Security.Cryptography;
 
 namespace CryptographyHelpers.Hash
 {
-    public abstract class HashBase : IHash
+    public class HashCore : IHash
     {
         public event OnProgressHandler OnComputeFileHashProgress;
         private const int FileReadBufferSize = 1024 * 4;
@@ -20,7 +20,7 @@ namespace CryptographyHelpers.Hash
         private readonly InternalServiceLocator _serviceLocator = InternalServiceLocator.Instance;
 
 
-        public HashBase(HashAlgorithmType hashAlgorithmType) =>
+        public HashCore(HashAlgorithmType hashAlgorithmType) =>
             _hashAlgorithmType = hashAlgorithmType;
 
 
