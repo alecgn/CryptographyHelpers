@@ -14,23 +14,26 @@ namespace CryptographyHelpers.Hash
     public class HashCore : IHash
     {
         public event OnProgressHandler OnComputeFileHashProgress;
-        private const int FileReadBufferSize = 1024 * 4;
-        private const EncodingType DefaultEncodingType = EncodingType.Hexadecimal;
+        private readonly int _bufferSizeInKBForFileHashing = 4 * Constants.BytesPerKilobyte;
         private readonly HashAlgorithmType _hashAlgorithmType;
+        private readonly HashAlgorithm _hashAlgorithm;
+        private readonly EncodingType _encodingType = EncodingType.Hexadecimal;
         private readonly InternalServiceLocator _serviceLocator = InternalServiceLocator.Instance;
 
 
-        public HashCore(HashAlgorithmType hashAlgorithmType) =>
+        public HashCore(HashAlgorithmType hashAlgorithmType, EncodingType? encodingType = null, int? bufferSizeInKBForFileHashing = null)
+        {
             _hashAlgorithmType = hashAlgorithmType;
+            _hashAlgorithm = HashAlgorithm.Create(_hashAlgorithmType.ToString());
+            _encodingType = encodingType ?? _encodingType;
+            _bufferSizeInKBForFileHashing = bufferSizeInKBForFileHashing ?? _bufferSizeInKBForFileHashing;
+        }
 
 
         public HashResult ComputeHash(string stringToComputeHash) =>
-            ComputeHash(stringToComputeHash, outputEncodingType: DefaultEncodingType, new OffsetOptions());
+            ComputeHash(stringToComputeHash, new OffsetOptions());
 
-        public HashResult ComputeHash(string stringToComputeHash, EncodingType outputEncodingType) =>
-            ComputeHash(stringToComputeHash, outputEncodingType, new OffsetOptions());
-
-        public HashResult ComputeHash(string stringToComputeHash, EncodingType outputEncodingType, OffsetOptions offsetOptions)
+        public HashResult ComputeHash(string stringToComputeHash, OffsetOptions offsetOptions)
         {
             if (string.IsNullOrWhiteSpace(stringToComputeHash))
             {
@@ -43,16 +46,13 @@ namespace CryptographyHelpers.Hash
 
             var stringToComputeHashBytes = stringToComputeHash.ToUTF8Bytes();
 
-            return ComputeHash(stringToComputeHashBytes, outputEncodingType, offsetOptions);
+            return ComputeHash(stringToComputeHashBytes, offsetOptions);
         }
 
         public HashResult ComputeHash(byte[] bytesToComputeHash) =>
-            ComputeHash(bytesToComputeHash, outputEncodingType: DefaultEncodingType, new OffsetOptions());
+            ComputeHash(bytesToComputeHash, new OffsetOptions());
 
-        public HashResult ComputeHash(byte[] bytesToComputeHash, EncodingType outputEncodingType) =>
-            ComputeHash(bytesToComputeHash, outputEncodingType, new OffsetOptions());
-
-        public HashResult ComputeHash(byte[] bytesToComputeHash, EncodingType outputEncodingType, OffsetOptions offsetOptions)
+        public HashResult ComputeHash(byte[] bytesToComputeHash, OffsetOptions offsetOptions)
         {
             if (bytesToComputeHash is null || bytesToComputeHash.Length == 0)
             {
@@ -65,9 +65,11 @@ namespace CryptographyHelpers.Hash
 
             try
             {
-                using var hashAlgorithm = HashAlgorithm.Create(_hashAlgorithmType.ToString());
-                var count = offsetOptions.Count == 0 ? bytesToComputeHash.Length : offsetOptions.Count;
-                var hashBytes = hashAlgorithm.ComputeHash(bytesToComputeHash, offsetOptions.Offset, count);
+                var totalBytesToRead = offsetOptions.Count == 0 ? bytesToComputeHash.Length : offsetOptions.Count;
+                var hashBytes = _hashAlgorithm.ComputeHash(bytesToComputeHash, offsetOptions.Offset, totalBytesToRead);
+                var hashString = _encodingType == EncodingType.Hexadecimal
+                    ? _serviceLocator.GetService<IHexadecimal>().EncodeToString(hashBytes)
+                    : _serviceLocator.GetService<IBase64>().EncodeToString(hashBytes);
 
                 return new()
                 {
@@ -75,10 +77,8 @@ namespace CryptographyHelpers.Hash
                     Message = MessageStrings.Hash_ComputeSuccess,
                     HashAlgorithmType = _hashAlgorithmType,
                     HashBytes = hashBytes,
-                    HashString = outputEncodingType == EncodingType.Hexadecimal 
-                        ? _serviceLocator.GetService<IHexadecimal>().EncodeToString(hashBytes)
-                        : _serviceLocator.GetService<IBase64>().EncodeToString(hashBytes),
-                    HashStringEncodingType = outputEncodingType,
+                    HashString = hashString,
+                    HashStringEncodingType = _encodingType,
                 };
             }
             catch (Exception ex)
@@ -91,92 +91,10 @@ namespace CryptographyHelpers.Hash
             }
         }
 
+        public HashResult VerifyHash(string stringToVerifyHash, string encodedVerificationHashString) =>
+            VerifyHash(stringToVerifyHash, encodedVerificationHashString, new OffsetOptions());
 
-        public HashResult ComputeFileHash(string fileToComputeHash) =>
-            ComputeFileHash(fileToComputeHash, outputEncodingType: DefaultEncodingType, new LongOffsetOptions());
-
-        public HashResult ComputeFileHash(string fileToComputeHash, EncodingType outputEncodingType) =>
-            ComputeFileHash(fileToComputeHash, outputEncodingType, new LongOffsetOptions());
-
-        public HashResult ComputeFileHash(string fileToComputeHash, EncodingType outputEncodingType, LongOffsetOptions offsetOptions)
-        {
-            if (!File.Exists(fileToComputeHash))
-            {
-                return new()
-                {
-                    Success = false,
-                    Message = $@"{MessageStrings.File_PathNotFound} ""{fileToComputeHash}"".",
-                };
-            }
-
-            try
-            {
-                using var fileStream = new FileStream(fileToComputeHash, FileMode.Open, FileAccess.Read, FileShare.None);
-                var count = offsetOptions.Count == 0 ? fileStream.Length : offsetOptions.Count;
-                fileStream.Position = offsetOptions.Offset;
-                var buffer = new byte[FileReadBufferSize];
-                var bytesToRead = count - offsetOptions.Offset;
-                using var hashAlgorithm = HashAlgorithm.Create(_hashAlgorithmType.ToString());
-                var percentageDone = 0;
-
-                while (bytesToRead > 0)
-                {
-                    var bytesRead = fileStream.Read(buffer, 0, (int)Math.Min(buffer.Length, bytesToRead));
-
-                    if (bytesRead > 0)
-                    {
-                        bytesToRead -= bytesRead;
-
-                        if (bytesToRead > 0)
-                        {
-                            hashAlgorithm.TransformBlock(buffer, 0, bytesRead, buffer, 0);
-                        }
-                        else
-                        {
-                            hashAlgorithm.TransformFinalBlock(buffer, 0, bytesRead);
-                        }
-
-                        var tmpPercentageDone = (int)(fileStream.Position * 100 / count);
-
-                        if (tmpPercentageDone != percentageDone)
-                        {
-                            percentageDone = tmpPercentageDone;
-
-                            OnComputeFileHashProgress?.Invoke(percentageDone, (percentageDone != 100 ? $"Computing hash ({percentageDone}%)..." : $"Hash computed ({percentageDone}%)."));
-                        }
-                    }
-                }
-
-                return new()
-                {
-                    Success = true,
-                    Message = MessageStrings.Hash_ComputeSuccess,
-                    HashAlgorithmType = _hashAlgorithmType,
-                    HashBytes = hashAlgorithm.Hash,
-                    HashString = outputEncodingType == EncodingType.Hexadecimal
-                        ? _serviceLocator.GetService<IHexadecimal>().EncodeToString(hashAlgorithm.Hash)
-                        : _serviceLocator.GetService<IBase64>().EncodeToString(hashAlgorithm.Hash),
-                    HashStringEncodingType = outputEncodingType,
-                };
-            }
-            catch (Exception ex)
-            {
-                return new()
-                {
-                    Success = false,
-                    Message = ex.ToString(),
-                };
-            }
-        }
-
-
-        public HashResult VerifyHash(string stringToVerifyHash, string verificationHashString) =>
-            VerifyHash(stringToVerifyHash, verificationHashString, verificationHashStringEncodingType: DefaultEncodingType, new OffsetOptions());
-
-        public HashResult VerifyHash(string stringToVerifyHash, string verificationHashString, EncodingType verificationHashStringEncodingType) =>
-            VerifyHash(stringToVerifyHash, verificationHashString, verificationHashStringEncodingType, new OffsetOptions());
-
-        public HashResult VerifyHash(string stringToVerifyHash, string verificationHashString, EncodingType verificationHashStringEncodingType, OffsetOptions offsetOptions)
+        public HashResult VerifyHash(string stringToVerifyHash, string encodedVerificationHashString, OffsetOptions offsetOptions)
         {
             if (string.IsNullOrWhiteSpace(stringToVerifyHash))
             {
@@ -187,7 +105,7 @@ namespace CryptographyHelpers.Hash
                 };
             }
 
-            if (string.IsNullOrWhiteSpace(verificationHashString))
+            if (string.IsNullOrWhiteSpace(encodedVerificationHashString))
             {
                 return new()
                 {
@@ -198,9 +116,9 @@ namespace CryptographyHelpers.Hash
 
             try
             {
-                var verificationHashBytes = verificationHashStringEncodingType == EncodingType.Hexadecimal
-                    ? _serviceLocator.GetService<IHexadecimal>().DecodeString(verificationHashString)
-                    : _serviceLocator.GetService<IBase64>().DecodeString(verificationHashString);
+                var verificationHashBytes = _encodingType == EncodingType.Hexadecimal
+                    ? _serviceLocator.GetService<IHexadecimal>().DecodeString(encodedVerificationHashString)
+                    : _serviceLocator.GetService<IBase64>().DecodeString(encodedVerificationHashString);
                 var stringToVerifyHashBytes = stringToVerifyHash.ToUTF8Bytes();
 
                 return VerifyHash(stringToVerifyHashBytes, verificationHashBytes, offsetOptions);
@@ -229,7 +147,7 @@ namespace CryptographyHelpers.Hash
                 };
             }
 
-            var hashResult = ComputeHash(bytesToVerifyHash, outputEncodingType: DefaultEncodingType, offsetOptions);
+            var hashResult = ComputeHash(bytesToVerifyHash, offsetOptions);
 
             if (hashResult.Success)
             {
@@ -242,16 +160,89 @@ namespace CryptographyHelpers.Hash
             return hashResult;
         }
 
+        public HashResult ComputeFileHash(string fileToComputeHash) =>
+            ComputeFileHash(fileToComputeHash, new LongOffsetOptions());
 
-        public HashResult VerifyFileHash(string fileToVerifyHash, string verificationHashString) =>
-            VerifyFileHash(fileToVerifyHash, verificationHashString, verificationHashStringEncodingType: DefaultEncodingType, new LongOffsetOptions());
-
-        public HashResult VerifyFileHash(string fileToVerifyHash, string verificationHashString, EncodingType verificationHashStringEncodingType) =>
-            VerifyFileHash(fileToVerifyHash, verificationHashString, verificationHashStringEncodingType, new LongOffsetOptions());
-
-        public HashResult VerifyFileHash(string fileToVerifyHash, string verificationHashString, EncodingType verificationHashStringEncodingType, LongOffsetOptions offsetOptions)
+        public HashResult ComputeFileHash(string fileToComputeHash, LongOffsetOptions offsetOptions)
         {
-            if (string.IsNullOrWhiteSpace(verificationHashString))
+            if (!File.Exists(fileToComputeHash))
+            {
+                return new()
+                {
+                    Success = false,
+                    Message = $@"{MessageStrings.File_PathNotFound} ""{fileToComputeHash}"".",
+                };
+            }
+
+            try
+            {
+                using (var fileStream = new FileStream(fileToComputeHash, FileMode.Open, FileAccess.Read, FileShare.None))
+                {
+                    fileStream.Position = offsetOptions.Offset;
+                    var buffer = new byte[_bufferSizeInKBForFileHashing];
+                    var totalBytesToRead = offsetOptions.Count == 0L ? fileStream.Length : offsetOptions.Count;
+                    var totalBytesNotRead = totalBytesToRead;
+                    var totalBytesRead = 0L;
+                    var percentageDone = 0;
+
+                    while (totalBytesNotRead > 0L)
+                    {
+                        var bytesRead = fileStream.Read(buffer, 0, (int)Math.Min(buffer.Length, totalBytesNotRead));
+
+                        if (bytesRead > 0L)
+                        {
+                            if (totalBytesRead > 0L)
+                            {
+                                _hashAlgorithm.TransformBlock(buffer, 0, bytesRead, buffer, 0);
+                            }
+                            else
+                            {
+                                _hashAlgorithm.TransformFinalBlock(buffer, 0, bytesRead);
+                            }
+
+                            totalBytesRead += bytesRead;
+                            totalBytesNotRead -= bytesRead;
+
+                            var tmpPercentageDone = (int)(fileStream.Position * 100 / totalBytesToRead);
+
+                            if (tmpPercentageDone != percentageDone)
+                            {
+                                percentageDone = tmpPercentageDone;
+
+                                OnComputeFileHashProgress?.Invoke(percentageDone, (percentageDone != 100 ? $"Computing hash ({percentageDone}%)..." : $"Hash computed ({percentageDone}%)."));
+                            }
+                        }
+                    }
+                }
+
+                return new()
+                {
+                    Success = true,
+                    Message = MessageStrings.Hash_ComputeSuccess,
+                    HashAlgorithmType = _hashAlgorithmType,
+                    HashBytes = _hashAlgorithm.Hash,
+                    HashString = _encodingType == EncodingType.Hexadecimal
+                        ? _serviceLocator.GetService<IHexadecimal>().EncodeToString(_hashAlgorithm.Hash)
+                        : _serviceLocator.GetService<IBase64>().EncodeToString(_hashAlgorithm.Hash),
+                    HashStringEncodingType = _encodingType,
+                };
+            }
+            catch (Exception ex)
+            {
+                return new()
+                {
+                    Success = false,
+                    Message = ex.ToString(),
+                };
+            }
+        }
+
+        public HashResult VerifyFileHash(string fileToVerifyHash, string encodedVerificationHashString) =>
+            VerifyFileHash(fileToVerifyHash, encodedVerificationHashString, new LongOffsetOptions());
+
+        public HashResult VerifyFileHash(string fileToVerifyHash, string encodedVerificationHashString, LongOffsetOptions offsetOptions)
+        {
+            if (string.IsNullOrWhiteSpace(encodedVerificationHashString))
             {
                 return new()
                 {
@@ -262,9 +253,9 @@ namespace CryptographyHelpers.Hash
 
             try
             {
-                var verificationHashBytes = verificationHashStringEncodingType == EncodingType.Hexadecimal
-                        ? _serviceLocator.GetService<IHexadecimal>().DecodeString(verificationHashString)
-                        : _serviceLocator.GetService<IBase64>().DecodeString(verificationHashString);
+                var verificationHashBytes = _encodingType == EncodingType.Hexadecimal
+                        ? _serviceLocator.GetService<IHexadecimal>().DecodeString(encodedVerificationHashString)
+                        : _serviceLocator.GetService<IBase64>().DecodeString(encodedVerificationHashString);
 
                 return VerifyFileHash(fileToVerifyHash, verificationHashBytes, offsetOptions);
             }
@@ -292,7 +283,7 @@ namespace CryptographyHelpers.Hash
                 };
             }
 
-            var hashResult = ComputeFileHash(fileToVerifyHash, outputEncodingType: DefaultEncodingType, offsetOptions);
+            var hashResult = ComputeFileHash(fileToVerifyHash, offsetOptions);
 
             if (hashResult.Success)
             {
@@ -304,5 +295,8 @@ namespace CryptographyHelpers.Hash
 
             return hashResult;
         }
+
+        public void Dispose() =>
+            _hashAlgorithm.Dispose();
     }
 }

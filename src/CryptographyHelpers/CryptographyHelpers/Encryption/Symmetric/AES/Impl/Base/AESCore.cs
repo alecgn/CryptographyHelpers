@@ -1,6 +1,7 @@
 ﻿using CryptographyHelpers.EventHandlers;
 using CryptographyHelpers.Options;
 using CryptographyHelpers.Resources;
+using CryptographyHelpers.Text.Encoding;
 using CryptographyHelpers.Utils;
 using System;
 using System.IO;
@@ -10,30 +11,32 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
 {
     public class AESCore : IAES
     {
-        public event OnProgressHandler OnProgress;
-
-        private const int BytesPerKilobyte = 1024;
-        private const int BufferSizeForFileProcessing = 4 * BytesPerKilobyte;
+        public event OnProgressHandler OnEncryptFileProgress;
+        public event OnProgressHandler OnDecryptFileProgress;
         private const CipherMode DefaultCipherMode = CipherMode.CBC;
         private const PaddingMode DefaultPaddingMode = PaddingMode.PKCS7;
+        private readonly int _bufferSizeInKBForFileProcessing = 4 * Constants.BytesPerKilobyte;
+        private readonly EncodingType _encodingType = EncodingType.Hexadecimal;
 
         private readonly Aes _aes;
 
 
-        public AESCore(byte[] key, byte[] IV, CipherMode cipherMode, PaddingMode paddingMode)
+        public AESCore(byte[] key, byte[] IV, CipherMode? cipherMode, PaddingMode? paddingMode, EncodingType? encodingType = null, int? bufferSizeInKBForFileProcessing = null)
         {
             _aes = Aes.Create();
             _aes.Key = key;
             _aes.IV = IV;
-            _aes.Mode = cipherMode;
-            _aes.Padding = paddingMode;
+            _aes.Mode = cipherMode ?? DefaultCipherMode;
+            _aes.Padding = paddingMode ?? DefaultPaddingMode;
+            _encodingType = encodingType ?? _encodingType;
+            _bufferSizeInKBForFileProcessing = bufferSizeInKBForFileProcessing ?? _bufferSizeInKBForFileProcessing;
         }
 
         /// <summary>
         /// This constructor call creates a random key with specified size, a random IV and defines CipherMode as CBC and PaddingMode as PKCS7.
         /// </summary>
         /// <param name="keySizeToGenerateRandomKey"></param>
-        public AESCore(AESKeySizes keySizeToGenerateRandomKey)
+        public AESCore(AESKeySizes keySizeToGenerateRandomKey, EncodingType? encodingType = null, int? bufferSizeInKBForFileProcessing = null)
         {
             _aes = Aes.Create();
             _aes.Key = keySizeToGenerateRandomKey switch
@@ -46,6 +49,8 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
             _aes.IV = CryptographyUtils.GenerateRandomAESIV();
             _aes.Mode = DefaultCipherMode;
             _aes.Padding = DefaultPaddingMode;
+            _encodingType = encodingType ?? _encodingType;
+            _bufferSizeInKBForFileProcessing = bufferSizeInKBForFileProcessing ?? _bufferSizeInKBForFileProcessing;
         }
 
 
@@ -186,10 +191,10 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
                         {
                             using (var cryptoStream = new CryptoStream(encryptedFileStream, encryptor, CryptoStreamMode.Write))
                             {
-                                var buffer = new byte[BufferSizeForFileProcessing];
+                                var buffer = new byte[_bufferSizeInKBForFileProcessing];
                                 var totalBytesToRead = offsetOptions.Count == 0L ? sourceFileStream.Length : offsetOptions.Count;
                                 var totalBytesNotRead = totalBytesToRead;
-                                long totalBytesRead = 0L;
+                                var totalBytesRead = 0L;
                                 var percentageDone = 0;
 
                                 while (totalBytesNotRead > 0L)
@@ -208,7 +213,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
                                         {
                                             percentageDone = tmpPercentageDone;
 
-                                            OnProgress?.Invoke(percentageDone, percentageDone != 100 ? $"Encrypting ({percentageDone}%)..." : $"Encrypted ({percentageDone}%).");
+                                            OnEncryptFileProgress?.Invoke(percentageDone, percentageDone != 100 ? $"Encrypting ({percentageDone}%)..." : $"Encrypted ({percentageDone}%).");
                                         }
                                     }
                                 }
@@ -277,7 +282,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
                         {
                             using (var cryptoStream = new CryptoStream(decryptedFileStream, decryptor, CryptoStreamMode.Write))
                             {
-                                var buffer = new byte[BufferSizeForFileProcessing];
+                                var buffer = new byte[_bufferSizeInKBForFileProcessing];
                                 var totalBytesToRead = offsetOptions.Count == 0L ? encryptedFileStream.Length : offsetOptions.Count;
                                 var totalBytesNotRead = totalBytesToRead;
                                 long totalBytesRead = 0L;
@@ -299,7 +304,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
                                         {
                                             percentageDone = tmpPercentageDone;
 
-                                            OnProgress?.Invoke(percentageDone, percentageDone != 100 ? $"Decrypting ({percentageDone}%)..." : $"Decrypted ({percentageDone}%).");
+                                            OnDecryptFileProgress?.Invoke(percentageDone, percentageDone != 100 ? $"Decrypting ({percentageDone}%)..." : $"Decrypted ({percentageDone}%).");
                                         }
                                     }
                                 }

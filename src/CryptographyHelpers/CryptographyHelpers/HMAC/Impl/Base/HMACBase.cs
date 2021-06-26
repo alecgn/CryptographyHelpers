@@ -12,23 +12,44 @@ using System.Security.Authentication;
 
 namespace CryptographyHelpers.HMAC
 {
-    public abstract class HMACBase : IHMAC
+    public class HMACBase : IHMAC
     {
         public event OnProgressHandler OnComputeFileHMACProgress;
-        private const int FileReadBufferSize = 1024 * 4;
-        private const EncodingType DefaultEncodingType = EncodingType.Hexadecimal;
+        private readonly int _bufferSizeInKBForFileHashing = 4 * Constants.BytesPerKilobyte;
+        private readonly System.Security.Cryptography.HMAC _hmacAlgorithm;
+        private readonly EncodingType _encodingType = EncodingType.Hexadecimal;
         private readonly HashAlgorithmType _hashAlgorithmType;
         private readonly InternalServiceLocator _serviceLocator = InternalServiceLocator.Instance;
 
 
-        public HMACBase(HashAlgorithmType hashAlgorithmType) =>
+        public HMACBase(HashAlgorithmType hashAlgorithmType, byte[] key = null, EncodingType? encodingType = null, int? bufferSizeInKBForFileHashing = null)
+        {
             _hashAlgorithmType = hashAlgorithmType;
+            _hmacAlgorithm = System.Security.Cryptography.HMAC.Create($"HMAC{_hashAlgorithmType}");
+            _hmacAlgorithm.Key = key ?? CryptographyUtils.GenerateRandomBytes(HashUtils.HashAlgorithmOutputBytesSize[_hashAlgorithmType]);
+            _encodingType = encodingType ?? _encodingType;
+            _bufferSizeInKBForFileHashing = bufferSizeInKBForFileHashing ?? _bufferSizeInKBForFileHashing;
+        }
+
+        public HMACBase(HashAlgorithmType hashAlgorithmType, string encodedKey = null, EncodingType? encodingType = null, int? bufferSizeInKBForFileHashing = null)
+        {
+            _encodingType = encodingType ?? _encodingType;
+            _hashAlgorithmType = hashAlgorithmType;
+            _hmacAlgorithm = System.Security.Cryptography.HMAC.Create($"HMAC{_hashAlgorithmType}");
+            var key = string.IsNullOrWhiteSpace(encodedKey)
+                ? CryptographyUtils.GenerateRandomBytes(HashUtils.HashAlgorithmOutputBytesSize[_hashAlgorithmType])
+                : _encodingType == EncodingType.Hexadecimal
+                    ? _serviceLocator.GetService<IHexadecimal>().DecodeString(encodedKey)
+                    : _serviceLocator.GetService<IBase64>().DecodeString(encodedKey);
+            _hmacAlgorithm.Key = key;
+            _bufferSizeInKBForFileHashing = bufferSizeInKBForFileHashing ?? _bufferSizeInKBForFileHashing;
+        }
 
         public HMACResult ComputeHMAC(string stringToComputeHMAC) =>
-            ComputeHMAC(stringToComputeHMAC, key: null, keyAndOutputEncodingType: DefaultEncodingType, new OffsetOptions());
+            ComputeHMAC(stringToComputeHMAC, key: null, keyAndOutputEncodingType: _encodingType, new OffsetOptions());
 
         public HMACResult ComputeHMAC(string stringToComputeHMAC, string key) =>
-            ComputeHMAC(stringToComputeHMAC, key, keyAndOutputEncodingType: DefaultEncodingType, new OffsetOptions());
+            ComputeHMAC(stringToComputeHMAC, key, keyAndOutputEncodingType: _encodingType, new OffsetOptions());
 
         public HMACResult ComputeHMAC(string stringToComputeHMAC, string key, EncodingType keyAndOutputEncodingType) =>
             ComputeHMAC(stringToComputeHMAC, key, keyAndOutputEncodingType, new OffsetOptions());
@@ -69,10 +90,10 @@ namespace CryptographyHelpers.HMAC
         }
 
         public HMACResult ComputeHMAC(byte[] bytesToComputeHMAC) =>
-            ComputeHMAC(bytesToComputeHMAC, key: null, outputEncodingType: DefaultEncodingType, new OffsetOptions());
+            ComputeHMAC(bytesToComputeHMAC, key: null, outputEncodingType: _encodingType, new OffsetOptions());
 
         public HMACResult ComputeHMAC(byte[] bytesToComputeHMAC, byte[] key) =>
-            ComputeHMAC(bytesToComputeHMAC, key, outputEncodingType: DefaultEncodingType, new OffsetOptions());
+            ComputeHMAC(bytesToComputeHMAC, key, outputEncodingType: _encodingType, new OffsetOptions());
 
         public HMACResult ComputeHMAC(byte[] bytesToComputeHMAC, byte[] key, EncodingType outputEncodingType) =>
             ComputeHMAC(bytesToComputeHMAC, key, outputEncodingType, new OffsetOptions());
@@ -90,15 +111,8 @@ namespace CryptographyHelpers.HMAC
 
             try
             {
-                if (key is null || key.Length == 0)
-                {
-                    key = CryptographyUtils.GenerateRandomBytes(HashUtils.HashAlgorithmOutputBytesSize[_hashAlgorithmType]);
-                }
-
-                using var hmacAlgorithm = System.Security.Cryptography.HMAC.Create($"HMAC{_hashAlgorithmType}");
-                hmacAlgorithm.Key = key;
                 var count = offsetOptions.Count == 0 ? bytesToComputeHMAC.Length : offsetOptions.Count;
-                var hashBytes = hmacAlgorithm.ComputeHash(bytesToComputeHMAC, offsetOptions.Offset, count);
+                var hashBytes = _hmacAlgorithm.ComputeHash(bytesToComputeHMAC, offsetOptions.Offset, count);
 
                 return new()
                 {
@@ -125,10 +139,10 @@ namespace CryptographyHelpers.HMAC
 
 
         public HMACResult ComputeFileHMAC(string filePathToComputeHMAC) =>
-            ComputeFileHMAC(filePathToComputeHMAC, key: null, outputEncodingType: DefaultEncodingType, new LongOffsetOptions());
+            ComputeFileHMAC(filePathToComputeHMAC, key: null, outputEncodingType: _encodingType, new LongOffsetOptions());
 
         public HMACResult ComputeFileHMAC(string filePathToComputeHMAC, string key) =>
-            ComputeFileHMAC(filePathToComputeHMAC, key, keyAndOutputEncodingType: DefaultEncodingType, new LongOffsetOptions());
+            ComputeFileHMAC(filePathToComputeHMAC, key, keyAndOutputEncodingType: _encodingType, new LongOffsetOptions());
 
         public HMACResult ComputeFileHMAC(string filePathToComputeHMAC, string key, EncodingType outputEncodingType) =>
             ComputeFileHMAC(filePathToComputeHMAC, key, outputEncodingType, new LongOffsetOptions());
@@ -159,7 +173,7 @@ namespace CryptographyHelpers.HMAC
         }
 
         public HMACResult ComputeFileHMAC(string filePathToComputeHMAC, byte[] key) =>
-            ComputeFileHMAC(filePathToComputeHMAC, key, outputEncodingType: DefaultEncodingType, new LongOffsetOptions());
+            ComputeFileHMAC(filePathToComputeHMAC, key, outputEncodingType: _encodingType, new LongOffsetOptions());
 
         public HMACResult ComputeFileHMAC(string filePathToComputeHMAC, byte[] key, EncodingType outputEncodingType) =>
             ComputeFileHMAC(filePathToComputeHMAC, key, outputEncodingType, new LongOffsetOptions());
@@ -185,10 +199,9 @@ namespace CryptographyHelpers.HMAC
                 using var fileStream = new FileStream(filePathToComputeHMAC, FileMode.Open, FileAccess.Read, FileShare.None);
                 var count = offsetOptions.Count == 0 ? fileStream.Length : offsetOptions.Count;
                 fileStream.Position = offsetOptions.Offset;
-                var buffer = new byte[FileReadBufferSize];
+                var buffer = new byte[_bufferSizeInKBForFileHashing];
                 var bytesToRead = (count - offsetOptions.Offset);
-                using var hmacAlgorithm = System.Security.Cryptography.HMAC.Create($"HMAC{_hashAlgorithmType}");
-                hmacAlgorithm.Key = key;
+                _hmacAlgorithm.Key = key;
                 var percentageDone = 0;
 
                 while (bytesToRead > 0)
@@ -201,11 +214,11 @@ namespace CryptographyHelpers.HMAC
 
                         if (bytesToRead > 0)
                         {
-                            hmacAlgorithm.TransformBlock(buffer, 0, bytesRead, buffer, 0);
+                            _hmacAlgorithm.TransformBlock(buffer, 0, bytesRead, buffer, 0);
                         }
                         else
                         {
-                            hmacAlgorithm.TransformFinalBlock(buffer, 0, bytesRead);
+                            _hmacAlgorithm.TransformFinalBlock(buffer, 0, bytesRead);
                         }
 
                         var tmpPercentageDone = (int)(fileStream.Position * 100 / count);
@@ -244,7 +257,7 @@ namespace CryptographyHelpers.HMAC
 
 
         public HMACResult VerifyHMAC(string stringToVerifyHMAC, string key, string verificationHMACString) =>
-            VerifyHMAC(stringToVerifyHMAC, key, verificationHMACString, keyAndVerificationHMACStringEncodingType: DefaultEncodingType, new OffsetOptions());
+            VerifyHMAC(stringToVerifyHMAC, key, verificationHMACString, keyAndVerificationHMACStringEncodingType: _encodingType, new OffsetOptions());
 
         public HMACResult VerifyHMAC(string stringToVerifyHMAC, string key, string verificationHMACString, EncodingType keyAndVerificationHMACStringEncodingType) =>
             VerifyHMAC(stringToVerifyHMAC, key, verificationHMACString, keyAndVerificationHMACStringEncodingType, new OffsetOptions());
@@ -302,7 +315,7 @@ namespace CryptographyHelpers.HMAC
         }
 
         public HMACResult VerifyHMAC(byte[] bytesToVerifyHMAC, byte[] key, byte[] verificationHMACBytes) =>
-            VerifyHMAC(bytesToVerifyHMAC, key, verificationHMACBytes, DefaultEncodingType, new OffsetOptions());
+            VerifyHMAC(bytesToVerifyHMAC, key, verificationHMACBytes, _encodingType, new OffsetOptions());
 
         public HMACResult VerifyHMAC(byte[] bytesToVerifyHMAC, byte[] key, byte[] verificationHMACBytes, EncodingType outputEncodingType) =>
             VerifyHMAC(bytesToVerifyHMAC, key, verificationHMACBytes, outputEncodingType, new OffsetOptions());
