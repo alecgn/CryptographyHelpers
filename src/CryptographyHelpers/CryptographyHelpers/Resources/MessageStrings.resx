@@ -135,6 +135,9 @@
   <data name="Decryption.InputBytesRequired" xml:space="preserve">
     <value>Input bytes to decrypt required.</value>
   </data>
+  <data name="Decryption.InputStringRequired" xml:space="preserve">
+    <value>Input string to decrypt required.</value>
+  </data>
   <data name="Encryption.DataEncryptionSuccess" xml:space="preserve">
     <value>Data encrypted succesfully.</value>
   </data>
@@ -143,6 +146,9 @@
   </data>
   <data name="Encryption.InputBytesRequired" xml:space="preserve">
     <value>Input bytes to encrypt required.</value>
+  </data>
+  <data name="Encryption.InputStringRequired" xml:space="preserve">
+    <value>Input string to encrypt required.</value>
   </data>
   <data name="File.PathNotFound" xml:space="preserve">
     <value>File not found:</value>

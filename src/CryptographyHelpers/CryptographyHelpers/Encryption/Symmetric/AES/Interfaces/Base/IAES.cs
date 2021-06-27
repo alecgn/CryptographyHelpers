@@ -1,20 +1,21 @@
-﻿using CryptographyHelpers.Options;
+﻿using CryptographyHelpers.EventHandlers;
+using CryptographyHelpers.Options;
 using System;
 
 namespace CryptographyHelpers.Encryption.Symmetric.AES
 {
     public interface IAES : IDisposable
     {
-        AESEncryptionResult Encrypt(byte[] data);
+        public event OnProgressHandler OnEncryptFileProgress;
+        public event OnProgressHandler OnDecryptFileProgress;
 
-        AESDecryptionResult Decrypt(byte[] encryptedData);
 
-        AESFileEncryptionResult EncryptFile(string sourceFilePath, string encryptedFilePath);
+        AESEncryptionResult Encrypt(byte[] data, OffsetOptions? offsetOptions = null);
 
-        AESFileEncryptionResult EncryptFile(string sourceFilePath, string encryptedFilePath, LongOffsetOptions offsetOptions);
+        AESFileEncryptionResult EncryptFile(string sourceFilePath, string encryptedFilePath, LongOffsetOptions? offsetOptions = null);
 
-        AESFileDecryptionResult DecryptFile(string encryptedFilePath, string decryptedFilePath);
+        AESDecryptionResult Decrypt(byte[] encryptedData, OffsetOptions? offsetOptions = null);
 
-        AESFileDecryptionResult DecryptFile(string encryptedFilePath, string decryptedFilePath, LongOffsetOptions offsetOptions);
+        AESFileDecryptionResult DecryptFile(string encryptedFilePath, string decryptedFilePath, LongOffsetOptions? offsetOptions = null);
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace CryptographyHelpers.Text.Encoding
 {
-    public interface IEncoding
+    public interface IEncoder
     {
         string EncodeToString(string plainString);
 

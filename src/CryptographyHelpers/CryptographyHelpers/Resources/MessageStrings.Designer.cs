@@ -115,6 +115,15 @@ namespace CryptographyHelpers.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Input string to decrypt required..
+        /// </summary>
+        internal static string Decryption_InputStringRequired {
+            get {
+                return ResourceManager.GetString("Decryption.InputStringRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Data encrypted succesfully..
         /// </summary>
         internal static string Encryption_DataEncryptionSuccess {
@@ -138,6 +147,15 @@ namespace CryptographyHelpers.Resources {
         internal static string Encryption_InputBytesRequired {
             get {
                 return ResourceManager.GetString("Encryption.InputBytesRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Input string to encrypt required..
+        /// </summary>
+        internal static string Encryption_InputStringRequired {
+            get {
+                return ResourceManager.GetString("Encryption.InputStringRequired", resourceCulture);
             }
         }
         
