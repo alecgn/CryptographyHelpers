@@ -1,4 +1,5 @@
 ﻿using CryptographyHelpers.Encryption.Symmetric.AES;
+using CryptographyHelpers.IoC;
 using CryptographyHelpers.Options;
 using CryptographyHelpers.Resources;
 using CryptographyHelpers.Text.Encoding;
@@ -17,6 +18,8 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
     public class AESCoreTests
     {
         private const string PlainStringTest = "This is a test string!";
+        private static IEncoder _base64Encoder;
+        private static IEncoder _hexadecimalEncoder;
         private static AESCore _aes;
 
 
@@ -24,6 +27,8 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
         public static void Initialize(TestContext _)
         {
             _aes = new(AESKeySizes.KeySize128Bits);
+            _base64Encoder = InternalServiceLocator.Instance.GetService<IBase64>();
+            _hexadecimalEncoder = InternalServiceLocator.Instance.GetService<IHexadecimal>();
         }
 
         [ClassCleanup]
@@ -34,9 +39,18 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
 
         [TestMethod]
         [DynamicData(nameof(GetInvalidKeysAndIVs), DynamicDataSourceType.Method)]
-        public void ShouldThrowException_InConstructor_WhenProvidedInvalidKeyOrIV(byte[] invalidKey, byte[] invalidIV)
+        public void ShouldThrowException_InConstructor1_WhenProvidedInvalidKeyOrIV(byte[] invalidKey, byte[] invalidIV)
         {
             Action act = () => { AESCore aes = new(invalidKey, invalidIV, CipherMode.CBC, PaddingMode.PKCS7); };
+
+            act.Should().Throw<Exception>();
+        }
+
+        [TestMethod]
+        [DynamicData(nameof(GetInvalidEncodedKeysAndIVs), DynamicDataSourceType.Method)]
+        public void ShouldThrowException_InConstructor2_WhenProvidedInvalidEncodedKeyOrIV(string invalidEncodedKey, string invalidEncodedIV, EncodingType encodingType)
+        {
+            Action act = () => { AESCore aes = new(invalidEncodedKey, invalidEncodedIV, CipherMode.CBC, PaddingMode.PKCS7, encodingType); };
 
             act.Should().Throw<Exception>();
         }
@@ -54,6 +68,38 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
 
         [TestMethod]
         [DataRow(null)]
+        [DataRow("")]
+        [DataRow("   ")]
+        public void ShouldReturnSuccessFalse_InEncryptText_WhenProvidedInvalidInputText(string invalidInputText)
+        {
+            var aesTextEncryptionResult = _aes.EncryptText(invalidInputText);
+
+            aesTextEncryptionResult.Success.Should().BeFalse();
+            aesTextEncryptionResult.Message.Should().Be(MessageStrings.Encryption_InputStringRequired);
+        }
+
+        [TestMethod]
+        [DynamicData(nameof(GetInvalidFilePath), DynamicDataSourceType.Method)]
+        public void ShouldReturnSuccessFalse_InEncryptFile_WhenProvidedInvalidInputSourceFilePath(string invalidSourceFilePath)
+        {
+            var aesFileEncryptionResult = _aes.EncryptFile(invalidSourceFilePath, invalidSourceFilePath);
+
+            aesFileEncryptionResult.Success.Should().BeFalse();
+            aesFileEncryptionResult.Message.Should().StartWith(MessageStrings.File_PathNotFound);
+        }
+
+        [TestMethod]
+        public void ShouldReturnSuccessFalse_InEncryptFile_WhenProvidedEqualsInputSourceAndEncryptedFilePath()
+        {
+            var filePath = Path.GetTempFileName();
+            var aesFileEncryptionResult = _aes.EncryptFile(filePath, filePath);
+
+            aesFileEncryptionResult.Success.Should().BeFalse();
+            aesFileEncryptionResult.Message.Should().Be(MessageStrings.File_SourceAndDestinationPathsEqual);
+        }
+
+        [TestMethod]
+        [DataRow(null)]
         [DataRow(new byte[0])]
         public void ShouldReturnSuccessFalse_InDecrypt_WhenProvidedInvalidInputData(byte[] invalidInputData)
         {
@@ -61,6 +107,38 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
 
             aesDecryptionResult.Success.Should().BeFalse();
             aesDecryptionResult.Message.Should().Be(MessageStrings.Decryption_InputBytesRequired);
+        }
+
+        [TestMethod]
+        [DataRow(null)]
+        [DataRow("")]
+        [DataRow("   ")]
+        public void ShouldReturnSuccessFalse_InDecryptText_WhenProvidedInvalidInputText(string invalidInputText)
+        {
+            var aesTextDecryptionResult = _aes.DecryptText(invalidInputText);
+
+            aesTextDecryptionResult.Success.Should().BeFalse();
+            aesTextDecryptionResult.Message.Should().Be(MessageStrings.Decryption_InputStringRequired);
+        }
+
+        [TestMethod]
+        [DynamicData(nameof(GetInvalidFilePath), DynamicDataSourceType.Method)]
+        public void ShouldReturnSuccessFalse_InDecryptFile_WhenProvidedInvalidInputEncryptedFilePath(string invalidEncryptedFilePath)
+        {
+            var aesFileDecryptionResult = _aes.DecryptFile(invalidEncryptedFilePath, invalidEncryptedFilePath);
+
+            aesFileDecryptionResult.Success.Should().BeFalse();
+            aesFileDecryptionResult.Message.Should().StartWith(MessageStrings.File_PathNotFound);
+        }
+
+        [TestMethod]
+        public void ShouldReturnSuccessFalse_InDecryptFile_WhenProvidedEqualsInputEncryptedAndDecryptedFilePath()
+        {
+            var filePath = Path.GetTempFileName();
+            var aesFileDecryptionResult = _aes.DecryptFile(filePath, filePath);
+
+            aesFileDecryptionResult.Success.Should().BeFalse();
+            aesFileDecryptionResult.Message.Should().Be(MessageStrings.File_SourceAndDestinationPathsEqual);
         }
 
         [TestMethod]
@@ -86,43 +164,23 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
         }
 
         [TestMethod]
-        [DynamicData(nameof(GetInvalidFilePath), DynamicDataSourceType.Method)]
-        public void ShouldReturnSuccessFalse_InEncryptFile_WhenProvidedInvalidInputSourceFilePath(string invalidSourceFilePath)
+        public void ShouldEncryptAndDecryptTextSucessfully()
         {
-            var aesFileEncryptionResult = _aes.EncryptFile(invalidSourceFilePath, invalidSourceFilePath);
+            var aesTextEncryptionResult = _aes.EncryptText(PlainStringTest);
 
-            aesFileEncryptionResult.Success.Should().BeFalse();
-            aesFileEncryptionResult.Message.Should().StartWith(MessageStrings.File_PathNotFound);
-        }
+            if (!aesTextEncryptionResult.Success)
+            {
+                Assert.Fail(aesTextEncryptionResult.Message);
+            }
 
-        [TestMethod]
-        public void ShouldReturnSuccessFalse_InEncryptFile_WhenProvidedEqualsInputSourceAndEncryptedFilePath()
-        {
-            var filePath = Path.GetTempFileName();
-            var aesFileEncryptionResult = _aes.EncryptFile(filePath, filePath);
+            var aesTextDecryptionResult = _aes.DecryptText(aesTextEncryptionResult.EncodedEncryptedText);
 
-            aesFileEncryptionResult.Success.Should().BeFalse();
-            aesFileEncryptionResult.Message.Should().Be(MessageStrings.File_SourceAndDestinationPathsEqual);
-        }
+            if (!aesTextDecryptionResult.Success)
+            {
+                Assert.Fail(aesTextDecryptionResult.Message);
+            }
 
-        [TestMethod]
-        [DynamicData(nameof(GetInvalidFilePath), DynamicDataSourceType.Method)]
-        public void ShouldReturnSuccessFalse_InDecryptFile_WhenProvidedInvalidInputEncryptedFilePath(string invalidEncryptedFilePath)
-        {
-            var aesFileDecryptionResult = _aes.DecryptFile(invalidEncryptedFilePath, invalidEncryptedFilePath);
-
-            aesFileDecryptionResult.Success.Should().BeFalse();
-            aesFileDecryptionResult.Message.Should().StartWith(MessageStrings.File_PathNotFound);
-        }
-
-        [TestMethod]
-        public void ShouldReturnSuccessFalse_InDecryptFile_WhenProvidedEqualsInputEncryptedAndDecryptedFilePath()
-        {
-            var filePath = Path.GetTempFileName();
-            var aesFileDecryptionResult = _aes.DecryptFile(filePath, filePath);
-
-            aesFileDecryptionResult.Success.Should().BeFalse();
-            aesFileDecryptionResult.Message.Should().Be(MessageStrings.File_SourceAndDestinationPathsEqual);
+            aesTextDecryptionResult.DecryptedText.Should().Be(PlainStringTest);
         }
 
         [TestMethod]
@@ -217,21 +275,71 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
         {
             // IV has exactly 128 bits, so in this particular case we can use the same random bytes as 128 bits key and IV for our tests purpose
             var random128BitsKeyIV = CryptographyUtils.GenerateRandom128BitsKey();
-            var invalidSizeKeyIV = random128BitsKeyIV.Take(random128BitsKeyIV.Length - 1).ToArray();
+            var invalidSizedKeyIV = random128BitsKeyIV.Take(random128BitsKeyIV.Length - 1).ToArray();
 
             return new List<object[]>()
             {
                 new object[]{ null, null },
                 new object[]{ null, Array.Empty<byte>() },
-                new object[]{ null, invalidSizeKeyIV },
+                new object[]{ null, invalidSizedKeyIV },
 
                 new object[]{ Array.Empty<byte>(), Array.Empty<byte>(), },
                 new object[]{ Array.Empty<byte>(), null, },
-                new object[]{ Array.Empty<byte>(), invalidSizeKeyIV, },
+                new object[]{ Array.Empty<byte>(), invalidSizedKeyIV, },
 
-                new object[]{ invalidSizeKeyIV, invalidSizeKeyIV, },
-                new object[]{ invalidSizeKeyIV, null, },
-                new object[]{ invalidSizeKeyIV, Array.Empty<byte>(), },
+                new object[]{ invalidSizedKeyIV, invalidSizedKeyIV, },
+                new object[]{ invalidSizedKeyIV, null, },
+                new object[]{ invalidSizedKeyIV, Array.Empty<byte>(), },
+            };
+        }
+
+        private static IEnumerable<object[]> GetInvalidEncodedKeysAndIVs()
+        {
+            // IV has exactly 128 bits, so in this particular case we can use the same random bytes as 128 bits key and IV for our tests purpose
+            var random128BitsKeyIV = CryptographyUtils.GenerateRandom128BitsKey();
+            var invalidSizedKeyIV = random128BitsKeyIV.Take(random128BitsKeyIV.Length - 1).ToArray();
+            string invalidBase64TestString = "VGhpcyBpcyBhIHRlc3Qgc3RyaW5nIQ=";
+            string invalidHexadecimalTestString = "546869732069732061207465737420737472696E672G";
+
+            return new List<object[]>()
+            {
+                new object[]{ null, null, EncodingType.Base64 },
+                new object[]{ null, null, EncodingType.Hexadecimal },
+                new object[]{ null, "", EncodingType.Base64 },
+                new object[]{ null, "", EncodingType.Hexadecimal },
+                new object[]{ null, _base64Encoder.EncodeToString(invalidSizedKeyIV), EncodingType.Base64 },
+                new object[]{ null, invalidBase64TestString, EncodingType.Base64 },
+                new object[]{ null, _hexadecimalEncoder.EncodeToString(invalidSizedKeyIV), EncodingType.Hexadecimal },
+                new object[]{ null, invalidHexadecimalTestString, EncodingType.Hexadecimal },
+
+                new object[]{ "", "", EncodingType.Base64 },
+                new object[]{ "", "", EncodingType.Hexadecimal },
+                new object[]{ "", null, EncodingType.Hexadecimal },
+                new object[]{ "", null, EncodingType.Base64 },
+                new object[]{ "", _base64Encoder.EncodeToString(invalidSizedKeyIV), EncodingType.Base64 },
+                new object[]{ "", invalidBase64TestString, EncodingType.Base64 },
+                new object[]{ "", _hexadecimalEncoder.EncodeToString(invalidSizedKeyIV), EncodingType.Hexadecimal },
+                new object[]{ "", invalidHexadecimalTestString, EncodingType.Hexadecimal },
+
+                new object[]{ invalidBase64TestString, invalidBase64TestString, EncodingType.Base64 },
+                new object[]{ invalidBase64TestString, null, EncodingType.Base64 },
+                new object[]{ invalidBase64TestString, "", EncodingType.Base64 },
+                new object[]{ invalidBase64TestString, _base64Encoder.EncodeToString(invalidSizedKeyIV), EncodingType.Base64 },
+
+                new object[]{ _base64Encoder.EncodeToString(invalidSizedKeyIV), _base64Encoder.EncodeToString(invalidSizedKeyIV), EncodingType.Base64 },
+                new object[]{ _base64Encoder.EncodeToString(invalidSizedKeyIV), invalidBase64TestString, EncodingType.Base64 },
+                new object[]{ _base64Encoder.EncodeToString(invalidSizedKeyIV), null, EncodingType.Base64 },
+                new object[]{ _base64Encoder.EncodeToString(invalidSizedKeyIV), "", EncodingType.Base64 },
+
+                new object[]{ invalidHexadecimalTestString, invalidHexadecimalTestString, EncodingType.Hexadecimal },
+                new object[]{ invalidHexadecimalTestString, "", EncodingType.Hexadecimal },
+                new object[]{ invalidHexadecimalTestString, null, EncodingType.Hexadecimal },
+                new object[]{ invalidHexadecimalTestString, _hexadecimalEncoder.EncodeToString(invalidSizedKeyIV), EncodingType.Hexadecimal },
+
+                new object[]{ _hexadecimalEncoder.EncodeToString(invalidSizedKeyIV), _hexadecimalEncoder.EncodeToString(invalidSizedKeyIV), EncodingType.Hexadecimal },
+                new object[]{ _hexadecimalEncoder.EncodeToString(invalidSizedKeyIV), invalidHexadecimalTestString, EncodingType.Hexadecimal },
+                new object[]{ _hexadecimalEncoder.EncodeToString(invalidSizedKeyIV), "", EncodingType.Hexadecimal },
+                new object[]{ _hexadecimalEncoder.EncodeToString(invalidSizedKeyIV), null, EncodingType.Hexadecimal },
             };
         }
 

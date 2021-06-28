@@ -6,6 +6,6 @@ namespace CryptographyHelpers.HMAC
     {
         private const HashAlgorithmType HashAlgorithm = HashAlgorithmType.Md5;
 
-        public HMACMD5() : base(HashAlgorithm) { }
+        public HMACMD5() : base(HashAlgorithm, key: null) { }
     }
 }

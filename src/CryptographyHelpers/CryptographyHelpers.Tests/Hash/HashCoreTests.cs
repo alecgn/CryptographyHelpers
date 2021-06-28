@@ -34,7 +34,7 @@ namespace CryptographyHelpers.Tests.Hash
                 Message = MessageStrings.Hash_InputStringRequired,
             };
 
-            var hashResult = _hash.ComputeHash(nullEmptyOrWhiteSpaceString, DefaultEncodingType, new OffsetOptions());
+            var hashResult = _hash.ComputeHash(nullEmptyOrWhiteSpaceString, new OffsetOptions());
 
             hashResult.Should().BeEquivalentTo(expectedHashResult);
         }
@@ -50,7 +50,7 @@ namespace CryptographyHelpers.Tests.Hash
                 Message = MessageStrings.Hash_InputBytesRequired,
             };
 
-            var hashResult = _hash.ComputeHash(nullOrEmptyByteArray, DefaultEncodingType, new OffsetOptions());
+            var hashResult = _hash.ComputeHash(nullOrEmptyByteArray, new OffsetOptions());
 
             hashResult.Should().BeEquivalentTo(expectedHashResult);
         }
@@ -68,7 +68,7 @@ namespace CryptographyHelpers.Tests.Hash
                 Message = $@"{MessageStrings.File_PathNotFound} ""{invalidFilePath}"".",
             };
 
-            var hashResult = _hash.ComputeFileHash(invalidFilePath, DefaultEncodingType, new LongOffsetOptions());
+            var hashResult = _hash.ComputeFileHash(invalidFilePath, new LongOffsetOptions());
 
             hashResult.Should().BeEquivalentTo(expectedHashResult);
         }
@@ -85,7 +85,7 @@ namespace CryptographyHelpers.Tests.Hash
                 Message = MessageStrings.Strings_InvalidInputString,
             };
 
-            var hashResult = _hash.VerifyHash(nullEmptyOrWhitespaceString, Guid.NewGuid().ToString(), DefaultEncodingType, new OffsetOptions());
+            var hashResult = _hash.VerifyHash(nullEmptyOrWhitespaceString, Guid.NewGuid().ToString(), new OffsetOptions());
 
             hashResult.Should().BeEquivalentTo(expectedHashResult);
         }
@@ -102,7 +102,7 @@ namespace CryptographyHelpers.Tests.Hash
                 Message = MessageStrings.Hash_VerificationHashStringRequired,
             };
 
-            var hashResult = _hash.VerifyHash(Guid.NewGuid().ToString(), nullEmptyOrWhitespaceVerificationHashString, DefaultEncodingType, new OffsetOptions());
+            var hashResult = _hash.VerifyHash(Guid.NewGuid().ToString(), nullEmptyOrWhitespaceVerificationHashString, new OffsetOptions());
 
             hashResult.Should().BeEquivalentTo(expectedHashResult);
         }
@@ -110,7 +110,7 @@ namespace CryptographyHelpers.Tests.Hash
         [TestMethod]
         public void ShouldReturnSuccessFalse_InVerifyHash_WhenProvidedInvalidHexadecimalVerificationHashString()
         {
-            var hashResult = _hash.VerifyHash(Guid.NewGuid().ToString(), InvalidHexadecimalTestString, EncodingType.Hexadecimal, new OffsetOptions());
+            var hashResult = _hash.VerifyHash(Guid.NewGuid().ToString(), InvalidHexadecimalTestString, new OffsetOptions());
 
             hashResult.Success.Should().BeFalse();
             hashResult.Message.Should().Contain(MessageStrings.Strings_InvalidHexadecimalInputString);
@@ -119,7 +119,7 @@ namespace CryptographyHelpers.Tests.Hash
         [TestMethod]
         public void ShouldReturnSuccessFalse_InVerifyHash_WhenProvidedInvalidBase64VerificationHashString()
         {
-            var hashResult = _hash.VerifyHash(Guid.NewGuid().ToString(), InvalidBase64TestString, EncodingType.Base64, new OffsetOptions());
+            var hashResult = _hash.VerifyHash(Guid.NewGuid().ToString(), InvalidBase64TestString, new OffsetOptions());
 
             hashResult.Success.Should().BeFalse();
             hashResult.Message.Should().Contain(MessageStrings.Strings_InvalidBase64InputString);
@@ -153,7 +153,7 @@ namespace CryptographyHelpers.Tests.Hash
                 Message = MessageStrings.Hash_VerificationHashStringRequired,
             };
 
-            var hashResult = _hash.VerifyFileHash(Guid.NewGuid().ToString(), nullEmptyOrWhitespaceVerificationHashString, DefaultEncodingType, new LongOffsetOptions());
+            var hashResult = _hash.VerifyFileHash(Guid.NewGuid().ToString(), nullEmptyOrWhitespaceVerificationHashString, new LongOffsetOptions());
 
             hashResult.Should().BeEquivalentTo(expectedHashResult);
         }
@@ -161,7 +161,7 @@ namespace CryptographyHelpers.Tests.Hash
         [TestMethod]
         public void ShouldReturnSuccessFalse_InVerifyFileHash_WhenProvidedInvalidHexadecimalVerificationHashString()
         {
-            var hashResult = _hash.VerifyFileHash(Guid.NewGuid().ToString(), InvalidHexadecimalTestString, EncodingType.Hexadecimal, new LongOffsetOptions());
+            var hashResult = _hash.VerifyFileHash(Guid.NewGuid().ToString(), InvalidHexadecimalTestString, new LongOffsetOptions());
 
             hashResult.Success.Should().BeFalse();
             hashResult.Message.Should().Contain(MessageStrings.Strings_InvalidHexadecimalInputString);
@@ -170,7 +170,7 @@ namespace CryptographyHelpers.Tests.Hash
         [TestMethod]
         public void ShouldReturnSuccessFalse_InVerifyFileHash_WhenProvidedInvalidBase64VerificationHashString()
         {
-            var hashResult = _hash.VerifyFileHash(Guid.NewGuid().ToString(), InvalidBase64TestString, EncodingType.Base64, new LongOffsetOptions());
+            var hashResult = _hash.VerifyFileHash(Guid.NewGuid().ToString(), InvalidBase64TestString, new LongOffsetOptions());
 
             hashResult.Success.Should().BeFalse();
             hashResult.Message.Should().Contain(MessageStrings.Strings_InvalidBase64InputString);

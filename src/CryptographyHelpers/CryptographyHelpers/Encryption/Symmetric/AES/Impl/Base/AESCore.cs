@@ -14,13 +14,14 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
     {
         public event OnProgressHandler OnEncryptFileProgress;
         public event OnProgressHandler OnDecryptFileProgress;
-        private const CipherMode DefaultCipherMode = CipherMode.CBC;
-        private const PaddingMode DefaultPaddingMode = PaddingMode.PKCS7;
-        private readonly Aes _aes;
-        private readonly EncodingType _encodingType = EncodingType.Base64;
-        private readonly IEncoder _encoder;
-        private readonly int _bufferSizeInKBForFileProcessing = 4 * Constants.BytesPerKilobyte;
+
+        private readonly CipherMode _cipherMode = CipherMode.CBC;
+        private readonly PaddingMode _paddingMode = PaddingMode.PKCS7;
         private readonly InternalServiceLocator _serviceLocator = InternalServiceLocator.Instance;
+        private readonly EncodingType _encodingType = EncodingType.Base64;
+        private readonly int _bufferSizeInKBForFileProcessing = 4 * Constants.BytesPerKilobyte;
+        private readonly IEncoder _encoder;
+        private readonly Aes _aes;
 
 
         public AESCore(byte[] key, byte[] IV, CipherMode? cipherMode = null, PaddingMode? paddingMode = null, EncodingType? encodingType = null, int? bufferSizeInKBForFileProcessing = null)
@@ -28,8 +29,8 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
             _aes = Aes.Create();
             _aes.Key = key;
             _aes.IV = IV;
-            _aes.Mode = cipherMode ?? DefaultCipherMode;
-            _aes.Padding = paddingMode ?? DefaultPaddingMode;
+            _aes.Mode = _cipherMode = cipherMode ?? _cipherMode;
+            _aes.Padding = _paddingMode = paddingMode ?? _paddingMode;
             _encodingType = encodingType ?? _encodingType;
             _encoder = _encodingType == EncodingType.Base64
                 ? _serviceLocator.GetService<IBase64>()
@@ -46,8 +47,8 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
             _aes = Aes.Create();
             _aes.Key = _encoder.DecodeString(encodedKey);
             _aes.IV = _encoder.DecodeString(encodedIV);
-            _aes.Mode = cipherMode ?? DefaultCipherMode;
-            _aes.Padding = paddingMode ?? DefaultPaddingMode;
+            _aes.Mode = _cipherMode = cipherMode ?? _cipherMode;
+            _aes.Padding = _paddingMode = paddingMode ?? _paddingMode;
             _bufferSizeInKBForFileProcessing = bufferSizeInKBForFileProcessing ?? _bufferSizeInKBForFileProcessing;
         }
 
@@ -66,9 +67,12 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
                 _ => throw new ArgumentException($"Invalid enum value for {nameof(keySizeToGenerateRandomKey)} parameter of type {typeof(AESKeySizes)}.", nameof(keySizeToGenerateRandomKey)),
             };
             _aes.IV = CryptographyUtils.GenerateRandomAESIV();
-            _aes.Mode = DefaultCipherMode;
-            _aes.Padding = DefaultPaddingMode;
+            _aes.Mode = _cipherMode;
+            _aes.Padding = _paddingMode;
             _encodingType = encodingType ?? _encodingType;
+            _encoder = _encodingType == EncodingType.Base64
+                ? _serviceLocator.GetService<IBase64>()
+                : _serviceLocator.GetService<IHexadecimal>();
             _bufferSizeInKBForFileProcessing = bufferSizeInKBForFileProcessing ?? _bufferSizeInKBForFileProcessing;
         }
 
@@ -84,16 +88,15 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
                 };
             }
 
-            byte[] encryptedData;
-
             try
             {
                 var offset = offsetOptions.HasValue ? offsetOptions.Value.Offset : 0;
-                var count = offsetOptions.HasValue 
+                var totalBytesToRead = offsetOptions.HasValue 
                     ? offsetOptions.Value.Count == 0 ? data.Length : offsetOptions.Value.Count
                     : data.Length;
-                var payload = new byte[count];
-                Array.Copy(data, offset, payload, 0, count);
+                var dataPayload = new byte[totalBytesToRead];
+                Array.Copy(data, offset, dataPayload, 0, totalBytesToRead);
+                byte[] encryptedData;
 
                 using (var encryptor = _aes.CreateEncryptor(_aes.Key, _aes.IV))
                 {
@@ -101,7 +104,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
                     {
                         using (var cryptoStream = new CryptoStream(memoryStream, encryptor, CryptoStreamMode.Write))
                         {
-                            cryptoStream.Write(payload);
+                            cryptoStream.Write(dataPayload);
                         }
 
                         encryptedData = memoryStream.ToArray();
@@ -114,7 +117,6 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
                     Message = MessageStrings.Encryption_DataEncryptionSuccess,
                     EncodingType = _encodingType,
                     EncryptedData = encryptedData,
-                    EncodedEncryptedData = _encoder.EncodeToString(encryptedData),
                     Key = _aes.Key,
                     EncodedKey = _encoder.EncodeToString(_aes.Key),
                     IV = _aes.IV,
@@ -133,7 +135,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
             }
         }
 
-        public AESEncryptionResult EncryptText(string plainText, OffsetOptions? offsetOptions = null)
+        public AESTextEncryptionResult EncryptText(string plainText, OffsetOptions? offsetOptions = null)
         {
             if (string.IsNullOrWhiteSpace(plainText))
             {
@@ -144,9 +146,45 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
                 };
             }
 
-            var plainTextBytes = plainText.ToUTF8Bytes();
+            try
+            {
+                var plainTextBytes = plainText.ToUTF8Bytes();
+                var encryptionResult = Encrypt(plainTextBytes, offsetOptions);
 
-            return Encrypt(plainTextBytes, offsetOptions);
+                if (encryptionResult.Success)
+                {
+                    return new()
+                    {
+                        Success = encryptionResult.Success,
+                        Message = encryptionResult.Message,
+                        EncodingType = encryptionResult.EncodingType,
+                        EncodedEncryptedText = _encoder.EncodeToString(encryptionResult.EncryptedData),
+                        EncryptedData = encryptionResult.EncryptedData,
+                        Key = encryptionResult.Key,
+                        EncodedKey = encryptionResult.EncodedKey,
+                        IV = encryptionResult.IV,
+                        EncodedIV = encryptionResult.EncodedIV,
+                        CipherMode = encryptionResult.CipherMode,
+                        PaddingMode = encryptionResult.PaddingMode,
+                    };
+                }
+                else
+                {
+                    return new()
+                    {
+                        Success = encryptionResult.Success,
+                        Message = encryptionResult.Message,
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new()
+                {
+                    Success = false,
+                    Message = ex.ToString(),
+                };
+            }
         }
 
         public AESFileEncryptionResult EncryptFile(string sourceFilePath, string encryptedFilePath, LongOffsetOptions? offsetOptions = null)
@@ -169,10 +207,10 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
                 };
             }
 
-            var encryptedFilePathDirectory = Path.GetDirectoryName(encryptedFilePath);
-
             try
             {
+                var encryptedFilePathDirectory = Path.GetDirectoryName(encryptedFilePath);
+                // creates the directory tree, if it does not exists
                 Directory.CreateDirectory(encryptedFilePathDirectory);
 
                 using (var encryptor = _aes.CreateEncryptor(_aes.Key, _aes.IV))
@@ -254,16 +292,15 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
                 };
             }
 
-            byte[] decryptedData;
-
             try
             {
                 var offset = offsetOptions.HasValue ? offsetOptions.Value.Offset : 0;
-                var count = offsetOptions.HasValue
+                var totalBytesToRead = offsetOptions.HasValue
                     ? offsetOptions.Value.Count == 0 ? encryptedData.Length : offsetOptions.Value.Count
                     : encryptedData.Length;
-                var payload = new byte[count];
-                Array.Copy(encryptedData, offset, payload, 0, count);
+                var payload = new byte[totalBytesToRead];
+                Array.Copy(encryptedData, offset, payload, 0, totalBytesToRead);
+                byte[] decryptedData;
 
                 using (var decryptor = _aes.CreateDecryptor(_aes.Key, _aes.IV))
                 {
@@ -302,7 +339,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
             }
         }
 
-        public AESDecryptionResult DecryptText(string encodedEncryptedText, OffsetOptions? offsetOptions = null)
+        public AESTextDecryptionResult DecryptText(string encodedEncryptedText, OffsetOptions? offsetOptions = null)
         {
             if (string.IsNullOrWhiteSpace(encodedEncryptedText))
             {
@@ -313,16 +350,45 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
                 };
             }
 
-            var encodedEncryptedTextBytes = _encoder.DecodeString(encodedEncryptedText);
-
-            var decryptionResult =  Decrypt(encodedEncryptedTextBytes, offsetOptions);
-
-            if (decryptionResult.Success)
+            try
             {
-                decryptionResult.DecryptedDataString = decryptionResult.DecryptedData.ToUTF8String();
-            }
+                var encodedEncryptedTextBytes = _encoder.DecodeString(encodedEncryptedText);
+                var decryptionResult = Decrypt(encodedEncryptedTextBytes, offsetOptions);
 
-            return decryptionResult;
+                if (decryptionResult.Success)
+                {
+                    return new()
+                    {
+                        Success = decryptionResult.Success,
+                        Message = decryptionResult.Message,
+                        EncodingType = decryptionResult.EncodingType,
+                        DecryptedData = decryptionResult.DecryptedData,
+                        DecryptedText = decryptionResult.DecryptedData.ToUTF8String(),
+                        Key = decryptionResult.Key,
+                        EncodedKey = decryptionResult.EncodedKey,
+                        IV = decryptionResult.IV,
+                        EncodedIV = decryptionResult.EncodedIV,
+                        CipherMode = decryptionResult.CipherMode,
+                        PaddingMode = decryptionResult.PaddingMode,
+                    };
+                }
+                else
+                {
+                    return new()
+                    {
+                        Success = decryptionResult.Success,
+                        Message = decryptionResult.Message,
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new()
+                {
+                    Success = false,
+                    Message = ex.ToString(),
+                };
+            }
         }
 
         public AESFileDecryptionResult DecryptFile(string encryptedFilePath, string decryptedFilePath, LongOffsetOptions? offsetOptions = null)
@@ -345,10 +411,9 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
                 };
             }
 
-            var decryptedFilePathDirectory = Path.GetDirectoryName(decryptedFilePath);
-
             try
             {
+                var decryptedFilePathDirectory = Path.GetDirectoryName(decryptedFilePath);
                 Directory.CreateDirectory(decryptedFilePathDirectory);
 
                 using (var decryptedFileStream = File.Open(decryptedFilePath, FileMode.Create, FileAccess.Write, FileShare.None))

@@ -22,7 +22,7 @@ namespace CryptographyHelpers.HMAC
         private readonly InternalServiceLocator _serviceLocator = InternalServiceLocator.Instance;
 
 
-        public HMACBase(HashAlgorithmType hashAlgorithmType, byte[] key = null, EncodingType? encodingType = null, int? bufferSizeInKBForFileHashing = null)
+        public HMACBase(HashAlgorithmType hashAlgorithmType, byte[] key, EncodingType? encodingType = null, int? bufferSizeInKBForFileHashing = null)
         {
             _hashAlgorithmType = hashAlgorithmType;
             _hmacAlgorithm = System.Security.Cryptography.HMAC.Create($"HMAC{_hashAlgorithmType}");
@@ -31,7 +31,7 @@ namespace CryptographyHelpers.HMAC
             _bufferSizeInKBForFileHashing = bufferSizeInKBForFileHashing ?? _bufferSizeInKBForFileHashing;
         }
 
-        public HMACBase(HashAlgorithmType hashAlgorithmType, string encodedKey = null, EncodingType? encodingType = null, int? bufferSizeInKBForFileHashing = null)
+        public HMACBase(HashAlgorithmType hashAlgorithmType, string encodedKey, EncodingType? encodingType = null, int? bufferSizeInKBForFileHashing = null)
         {
             _encodingType = encodingType ?? _encodingType;
             _hashAlgorithmType = hashAlgorithmType;
@@ -238,10 +238,10 @@ namespace CryptographyHelpers.HMAC
                     Message = MessageStrings.HMAC_ComputeSuccess,
                     HashAlgorithmType = _hashAlgorithmType,
                     Key = key,
-                    HashBytes = hmacAlgorithm.Hash,
+                    HashBytes = _hmacAlgorithm.Hash,
                     HashString = outputEncodingType == EncodingType.Hexadecimal
-                        ? _serviceLocator.GetService<IHexadecimal>().EncodeToString(hmacAlgorithm.Hash)
-                        : _serviceLocator.GetService<IBase64>().EncodeToString(hmacAlgorithm.Hash),
+                        ? _serviceLocator.GetService<IHexadecimal>().EncodeToString(_hmacAlgorithm.Hash)
+                        : _serviceLocator.GetService<IBase64>().EncodeToString(_hmacAlgorithm.Hash),
                     HashStringEncodingType = outputEncodingType,
                 };
             }
