@@ -5,6 +5,7 @@ using CryptographyHelpers.Resources;
 using CryptographyHelpers.Text.Encoding;
 using CryptographyHelpers.Utils;
 using FluentAssertions;
+using FluentAssertions.Events;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -21,12 +22,14 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
         private static IEncoder _base64Encoder;
         private static IEncoder _hexadecimalEncoder;
         private static AESCore _aes;
+        private static IMonitor<AESCore> _monitoredAes;
 
 
         [ClassInitialize]
         public static void Initialize(TestContext _)
         {
             _aes = new(AESKeySizes.KeySize128Bits);
+            _monitoredAes = _aes.Monitor();
             _base64Encoder = InternalServiceLocator.Instance.GetService<IBase64>();
             _hexadecimalEncoder = InternalServiceLocator.Instance.GetService<IHexadecimal>();
         }
@@ -35,6 +38,7 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
         public static void Cleanup()
         {
             _aes.Dispose();
+            _monitoredAes.Dispose();
         }
 
         [TestMethod]
@@ -142,7 +146,28 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
         }
 
         [TestMethod]
-        public void ShouldEncryptAndDecryptDataSucessfully()
+        [DynamicData(nameof(GetOffsetOptionsAndExpectedData), DynamicDataSourceType.Method)]
+        public void ShouldEncryptAndDecryptDataSucessfully_WithAndWithoutOffsetOptions_InEncrypt(byte[] inputData, OffsetOptions offsetOptions, byte[] expectedData)
+        {
+            var aesEncryptionResult = _aes.Encrypt(inputData, offsetOptions);
+
+            if (!aesEncryptionResult.Success)
+            {
+                Assert.Fail(aesEncryptionResult.Message);
+            }
+
+            var aesDecryptionResult = _aes.Decrypt(aesEncryptionResult.EncryptedData);
+
+            if (!aesDecryptionResult.Success)
+            {
+                Assert.Fail(aesDecryptionResult.Message);
+            }
+
+            aesDecryptionResult.DecryptedData.Should().BeEquivalentTo(expectedData);
+        }
+
+        [TestMethod]
+        public void ShouldEncryptAndDecryptDataSucessfully_WithoutOffsetOptions_InDecrypt()
         {
             var dataBytes = PlainStringTest.ToUTF8Bytes();
 
@@ -160,13 +185,45 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
                 Assert.Fail(aesDecryptionResult.Message);
             }
 
-            aesDecryptionResult.DecryptedData.ToUTF8String().Should().Be(PlainStringTest);
+            aesDecryptionResult.DecryptedData.Should().BeEquivalentTo(dataBytes);
         }
 
         [TestMethod]
-        public void ShouldEncryptAndDecryptTextSucessfully()
+        public void ShouldEncryptAndDecryptDataSucessfully_WithOffsetOptions_InDecrypt()
         {
-            var aesTextEncryptionResult = _aes.EncryptText(PlainStringTest);
+            var dataBytes = PlainStringTest.ToUTF8Bytes();
+
+            var aesEncryptionResult = _aes.Encrypt(dataBytes);
+
+            if (!aesEncryptionResult.Success)
+            {
+                Assert.Fail(aesEncryptionResult.Message);
+            }
+
+            var additionalDataAtBeginLenght = 10;
+            var additionalDataAtBegin = CryptographyUtils.GenerateRandomBytes(additionalDataAtBeginLenght);
+            var additionalDataAtEndLenght = 10;
+            var additionalDataAtEnd = CryptographyUtils.GenerateRandomBytes(additionalDataAtEndLenght);
+            var encryptedDataWithAdditionalData = new byte[additionalDataAtBeginLenght + aesEncryptionResult.EncryptedData.Length + additionalDataAtEndLenght];
+            Array.Copy(additionalDataAtBegin, 0, encryptedDataWithAdditionalData, 0, additionalDataAtBeginLenght);
+            Array.Copy(aesEncryptionResult.EncryptedData, 0, encryptedDataWithAdditionalData, additionalDataAtBeginLenght, aesEncryptionResult.EncryptedData.Length);
+            Array.Copy(additionalDataAtEnd, 0, encryptedDataWithAdditionalData, additionalDataAtBeginLenght + aesEncryptionResult.EncryptedData.Length, additionalDataAtEndLenght);
+
+            var aesDecryptionResult = _aes.Decrypt(encryptedDataWithAdditionalData, new OffsetOptions(additionalDataAtBeginLenght, aesEncryptionResult.EncryptedData.Length));
+
+            if (!aesDecryptionResult.Success)
+            {
+                Assert.Fail(aesDecryptionResult.Message);
+            }
+
+            aesDecryptionResult.DecryptedData.Should().BeEquivalentTo(dataBytes);
+        }
+
+        [TestMethod]
+        [DynamicData(nameof(GetOffsetOptionsAndExpectedText), DynamicDataSourceType.Method)]
+        public void ShouldEncryptAndDecryptTextSucessfully_WithAndWithoutOffsetOption_InEncryptText(string inputText, OffsetOptions offsetOptions, string expectedText)
+        {
+            var aesTextEncryptionResult = _aes.EncryptText(inputText, offsetOptions);
 
             if (!aesTextEncryptionResult.Success)
             {
@@ -180,7 +237,35 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
                 Assert.Fail(aesTextDecryptionResult.Message);
             }
 
-            aesTextDecryptionResult.DecryptedText.Should().Be(PlainStringTest);
+            aesTextDecryptionResult.DecryptedText.Should().Be(expectedText);
+        }
+
+        [TestMethod]
+        public void ShouldEncryptAndDecryptTextSucessfully_WithOffsetOptions_InDecryptText()
+        {
+            var text = PlainStringTest;
+
+            var aesTextEncryptionResult = _aes.EncryptText(text);
+
+            if (!aesTextEncryptionResult.Success)
+            {
+                Assert.Fail(aesTextEncryptionResult.Message);
+            }
+
+            var additionalTextAtBeginLength = 10;
+            var additionalTextAtBegin = new string('a', additionalTextAtBeginLength);
+            var additionalTextAtEndLength = 10;
+            var additionalTextAtEnd = new string('z', additionalTextAtEndLength);
+            var encryptedTextWithAdditionalTexts = $"{additionalTextAtBegin}{aesTextEncryptionResult.EncodedEncryptedText}{additionalTextAtEnd}";
+
+            var aesTextDecryptionResult = _aes.DecryptText(encryptedTextWithAdditionalTexts, new OffsetOptions(additionalTextAtBeginLength, aesTextEncryptionResult.EncodedEncryptedText.Length));
+
+            if (!aesTextDecryptionResult.Success)
+            {
+                Assert.Fail(aesTextDecryptionResult.Message);
+            }
+
+            aesTextDecryptionResult.DecryptedText.Should().BeEquivalentTo(text);
         }
 
         [TestMethod]
@@ -189,7 +274,7 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
             var testFilePath = Path.GetTempFileName();
             CreateFileAndWriteText(testFilePath, PlainStringTest);
             var encryptedTestFilePath = Path.ChangeExtension(testFilePath, ".encrypted");
-
+            _aes.EncryptFile(testFilePath, encryptedTestFilePath);
             var aesFileEncryptionResult = _aes.EncryptFile(testFilePath, encryptedTestFilePath);
 
             if (!aesFileEncryptionResult.Success)
@@ -205,13 +290,15 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
                 Assert.Fail(aesDecryptionResult.Message);
             }
 
+            _monitoredAes.Should().Raise(nameof(AESCore.OnEncryptFileProgress));
+            _monitoredAes.Should().Raise(nameof(AESCore.OnDecryptFileProgress));
             aesDecryptionResult.Success.Should().BeTrue();
             ReadFileText(decryptedTestFilePath).Should().Be(PlainStringTest);
         }
 
         [TestMethod]
-        [DynamicData(nameof(GetStringAndLongOffsetOptions), DynamicDataSourceType.Method)]
-        public void ShouldEncryptFileWithLongOffsetOptionsSucessfully(string testString, LongOffsetOptions offsetOptions)
+        [DynamicData(nameof(GetTextAndLongOffsetOptions), DynamicDataSourceType.Method)]
+        public void ShouldEncryptAndDecryptFileSucessfully_WithAndWithoutLongOffsetOptions_InEncryptFile(string expectedText, LongOffsetOptions offsetOptions)
         {
             var testFilePath = Path.GetTempFileName();
             CreateFileAndWriteText(testFilePath, PlainStringTest);
@@ -232,13 +319,15 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
                 Assert.Fail(aesFileDecryptionResult.Message);
             }
 
+            _monitoredAes.Should().Raise(nameof(AESCore.OnEncryptFileProgress));
+            _monitoredAes.Should().Raise(nameof(AESCore.OnDecryptFileProgress));
             aesFileDecryptionResult.Success.Should().BeTrue();
             var decryptedText = ReadFileText(decryptedTestFilePath);
-            decryptedText.Should().Be(testString);
+            decryptedText.Should().Be(expectedText);
         }
 
         [TestMethod]
-        public void ShouldDecryptFileWithLongOffsetOptionsSucessfully()
+        public void ShouldEncryptAndDecryptFileSucessfully_WithLongOffsetOptions_InDecryptFile()
         {
             var testFilePath = Path.GetTempFileName();
             CreateFileAndWriteText(testFilePath, PlainStringTest);
@@ -251,20 +340,27 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
                 Assert.Fail(aesFileEncryptionResult.Message);
             }
 
-            var additionalDataLenght = 10L;
-            var additionalData = CryptographyUtils.GenerateRandomBytes((int)additionalDataLenght);
-            FileUtils.AppendBytesToFile(encryptedTestFilePath, additionalData);
-            var encryptedFileSizeWithAdditionalData = GetFileLenght(encryptedTestFilePath);
-            var payloadBytesLenght = encryptedFileSizeWithAdditionalData - additionalDataLenght;
+            var additionalDataAtBeginLenght = 10L;
+            var additionalDataAtBegin = CryptographyUtils.GenerateRandomBytes((int)additionalDataAtBeginLenght);
+            var additionalDataAtEndLenght = 10L;
+            var additionalDataAtEnd = CryptographyUtils.GenerateRandomBytes((int)additionalDataAtEndLenght);
+            var fileData = File.ReadAllBytes(encryptedTestFilePath);
+            var fileDataWithAdditionalInfo = new byte[additionalDataAtBeginLenght + fileData.Length + additionalDataAtEndLenght];
+            Array.Copy(additionalDataAtBegin, 0, fileDataWithAdditionalInfo, 0, additionalDataAtBeginLenght);
+            Array.Copy(fileData, 0, fileDataWithAdditionalInfo, additionalDataAtBeginLenght, fileData.Length);
+            Array.Copy(additionalDataAtEnd, 0, fileDataWithAdditionalInfo, additionalDataAtBeginLenght + fileData.Length, additionalDataAtEndLenght);
+            File.WriteAllBytes(encryptedTestFilePath, fileDataWithAdditionalInfo);
             var decryptedTestFilePath = Path.ChangeExtension(encryptedTestFilePath, ".decrypted");
-            
-            var aesFileDecryptionResult = _aes.DecryptFile(encryptedTestFilePath, decryptedTestFilePath, new LongOffsetOptions(0, payloadBytesLenght));
+
+            var aesFileDecryptionResult = _aes.DecryptFile(encryptedTestFilePath, decryptedTestFilePath, new LongOffsetOptions(additionalDataAtBeginLenght, fileData.Length));
 
             if (!aesFileDecryptionResult.Success)
             {
                 Assert.Fail(aesFileDecryptionResult.Message);
             }
 
+            _monitoredAes.Should().Raise(nameof(AESCore.OnEncryptFileProgress));
+            _monitoredAes.Should().Raise(nameof(AESCore.OnDecryptFileProgress));
             aesFileDecryptionResult.Success.Should().BeTrue();
             var decryptedText = ReadFileText(decryptedTestFilePath);
             decryptedText.Should().Be(PlainStringTest);
@@ -355,6 +451,50 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
             };
         }
 
+        private static IEnumerable<object[]> GetOffsetOptionsAndExpectedData()
+        {
+            var data = PlainStringTest.ToUTF8Bytes();
+            var truncatedToBeginData = data.Take(PlainStringTest.Length / 2).ToArray();
+            var truncatedToEndData = data.Skip(PlainStringTest.Length / 2).Take(PlainStringTest.Length / 2).ToArray();
+            var additionalDataAtBeginLength = 10;
+            var additionalDataAtBegin = CryptographyUtils.GenerateRandomBytes(additionalDataAtBeginLength);
+            var additionalDataAtEndLength = 10;
+            var additionalDataAtEnd = CryptographyUtils.GenerateRandomBytes(additionalDataAtEndLength);
+            var dataWithAdditionalData = new byte[additionalDataAtBeginLength + data.Length + additionalDataAtEndLength];
+            Array.Copy(additionalDataAtBegin, 0, dataWithAdditionalData, 0, additionalDataAtBeginLength);
+            Array.Copy(data, 0, dataWithAdditionalData, additionalDataAtBeginLength, data.Length);
+            Array.Copy(additionalDataAtEnd, 0, dataWithAdditionalData, additionalDataAtBeginLength + data.Length, additionalDataAtEndLength);
+
+            return new List<object[]>()
+            {
+                new object[]{ data, new OffsetOptions(), data },
+                new object[]{ data, new OffsetOptions(0, truncatedToBeginData.Length), truncatedToBeginData },
+                new object[]{ data, new OffsetOptions(truncatedToEndData.Length, truncatedToEndData.Length), truncatedToEndData },
+                new object[]{ dataWithAdditionalData, new OffsetOptions(additionalDataAtBeginLength, data.Length), data },
+            };
+        }
+
+        private static IEnumerable<object[]> GetOffsetOptionsAndExpectedText()
+        {
+            var text = PlainStringTest;
+            var truncatedToBeginText = text.Substring(0, text.Length / 2);
+            var truncatedToEndText = text.Substring(text.Length / 2, text.Length / 2);
+
+            var additionalTextAtBeginLength = 10;
+            var additionalTextAtBegin = new string('a', additionalTextAtBeginLength);
+            var additionalTextAtEndLength = 10;
+            var additionalTextAtEnd = new string('z', additionalTextAtEndLength);
+            var textWithAdditionalTexts = $"{additionalTextAtBegin}{text}{additionalTextAtEnd}";
+
+            return new List<object[]>()
+            {
+                new object[]{ text, new OffsetOptions(), text },
+                new object[]{ text, new OffsetOptions(0, truncatedToBeginText.Length), truncatedToBeginText },
+                new object[]{ text, new OffsetOptions(truncatedToEndText.Length, truncatedToEndText.Length), truncatedToEndText },
+                new object[]{ textWithAdditionalTexts, new OffsetOptions(additionalTextAtBeginLength, text.Length), text },
+            };
+        }
+
         private static void CreateFileAndWriteText(string filePath, string text) =>
             File.WriteAllText(filePath, text);
 
@@ -364,7 +504,7 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
         private static string ReadFileText(string filePath) =>
             File.ReadAllText(filePath);
 
-        private static IEnumerable<object[]> GetStringAndLongOffsetOptions()
+        private static IEnumerable<object[]> GetTextAndLongOffsetOptions()
         {
             var splitedStringlenght = PlainStringTest.Length / 2;
 

@@ -15,13 +15,13 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
         public event OnProgressHandler OnEncryptFileProgress;
         public event OnProgressHandler OnDecryptFileProgress;
 
+        private readonly Aes _aes;
         private readonly CipherMode _cipherMode = CipherMode.CBC;
         private readonly PaddingMode _paddingMode = PaddingMode.PKCS7;
-        private readonly InternalServiceLocator _serviceLocator = InternalServiceLocator.Instance;
         private readonly EncodingType _encodingType = EncodingType.Base64;
-        private readonly int _bufferSizeInKBForFileProcessing = 4 * Constants.BytesPerKilobyte;
         private readonly IEncoder _encoder;
-        private readonly Aes _aes;
+        private readonly int _bufferSizeInKBForFileProcessing = 4 * Constants.BytesPerKilobyte;
+        private readonly InternalServiceLocator _serviceLocator = InternalServiceLocator.Instance;
 
 
         public AESCore(byte[] key, byte[] IV, CipherMode? cipherMode = null, PaddingMode? paddingMode = null, EncodingType? encodingType = null, int? bufferSizeInKBForFileProcessing = null)
@@ -56,7 +56,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
         /// This constructor call creates a random key with specified size, a random IV and defines CipherMode as CBC and PaddingMode as PKCS7.
         /// </summary>
         /// <param name="keySizeToGenerateRandomKey"></param>
-        public AESCore(AESKeySizes keySizeToGenerateRandomKey, EncodingType? encodingType = null, int? bufferSizeInKBForFileProcessing = null)
+        public AESCore(AESKeySizes keySizeToGenerateRandomKey, CipherMode? cipherMode = null, PaddingMode? paddingMode = null, EncodingType? encodingType = null, int? bufferSizeInKBForFileProcessing = null)
         {
             _aes = Aes.Create();
             _aes.Key = keySizeToGenerateRandomKey switch
@@ -67,8 +67,8 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
                 _ => throw new ArgumentException($"Invalid enum value for {nameof(keySizeToGenerateRandomKey)} parameter of type {typeof(AESKeySizes)}.", nameof(keySizeToGenerateRandomKey)),
             };
             _aes.IV = CryptographyUtils.GenerateRandomAESIV();
-            _aes.Mode = _cipherMode;
-            _aes.Padding = _paddingMode;
+            _aes.Mode = _cipherMode = cipherMode ?? _cipherMode;
+            _aes.Padding = _paddingMode = paddingMode ?? _paddingMode;
             _encodingType = encodingType ?? _encodingType;
             _encoder = _encodingType == EncodingType.Base64
                 ? _serviceLocator.GetService<IBase64>()
@@ -148,8 +148,13 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
 
             try
             {
-                var plainTextBytes = plainText.ToUTF8Bytes();
-                var encryptionResult = Encrypt(plainTextBytes, offsetOptions);
+                var offset = offsetOptions.HasValue ? offsetOptions.Value.Offset : 0;
+                var totalCharsToRead = offsetOptions.HasValue
+                    ? offsetOptions.Value.Count == 0 ? plainText.Length : offsetOptions.Value.Count
+                    : plainText.Length;
+                var plainTextPayload = plainText.Substring(offset, totalCharsToRead);
+                var plainTextPayloadBytes = plainTextPayload.ToUTF8Bytes();
+                var encryptionResult = Encrypt(plainTextPayloadBytes);
 
                 if (encryptionResult.Success)
                 {
@@ -352,8 +357,13 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
 
             try
             {
-                var encodedEncryptedTextBytes = _encoder.DecodeString(encodedEncryptedText);
-                var decryptionResult = Decrypt(encodedEncryptedTextBytes, offsetOptions);
+                var offset = offsetOptions.HasValue ? offsetOptions.Value.Offset : 0;
+                var totalCharsToRead = offsetOptions.HasValue
+                    ? offsetOptions.Value.Count == 0 ? encodedEncryptedText.Length : offsetOptions.Value.Count
+                    : encodedEncryptedText.Length;
+                var encodedEncryptedTextPayload = encodedEncryptedText.Substring(offset, totalCharsToRead);
+                var encodedEncryptedTextPayloadBytes = _encoder.DecodeString(encodedEncryptedTextPayload);
+                var decryptionResult = Decrypt(encodedEncryptedTextPayloadBytes);
 
                 if (decryptionResult.Success)
                 {
