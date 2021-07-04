@@ -210,6 +210,9 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
             };
         }
 
+        public AESGCMTextDecryptionResult DecryptText(string encodedEncryptedText, string encodedNonce, string encodedTag, OffsetOptions? offsetOptions = null, string associatedDataString = null) =>
+            throw new NotImplementedException();
+
         public void Dispose() =>
             _aesGcm.Dispose();
     }
