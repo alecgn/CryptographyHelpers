@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFrameworks>netcoreapp3.0;netcoreapp3.1;net5.0</TargetFrameworks>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <Authors>Alessandro Cagliostro Gonçalves Neves</Authors>
     <Description>CryptographyHelpers is a .NET 5 class library to provide simple and centralized cryptography algorithms usage like symmetric encryption/decryption (AES128CBC / AES192CBC / AES256CBC / AES128GCM / AES192GCM / AES256GCM), hash (MD5, SHA1, SHA256, SHA384, SHA512), HMAC (HMAC-MD5, HMAC-SHA1, HMAC-SHA256, HMAC-SHA384, HMAC-SHA512), Key Derivation Function (PBKDF2) and encoding/decoding (Base64 and Hexadecimal).</Description>

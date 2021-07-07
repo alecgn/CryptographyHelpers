@@ -20,25 +20,40 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
         public AESGCMCore(byte[] key, EncodingType? encodingType = null)
         {
             _key = key;
-            _aesGcm = new(_key);
+            _aesGcm = new AesGcm(_key);
             _encodingType = encodingType ?? _encodingType;
-            _encoder = _encodingType == EncodingType.Base64
-                ? _serviceLocator.GetService<IBase64>()
-                : _serviceLocator.GetService<IHexadecimal>();
+            //_encoder = _encodingType == EncodingType.Base64
+            //    ? _serviceLocator.GetService<IBase64>()
+            //    : _serviceLocator.GetService<IHexadecimal>();
+
+            if (_encodingType == EncodingType.Base64)
+            {
+                _encoder = _serviceLocator.GetService<IBase64>();
+            }
+            else
+            {
+                _encoder = _serviceLocator.GetService<IHexadecimal>();
+            }
         }
 
         public AESGCMCore(string encodedKey, EncodingType? encodingType = null)
         {
             _encodingType = encodingType ?? _encodingType;
-            _encoder = _encodingType == EncodingType.Base64
-                ? _serviceLocator.GetService<IBase64>()
-                : _serviceLocator.GetService<IHexadecimal>();
+            //_encoder = _encodingType == EncodingType.Base64
+            //    ? _serviceLocator.GetService<IBase64>()
+            //    : _serviceLocator.GetService<IHexadecimal>();
+
+            if (_encodingType == EncodingType.Base64)
+            {
+                _encoder = _serviceLocator.GetService<IBase64>();
+            }
+            else
+            {
+                _encoder = _serviceLocator.GetService<IHexadecimal>();
+            }
+
             _key = _encoder.DecodeString(encodedKey);
-            _aesGcm = new(_key);
-            _encodingType = encodingType ?? _encodingType;
-            _encoder = _encodingType == EncodingType.Base64
-                ? _serviceLocator.GetService<IBase64>()
-                : _serviceLocator.GetService<IHexadecimal>();
+            _aesGcm = new AesGcm(_key);
         }
 
         /// <summary>
@@ -54,11 +69,20 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
                 AESKeySizes.KeySize256Bits => CryptographyUtils.GenerateRandom256BitsKey(),
                 _ => throw new ArgumentException($"Invalid enum value for {nameof(keySizeToGenerateRandomKey)} parameter of type {typeof(AESKeySizes)}.", nameof(keySizeToGenerateRandomKey)),
             };
-            _aesGcm = new(_key);
+            _aesGcm = new AesGcm(_key);
             _encodingType = encodingType ?? _encodingType;
-            _encoder = _encodingType == EncodingType.Base64
-                ? _serviceLocator.GetService<IBase64>()
-                : _serviceLocator.GetService<IHexadecimal>();
+            //_encoder = _encodingType == EncodingType.Base64
+            //    ? _serviceLocator.GetService<IBase64>()
+            //    : _serviceLocator.GetService<IHexadecimal>();
+
+            if (_encodingType == EncodingType.Base64)
+            {
+                _encoder = _serviceLocator.GetService<IBase64>();
+            }
+            else
+            {
+                _encoder = _serviceLocator.GetService<IHexadecimal>();
+            }
         }
 
 
@@ -66,7 +90,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
         {
             if (data is null || data.Length == 0)
             {
-                return new()
+                return new AESGCMEncryptionResult()
                 {
                     Success = false,
                     Message = MessageStrings.Encryption_InputBytesRequired,
@@ -87,7 +111,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
                 var tag = new byte[AesGcm.TagByteSizes.MaxSize];
                 _aesGcm.Encrypt(nonce, dataPayload, encryptedData, tag, associatedData);
 
-                return new()
+                return new AESGCMEncryptionResult()
                 {
                     Success = true,
                     Message = MessageStrings.Encryption_DataEncryptionSuccess,
@@ -104,7 +128,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
             }
             catch (Exception ex)
             {
-                return new()
+                return new AESGCMEncryptionResult()
                 {
                     Success = false,
                     Message = ex.ToString(),
@@ -116,7 +140,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
         {
             if (string.IsNullOrWhiteSpace(plainText))
             {
-                return new()
+                return new AESGCMTextEncryptionResult()
                 {
                     Success = false,
                     Message = MessageStrings.Encryption_InputStringRequired,
@@ -136,7 +160,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
 
                 if (encryptionResult.Success)
                 {
-                    return new()
+                    return new AESGCMTextEncryptionResult()
                     {
                         Success = encryptionResult.Success,
                         Message = encryptionResult.Message,
@@ -155,7 +179,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
                 }
                 else
                 {
-                    return new()
+                    return new AESGCMTextEncryptionResult()
                     {
                         Success = encryptionResult.Success,
                         Message = encryptionResult.Message,
@@ -164,7 +188,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
             }
             catch (Exception ex)
             {
-                return new()
+                return new AESGCMTextEncryptionResult()
                 {
                     Success = false,
                     Message = ex.ToString(),
@@ -176,7 +200,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
         {
             if (encryptedData == null || encryptedData.Length == 0)
             {
-                return new()
+                return new AESGCMDecryptionResult()
                 {
                     Success = false,
                     Message = MessageStrings.Decryption_InputBytesRequired,
@@ -191,14 +215,14 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
             }
             catch (Exception ex)
             {
-                return new()
+                return new AESGCMDecryptionResult()
                 {
                     Success = false,
                     Message = ex.ToString(),
                 };
             }
 
-            return new()
+            return new AESGCMDecryptionResult()
             {
                 Success = true,
                 Message = MessageStrings.Decryption_DataDecryptionSuccess,
@@ -210,8 +234,58 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
             };
         }
 
-        public AESGCMTextDecryptionResult DecryptText(string encodedEncryptedText, string encodedNonce, string encodedTag, OffsetOptions? offsetOptions = null, string associatedDataString = null) =>
-            throw new NotImplementedException();
+        public AESGCMTextDecryptionResult DecryptText(string encodedEncryptedText, string encodedNonce, string encodedTag, OffsetOptions? offsetOptions = null, string associatedDataText = null)
+        {
+            try
+            {
+                var offset = offsetOptions.HasValue ? offsetOptions.Value.Offset : 0;
+                var totalCharsToRead = offsetOptions.HasValue
+                    ? offsetOptions.Value.Count == 0 ? encodedEncryptedText.Length : offsetOptions.Value.Count
+                    : encodedEncryptedText.Length;
+                var encodedEncryptedTextPayload = encodedEncryptedText.Substring(offset, totalCharsToRead);
+                var encryptedTextPayloadBytes = _encoder.DecodeString(encodedEncryptedTextPayload);
+                var associatedDataTextBytes = string.IsNullOrWhiteSpace(associatedDataText) ? null : associatedDataText.ToUTF8Bytes();
+                var nonceBytes = _encoder.DecodeString(encodedNonce);
+                var tagBytes = _encoder.DecodeString(encodedTag);
+                var decryptionResult = Decrypt(encryptedTextPayloadBytes, nonceBytes, tagBytes, offsetOptions, associatedDataTextBytes);
+
+                if (decryptionResult.Success)
+                {
+                    return new AESGCMTextDecryptionResult()
+                    {
+                        Success = decryptionResult.Success,
+                        Message = decryptionResult.Message,
+                        EncodingType = decryptionResult.EncodingType,
+                        DecryptedData = decryptionResult.DecryptedData,
+                        DecryptedText = decryptionResult.DecryptedData.ToUTF8String(),
+                        Key = decryptionResult.Key,
+                        EncodedKey = decryptionResult.EncodedKey,
+                        Nonce = decryptionResult.Nonce,
+                        EncodedNonce = decryptionResult.EncodedNonce,
+                        Tag = decryptionResult.Tag,
+                        EncodedTag = _encoder.EncodeToString(decryptionResult.Tag),
+                        AssociatedData = decryptionResult.AssociatedData,
+                        AssociatedDataString = decryptionResult.AssociatedData.ToUTF8String(),
+                    };
+                }
+                else
+                {
+                    return new AESGCMTextDecryptionResult()
+                    {
+                        Success = decryptionResult.Success,
+                        Message = decryptionResult.Message,
+                    };
+                }
+            }
+            catch (Exception ex)
+            {
+                return new AESGCMTextDecryptionResult()
+                {
+                    Success = false,
+                    Message = ex.ToString(),
+                };
+            }
+        }
 
         public void Dispose() =>
             _aesGcm.Dispose();

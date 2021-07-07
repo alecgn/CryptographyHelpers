@@ -58,7 +58,7 @@ namespace CryptographyHelpers.HMAC
         {
             if (string.IsNullOrWhiteSpace(stringToComputeHMAC))
             {
-                return new()
+                return new HMACResult()
                 {
                     Success = false,
                     Message = MessageStrings.HMAC_InputStringRequired,
@@ -81,7 +81,7 @@ namespace CryptographyHelpers.HMAC
             }
             catch (Exception ex)
             {
-                return new()
+                return new HMACResult()
                 {
                     Success = false,
                     Message = ex.ToString(),
@@ -102,7 +102,7 @@ namespace CryptographyHelpers.HMAC
         {
             if (bytesToComputeHMAC is null || bytesToComputeHMAC.Length == 0)
             {
-                return new()
+                return new HMACResult()
                 {
                     Success = false,
                     Message = MessageStrings.HMAC_InputBytesRequired,
@@ -114,7 +114,7 @@ namespace CryptographyHelpers.HMAC
                 var count = offsetOptions.Count == 0 ? bytesToComputeHMAC.Length : offsetOptions.Count;
                 var hashBytes = _hmacAlgorithm.ComputeHash(bytesToComputeHMAC, offsetOptions.Offset, count);
 
-                return new()
+                return new HMACResult()
                 {
                     Success = true,
                     Message = MessageStrings.HMAC_ComputeSuccess,
@@ -129,7 +129,7 @@ namespace CryptographyHelpers.HMAC
             }
             catch (Exception ex)
             {
-                return new()
+                return new HMACResult()
                 {
                     Success = false,
                     Message = ex.ToString()
@@ -164,7 +164,7 @@ namespace CryptographyHelpers.HMAC
             }
             catch (Exception ex)
             {
-                return new()
+                return new HMACResult()
                 {
                     Success = false,
                     Message = ex.ToString(),
@@ -182,7 +182,7 @@ namespace CryptographyHelpers.HMAC
         {
             if (!File.Exists(filePathToComputeHMAC))
             {
-                return new()
+                return new HMACResult()
                 {
                     Success = false,
                     Message = $@"{MessageStrings.File_PathNotFound} ""{filePathToComputeHMAC}"".",
@@ -232,7 +232,7 @@ namespace CryptographyHelpers.HMAC
                     }
                 }
 
-                return new()
+                return new HMACResult()
                 {
                     Success = true,
                     Message = MessageStrings.HMAC_ComputeSuccess,
@@ -247,7 +247,7 @@ namespace CryptographyHelpers.HMAC
             }
             catch (Exception ex)
             {
-                return new()
+                return new HMACResult()
                 {
                     Success = false,
                     Message = ex.ToString()
@@ -266,7 +266,7 @@ namespace CryptographyHelpers.HMAC
         {
             if (string.IsNullOrWhiteSpace(stringToVerifyHMAC))
             {
-                return new()
+                return new HMACResult()
                 {
                     Success = false,
                     Message = MessageStrings.HMAC_InputStringRequired,
@@ -275,7 +275,7 @@ namespace CryptographyHelpers.HMAC
 
             if (string.IsNullOrWhiteSpace(key))
             {
-                return new()
+                return new HMACResult()
                 {
                     Success = false,
                     Message = MessageStrings.HMAC_InputKeyStringRequired,
@@ -284,7 +284,7 @@ namespace CryptographyHelpers.HMAC
 
             if (string.IsNullOrWhiteSpace(verificationHMACString))
             {
-                return new()
+                return new HMACResult()
                 {
                     Success = false,
                     Message = MessageStrings.HMAC_VerificationHMACStringRequired,
@@ -306,7 +306,7 @@ namespace CryptographyHelpers.HMAC
             }
             catch (Exception ex)
             {
-                return new()
+                return new HMACResult()
                 {
                     Success = false,
                     Message = ex.ToString(),
@@ -351,7 +351,7 @@ namespace CryptographyHelpers.HMAC
             }
             catch (Exception ex)
             {
-                return new()
+                return new HMACResult()
                 {
                     Success = false,
                     Message = ex.ToString()

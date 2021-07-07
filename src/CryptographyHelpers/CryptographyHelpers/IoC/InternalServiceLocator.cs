@@ -11,23 +11,23 @@ namespace CryptographyHelpers.IoC
     {
         internal static InternalServiceLocator Instance { get { return _lazyInstance.Value; } }
         
-        private static readonly Lazy<InternalServiceLocator> _lazyInstance = new(() => new InternalServiceLocator());
+        private static readonly Lazy<InternalServiceLocator> _lazyInstance = new Lazy<InternalServiceLocator>(() => new InternalServiceLocator());
         private IDictionary<Type, Type> _servicesType;
         private IDictionary<Type, object> _instantiatedServices;
 
         private InternalServiceLocator()
         {
-            this._servicesType = new ConcurrentDictionary<Type, Type>();
-            this._instantiatedServices = new ConcurrentDictionary<Type, object>();
+            _servicesType = new ConcurrentDictionary<Type, Type>();
+            _instantiatedServices = new ConcurrentDictionary<Type, object>();
 
-            this.BuildServiceTypesMap();
+            BuildServiceTypesMap();
         }
 
         internal T GetService<T>()
         {
-            if (this._instantiatedServices.ContainsKey(typeof(T)))
+            if (_instantiatedServices.ContainsKey(typeof(T)))
             {
-                return (T)this._instantiatedServices[typeof(T)];
+                return (T)_instantiatedServices[typeof(T)];
             }
             else
             {

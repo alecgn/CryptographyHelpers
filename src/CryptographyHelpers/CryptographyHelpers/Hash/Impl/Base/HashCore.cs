@@ -37,7 +37,7 @@ namespace CryptographyHelpers.Hash
         {
             if (string.IsNullOrWhiteSpace(stringToComputeHash))
             {
-                return new()
+                return new HashResult()
                 {
                     Success = false,
                     Message = MessageStrings.Hash_InputStringRequired,
@@ -56,7 +56,7 @@ namespace CryptographyHelpers.Hash
         {
             if (bytesToComputeHash is null || bytesToComputeHash.Length == 0)
             {
-                return new()
+                return new HashResult()
                 {
                     Success = false,
                     Message = MessageStrings.Hash_InputBytesRequired,
@@ -71,7 +71,7 @@ namespace CryptographyHelpers.Hash
                     ? _serviceLocator.GetService<IHexadecimal>().EncodeToString(hashBytes)
                     : _serviceLocator.GetService<IBase64>().EncodeToString(hashBytes);
 
-                return new()
+                return new HashResult()
                 {
                     Success = true,
                     Message = MessageStrings.Hash_ComputeSuccess,
@@ -83,7 +83,7 @@ namespace CryptographyHelpers.Hash
             }
             catch (Exception ex)
             {
-                return new()
+                return new HashResult()
                 {
                     Success = false,
                     Message = ex.ToString()
@@ -98,7 +98,7 @@ namespace CryptographyHelpers.Hash
         {
             if (string.IsNullOrWhiteSpace(stringToVerifyHash))
             {
-                return new()
+                return new HashResult()
                 {
                     Success = false,
                     Message = MessageStrings.Strings_InvalidInputString,
@@ -107,7 +107,7 @@ namespace CryptographyHelpers.Hash
 
             if (string.IsNullOrWhiteSpace(encodedVerificationHashString))
             {
-                return new()
+                return new HashResult()
                 {
                     Success = false,
                     Message = MessageStrings.Hash_VerificationHashStringRequired,
@@ -125,7 +125,7 @@ namespace CryptographyHelpers.Hash
             }
             catch (Exception ex)
             {
-                return new()
+                return new HashResult()
                 {
                     Success = false,
                     Message = ex.ToString()
@@ -140,7 +140,7 @@ namespace CryptographyHelpers.Hash
         {
             if (verificationHashBytes is null || verificationHashBytes.Length == 0)
             {
-                return new()
+                return new HashResult()
                 {
                     Success = false,
                     Message = MessageStrings.Hash_VerificationHashBytesRequired,
@@ -167,7 +167,7 @@ namespace CryptographyHelpers.Hash
         {
             if (!File.Exists(fileToComputeHash))
             {
-                return new()
+                return new HashResult()
                 {
                     Success = false,
                     Message = $@"{MessageStrings.File_PathNotFound} ""{fileToComputeHash}"".",
@@ -215,7 +215,7 @@ namespace CryptographyHelpers.Hash
                     }
                 }
 
-                return new()
+                return new HashResult()
                 {
                     Success = true,
                     Message = MessageStrings.Hash_ComputeSuccess,
@@ -229,7 +229,7 @@ namespace CryptographyHelpers.Hash
             }
             catch (Exception ex)
             {
-                return new()
+                return new HashResult()
                 {
                     Success = false,
                     Message = ex.ToString(),
@@ -244,7 +244,7 @@ namespace CryptographyHelpers.Hash
         {
             if (string.IsNullOrWhiteSpace(encodedVerificationHashString))
             {
-                return new()
+                return new HashResult()
                 {
                     Success = false,
                     Message = MessageStrings.Hash_VerificationHashStringRequired,
@@ -261,7 +261,7 @@ namespace CryptographyHelpers.Hash
             }
             catch (Exception ex)
             {
-                return new()
+                return new HashResult()
                 {
                     Success = false,
                     Message = ex.ToString()
@@ -276,7 +276,7 @@ namespace CryptographyHelpers.Hash
         {
             if (verificationHashBytes is null || verificationHashBytes.Length == 0)
             {
-                return new()
+                return new HashResult()
                 {
                     Success = false,
                     Message = MessageStrings.Hash_VerificationHashBytesRequired,

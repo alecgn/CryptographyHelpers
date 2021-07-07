@@ -32,18 +32,38 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
             _aes.Mode = _cipherMode = cipherMode ?? _cipherMode;
             _aes.Padding = _paddingMode = paddingMode ?? _paddingMode;
             _encodingType = encodingType ?? _encodingType;
-            _encoder = _encodingType == EncodingType.Base64
-                ? _serviceLocator.GetService<IBase64>()
-                : _serviceLocator.GetService<IHexadecimal>();
+            //_encoder = _encodingType == EncodingType.Base64
+            //    ? _serviceLocator.GetService<IBase64>()
+            //    : _serviceLocator.GetService<IHexadecimal>();
+
+            if (_encodingType == EncodingType.Base64)
+            {
+                _encoder = _serviceLocator.GetService<IBase64>();
+            }
+            else
+            {
+                _encoder = _serviceLocator.GetService<IHexadecimal>();
+            }
+
             _bufferSizeInKBForFileProcessing = bufferSizeInKBForFileProcessing ?? _bufferSizeInKBForFileProcessing;
         }
 
         public AESCore(string encodedKey, string encodedIV, CipherMode? cipherMode = null, PaddingMode? paddingMode = null, EncodingType? encodingType = null, int? bufferSizeInKBForFileProcessing = null)
         {
             _encodingType = encodingType ?? _encodingType;
-            _encoder = _encodingType == EncodingType.Base64
-                ? _serviceLocator.GetService<IBase64>()
-                : _serviceLocator.GetService<IHexadecimal>();
+            //_encoder = _encodingType == EncodingType.Base64
+            //    ? _serviceLocator.GetService<IBase64>()
+            //    : _serviceLocator.GetService<IHexadecimal>();
+
+            if (_encodingType == EncodingType.Base64)
+            {
+                _encoder = _serviceLocator.GetService<IBase64>();
+            }
+            else
+            {
+                _encoder = _serviceLocator.GetService<IHexadecimal>();
+            }
+
             _aes = Aes.Create();
             _aes.Key = _encoder.DecodeString(encodedKey);
             _aes.IV = _encoder.DecodeString(encodedIV);
@@ -70,9 +90,19 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
             _aes.Mode = _cipherMode = cipherMode ?? _cipherMode;
             _aes.Padding = _paddingMode = paddingMode ?? _paddingMode;
             _encodingType = encodingType ?? _encodingType;
-            _encoder = _encodingType == EncodingType.Base64
-                ? _serviceLocator.GetService<IBase64>()
-                : _serviceLocator.GetService<IHexadecimal>();
+            //_encoder = _encodingType == EncodingType.Base64
+            //    ? _serviceLocator.GetService<IBase64>()
+            //    : _serviceLocator.GetService<IHexadecimal>();
+
+            if (_encodingType == EncodingType.Base64)
+            {
+                _encoder = _serviceLocator.GetService<IBase64>();
+            }
+            else
+            {
+                _encoder = _serviceLocator.GetService<IHexadecimal>();
+            }
+
             _bufferSizeInKBForFileProcessing = bufferSizeInKBForFileProcessing ?? _bufferSizeInKBForFileProcessing;
         }
 
@@ -81,7 +111,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
         {
             if (data is null || data.Length == 0)
             {
-                return new()
+                return new AESEncryptionResult()
                 {
                     Success = false,
                     Message = MessageStrings.Encryption_InputBytesRequired,
@@ -111,7 +141,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
                     }
                 }
 
-                return new()
+                return new AESEncryptionResult()
                 {
                     Success = true,
                     Message = MessageStrings.Encryption_DataEncryptionSuccess,
@@ -127,7 +157,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
             }
             catch (Exception ex)
             {
-                return new()
+                return new AESEncryptionResult()
                 {
                     Success = false,
                     Message = ex.ToString(),
@@ -139,7 +169,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
         {
             if (string.IsNullOrWhiteSpace(plainText))
             {
-                return new()
+                return new AESTextEncryptionResult()
                 {
                     Success = false,
                     Message = MessageStrings.Encryption_InputStringRequired,
@@ -158,7 +188,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
 
                 if (encryptionResult.Success)
                 {
-                    return new()
+                    return new AESTextEncryptionResult()
                     {
                         Success = encryptionResult.Success,
                         Message = encryptionResult.Message,
@@ -175,7 +205,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
                 }
                 else
                 {
-                    return new()
+                    return new AESTextEncryptionResult()
                     {
                         Success = encryptionResult.Success,
                         Message = encryptionResult.Message,
@@ -184,7 +214,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
             }
             catch (Exception ex)
             {
-                return new()
+                return new AESTextEncryptionResult()
                 {
                     Success = false,
                     Message = ex.ToString(),
@@ -196,7 +226,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
         {
             if (!File.Exists(sourceFilePath))
             {
-                return new()
+                return new AESFileEncryptionResult()
                 {
                     Success = false,
                     Message = $@"{MessageStrings.File_PathNotFound} ""{sourceFilePath}"".",
@@ -205,7 +235,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
 
             if (encryptedFilePath.Equals(sourceFilePath, StringComparison.OrdinalIgnoreCase))
             {
-                return new()
+                return new AESFileEncryptionResult()
                 {
                     Success = false,
                     Message = MessageStrings.File_SourceAndDestinationPathsEqual,
@@ -263,7 +293,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
 
                 }
 
-                return new()
+                return new AESFileEncryptionResult()
                 {
                     Success = true,
                     Message = MessageStrings.Encryption_FileEncryptionSuccess,
@@ -278,7 +308,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
             }
             catch (Exception ex)
             {
-                return new()
+                return new AESFileEncryptionResult()
                 {
                     Success = false,
                     Message = ex.ToString(),
@@ -290,7 +320,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
         {
             if (encryptedData is null || encryptedData.Length == 0)
             {
-                return new()
+                return new AESDecryptionResult()
                 {
                     Success = false,
                     Message = MessageStrings.Decryption_InputBytesRequired,
@@ -320,7 +350,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
                     }
                 }
 
-                return new()
+                return new AESDecryptionResult()
                 {
                     Success = true,
                     Message = MessageStrings.Decryption_DataDecryptionSuccess,
@@ -336,7 +366,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
             }
             catch (Exception ex)
             {
-                return new()
+                return new AESDecryptionResult()
                 {
                     Success = false,
                     Message = ex.ToString(),
@@ -348,7 +378,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
         {
             if (string.IsNullOrWhiteSpace(encodedEncryptedText))
             {
-                return new()
+                return new AESTextDecryptionResult()
                 {
                     Success = false,
                     Message = MessageStrings.Decryption_InputStringRequired,
@@ -367,7 +397,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
 
                 if (decryptionResult.Success)
                 {
-                    return new()
+                    return new AESTextDecryptionResult()
                     {
                         Success = decryptionResult.Success,
                         Message = decryptionResult.Message,
@@ -384,7 +414,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
                 }
                 else
                 {
-                    return new()
+                    return new AESTextDecryptionResult()
                     {
                         Success = decryptionResult.Success,
                         Message = decryptionResult.Message,
@@ -393,7 +423,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
             }
             catch (Exception ex)
             {
-                return new()
+                return new AESTextDecryptionResult()
                 {
                     Success = false,
                     Message = ex.ToString(),
@@ -405,7 +435,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
         {
             if (!File.Exists(encryptedFilePath))
             {
-                return new()
+                return new AESFileDecryptionResult()
                 {
                     Success = false,
                     Message = $@"{MessageStrings.File_PathNotFound} ""{encryptedFilePath}"".",
@@ -414,7 +444,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
 
             if (encryptedFilePath.Equals(decryptedFilePath, StringComparison.OrdinalIgnoreCase))
             {
-                return new()
+                return new AESFileDecryptionResult()
                 {
                     Success = false,
                     Message = MessageStrings.File_SourceAndDestinationPathsEqual,
@@ -470,7 +500,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
                     }
                 }
 
-                return new()
+                return new AESFileDecryptionResult()
                 {
                     Success = true,
                     Message = MessageStrings.Decryption_FileDecryptionSuccess,
@@ -485,7 +515,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
             }
             catch (Exception ex)
             {
-                return new()
+                return new AESFileDecryptionResult()
                 {
                     Success = false,
                     Message = ex.ToString(),

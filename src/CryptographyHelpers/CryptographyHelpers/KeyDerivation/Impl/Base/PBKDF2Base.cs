@@ -94,7 +94,7 @@ namespace CryptographyHelpers.KeyDerivation
         {
             if (string.IsNullOrWhiteSpace(password))
             {
-                return new()
+                return new PBKDF2KeyDerivationResult()
                 {
                     Success = false,
                     Message = MessageStrings.KeyDerivation_PasswordStringRequired,
@@ -103,7 +103,7 @@ namespace CryptographyHelpers.KeyDerivation
 
             if (key is null || key.Length == 0)
             {
-                return new()
+                return new PBKDF2KeyDerivationResult()
                 {
                     Success = false,
                     Message = MessageStrings.KeyDerivation_KeyBytesRequired,
