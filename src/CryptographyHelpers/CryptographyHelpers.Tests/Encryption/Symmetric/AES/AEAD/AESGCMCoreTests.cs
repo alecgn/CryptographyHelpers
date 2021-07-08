@@ -1,4 +1,5 @@
-﻿using CryptographyHelpers.Encryption.Symmetric.AES;
+﻿using Bogus;
+using CryptographyHelpers.Encryption.Symmetric.AES;
 using CryptographyHelpers.Encryption.Symmetric.AES.AEAD;
 using CryptographyHelpers.IoC;
 using CryptographyHelpers.Resources;
@@ -18,26 +19,14 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES.AEAD
         private const string PlainTestString = "This is a test string!";
         private static readonly IBase64 _base64Encoder = InternalServiceLocator.Instance.GetService<IBase64>();
         private static readonly IHexadecimal _hexadecimalEncoder = InternalServiceLocator.Instance.GetService<IHexadecimal>();
-        //private static AESGCMCore _aesGcm;
-
-        //[ClassInitialize]
-        //public static void Initialize(TestContext _)
-        //{
-        //    _aesGcm = new(AESKeySizes.KeySize128Bits);
-        //}
-
-        //[ClassCleanup]
-        //public static void Cleanup()
-        //{
-        //    _aesGcm.Dispose();
-        //}
-
+        private static Faker _faker = new Faker();
+        
 
         [TestMethod]
         [DynamicData(nameof(GetInvalidKeys), DynamicDataSourceType.Method)]
         public void ShouldThrowException_InConstructor_WhenProvidedInvalidKey(byte[] invalidKey)
         {
-            Action act = () => { var aesGcm = new AESGCMCore(invalidKey); };
+            Action act = () => { using var aesGcm = new AESGCMCore(invalidKey); };
 
             act.Should().Throw<Exception>();
         }
@@ -46,7 +35,7 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES.AEAD
         [DynamicData(nameof(GetInvalidEncodedKeys), DynamicDataSourceType.Method)]
         public void ShouldThrowException_InConstructor_WhenProvidedInvalidEncodedKey(string invalidEncodedKey, EncodingType encodingType)
         {
-            Action act = () => { var aesGcm = new AESGCMCore(invalidEncodedKey, encodingType); };
+            Action act = () => { using var aesGcm = new AESGCMCore(invalidEncodedKey, encodingType); };
 
             act.Should().Throw<Exception>();
         }
@@ -55,70 +44,42 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES.AEAD
         [DynamicData(nameof(GetAESAndInvalidInputData), DynamicDataSourceType.Method)]
         public void ShouldReturnSuccessFalse_InEncrypt_WhenProvidedInvalidInputData(AESGCMCore aesGcm, byte[] invalidInputData)
         {
-            var aesGcmEncryptionResult = aesGcm.Encrypt(invalidInputData);
+            AESGCMEncryptionResult aesGcmEncryptionResult;
+
+            using (aesGcm)
+            {
+                aesGcmEncryptionResult = aesGcm.Encrypt(invalidInputData);
+            }
 
             aesGcmEncryptionResult.Success.Should().BeFalse();
             aesGcmEncryptionResult.Message.Should().Be(MessageStrings.Encryption_InputBytesRequired);
         }
 
         [TestMethod]
-        [DynamicData(nameof(GetAESAndAssociatedData), DynamicDataSourceType.Method)]
-        public void ShouldEncryptAndDecryptDataSucessfully_WithAndWithoutAssociatedData(AESGCMCore aesGcm, byte[] associatedData)
+        [DynamicData(nameof(GetAESAndInvalidInputText), DynamicDataSourceType.Method)]
+        public void ShouldReturnSuccessFalse_InEncryptText_WhenProvidedInvalidInputText(AESGCMCore aesGcm, string invalidInputText)
         {
-            var dataBytes = PlainTestString.ToUTF8Bytes();
-            var aesGcmEncryptionResult = aesGcm.Encrypt(dataBytes, null, associatedData);
+            AESGCMTextEncryptionResult aesGcmTextEncryptionResult;
 
-            if (!aesGcmEncryptionResult.Success)
+            using (aesGcm)
             {
-                Assert.Fail(aesGcmEncryptionResult.Message);
+                aesGcmTextEncryptionResult = aesGcm.EncryptText(invalidInputText);
             }
 
-            var aesGcmDecryptionResult = aesGcm.Decrypt(
-                aesGcmEncryptionResult.EncryptedData,
-                aesGcmEncryptionResult.Nonce,
-                aesGcmEncryptionResult.Tag,
-                null,
-                aesGcmEncryptionResult.AssociatedData);
-
-            if (!aesGcmDecryptionResult.Success)
-            {
-                Assert.Fail(aesGcmDecryptionResult.Message);
-            }
-
-            aesGcmDecryptionResult.DecryptedData.ToUTF8String().Should().Be(PlainTestString);
-        }
-
-        [TestMethod]
-        [DynamicData(nameof(GetAESAndAssociatedData), DynamicDataSourceType.Method)]
-        public void ShouldEncryptAndDecryptTextSucessfully_WithAndWithoutAssociatedData(AESGCMCore aesGcm, string associatedData)
-        {
-            var aesGcmTextEncryptionResult = aesGcm.EncryptText(PlainTestString, null, associatedData);
-
-            if (!aesGcmTextEncryptionResult.Success)
-            {
-                Assert.Fail(aesGcmTextEncryptionResult.Message);
-            }
-
-            var aesGcmTextDecryptionResult = aesGcm.DecryptText(
-                aesGcmTextEncryptionResult.EncodedEncryptedText,
-                aesGcmTextEncryptionResult.EncodedNonce,
-                aesGcmTextEncryptionResult.EncodedTag,
-                null,
-                aesGcmTextEncryptionResult.AssociatedDataString);
-
-            if (!aesGcmTextDecryptionResult.Success)
-            {
-                Assert.Fail(aesGcmTextDecryptionResult.Message);
-            }
-
-            aesGcmTextDecryptionResult.DecryptedText.Should().Be(PlainTestString);
+            aesGcmTextEncryptionResult.Success.Should().BeFalse();
+            aesGcmTextEncryptionResult.Message.Should().Be(MessageStrings.Encryption_InputTextRequired);
         }
 
         [TestMethod]
         [DynamicData(nameof(GetAESAndInvalidInputData), DynamicDataSourceType.Method)]
         public void ShouldReturnSuccessFalse_InDecrypt_WhenProvidedInvalidInputData(AESGCMCore aesGcm, byte[] invalidInputData)
         {
-            var aesGcmDecryptionResult = aesGcm.Decrypt(invalidInputData, null, null);
+            AESGCMDecryptionResult aesGcmDecryptionResult;
+
+            using (aesGcm)
+            {
+                aesGcmDecryptionResult = aesGcm.Decrypt(invalidInputData, null, null);
+            }
 
             aesGcmDecryptionResult.Success.Should().BeFalse();
             aesGcmDecryptionResult.Message.Should().Be(MessageStrings.Decryption_InputBytesRequired);
@@ -126,40 +87,110 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES.AEAD
 
         [TestMethod]
         [DynamicData(nameof(GetAESAndInvalidNoncesAndTags), DynamicDataSourceType.Method)]
-        public void ShouldReturnFalse_InDecrypt_WhenProvidedInvalidNonceOrTag(AESGCMCore aesGcm, byte[] nonce, byte[] tag)
+        public void ShouldReturnFalse_InDecrypt_WhenProvidedInvalidNonceOrTag(AESGCMCore aesGcm, byte[] invalidNonce, byte[] invalidTag)
         {
-            var aesGcDecryptionResult = aesGcm.Decrypt(CryptographyUtils.GenerateRandomBytes(PlainTestString.Length), nonce, tag);
+            AESGCMDecryptionResult aesGcmDecryptionResult;
 
-            aesGcDecryptionResult.Success.Should().BeFalse();
+            using (aesGcm)
+            {
+                aesGcmDecryptionResult = aesGcm.Decrypt(CryptographyUtils.GenerateRandomBytes(PlainTestString.Length), invalidNonce, invalidTag);
+            }
+
+            aesGcmDecryptionResult.Success.Should().BeFalse();
+        }
+
+        [TestMethod]
+        [DynamicData(nameof(GetAESAndInvalidInputText), DynamicDataSourceType.Method)]
+        public void ShouldReturnSuccessFalse_InDecryptText_WhenProvidedInvalidInputText(AESGCMCore aesGcm, string invalidInputText)
+        {
+            AESGCMTextDecryptionResult aesGcmTextDecryptionResult;
+
+            using (aesGcm)
+            {
+                aesGcmTextDecryptionResult = aesGcm.DecryptText(invalidInputText, null, null);
+            }
+
+            aesGcmTextDecryptionResult.Success.Should().BeFalse();
+            aesGcmTextDecryptionResult.Message.Should().Be(MessageStrings.Decryption_InputTextRequired);
+        }
+
+        [TestMethod]
+        [DynamicData(nameof(GetAESAndInvalidEncodedNoncesAndTags), DynamicDataSourceType.Method)]
+        public void ShouldReturnFalse_InDecryptText_WhenProvidedInvalidEncodedNonceOrTag(AESGCMCore aesGcm, string invalidEncodedNonce, string invalidEncodedTag)
+        {
+            AESGCMDecryptionResult aesGcmTextDecryptionResult;
+
+            using (aesGcm)
+            {
+                aesGcmTextDecryptionResult = aesGcm.DecryptText(new Faker().Lorem.Sentence(), invalidEncodedNonce, invalidEncodedTag);
+            }
+
+            aesGcmTextDecryptionResult.Success.Should().BeFalse();
         }
 
         [TestMethod]
         [DynamicData(nameof(GetAESAndAssociatedData), DynamicDataSourceType.Method)]
-        public void ShouldEncryptAndDecryptDataSucessfully_WithAndWithoutAssociatedData(AESGCMCore aesGcm, string associatedData)
+        public void ShouldEncryptAndDecryptDataSucessfully_WithAndWithoutAssociatedData(AESGCMCore aesGcm, byte[] associatedData)
         {
-            var dataBytes = PlainTestString.ToUTF8Bytes();
-            var associatedDataBytes = associatedData?.ToUTF8Bytes();
+            AESGCMEncryptionResult aesGcmEncryptionResult;
+            AESGCMDecryptionResult aesGcmDecryptionResult;
 
-            var aesGcmEncryptionResult = aesGcm.Encrypt(dataBytes, null, associatedDataBytes);
-
-            if (!aesGcmEncryptionResult.Success)
+            using (aesGcm)
             {
-                Assert.Fail(aesGcmEncryptionResult.Message);
-            }
+                var dataBytes = PlainTestString.ToUTF8Bytes();
+                aesGcmEncryptionResult = aesGcm.Encrypt(dataBytes, null, associatedData);
 
-            var aesGcmDecryptionResult = aesGcm.Decrypt(
-                aesGcmEncryptionResult.EncryptedData, 
-                aesGcmEncryptionResult.Nonce, 
-                aesGcmEncryptionResult.Tag, 
-                null,
-                aesGcmEncryptionResult.AssociatedData);
+                if (!aesGcmEncryptionResult.Success)
+                {
+                    Assert.Fail(aesGcmEncryptionResult.Message);
+                }
 
-            if (!aesGcmDecryptionResult.Success)
-            {
-                Assert.Fail(aesGcmDecryptionResult.Message);
-            }
+                aesGcmDecryptionResult = aesGcm.Decrypt(
+                    aesGcmEncryptionResult.EncryptedData,
+                    aesGcmEncryptionResult.Nonce,
+                    aesGcmEncryptionResult.Tag,
+                    null,
+                    aesGcmEncryptionResult.AssociatedData);
+
+                if (!aesGcmDecryptionResult.Success)
+                {
+                    Assert.Fail(aesGcmDecryptionResult.Message);
+                }
+            }           
 
             aesGcmDecryptionResult.DecryptedData.ToUTF8String().Should().Be(PlainTestString);
+        }
+
+        [TestMethod]
+        [DynamicData(nameof(GetAESAndAssociatedDataText), DynamicDataSourceType.Method)]
+        public void ShouldEncryptAndDecryptTextSucessfully_WithAndWithoutAssociatedDataText(AESGCMCore aesGcm, string associatedDataText)
+        {
+            AESGCMTextEncryptionResult aesGcmTextEncryptionResult;
+            AESGCMTextDecryptionResult aesGcmTextDecryptionResult;
+
+            using (aesGcm)
+            {
+                aesGcmTextEncryptionResult = aesGcm.EncryptText(PlainTestString, null, associatedDataText);
+
+                if (!aesGcmTextEncryptionResult.Success)
+                {
+                    Assert.Fail(aesGcmTextEncryptionResult.Message);
+                }
+
+                aesGcmTextDecryptionResult = aesGcm.DecryptText(
+                    aesGcmTextEncryptionResult.EncodedEncryptedText,
+                    aesGcmTextEncryptionResult.EncodedNonce,
+                    aesGcmTextEncryptionResult.EncodedTag,
+                    null,
+                    aesGcmTextEncryptionResult.AssociatedDataString);
+
+                if (!aesGcmTextDecryptionResult.Success)
+                {
+                    Assert.Fail(aesGcmTextDecryptionResult.Message);
+                }
+            }
+
+            aesGcmTextDecryptionResult.DecryptedText.Should().Be(PlainTestString);
         }
 
 
@@ -222,6 +253,22 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES.AEAD
             };
         }
 
+        private static IEnumerable<object[]> GetAESAndInvalidInputText() =>
+            new List<object[]>()
+            {
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize128Bits), null },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize128Bits), "" },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize128Bits), "   " },
+
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize192Bits), null },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize192Bits), "" },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize192Bits), "   " },
+
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize256Bits), null },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize256Bits), "" },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize256Bits), "   " },
+            };
+
         private static IEnumerable<object[]> GetAESAndInvalidInputData() =>
             new List<object[]>()
             {
@@ -274,6 +321,116 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES.AEAD
             };
         }
 
+        private static IEnumerable<object[]> GetAESAndInvalidEncodedNoncesAndTags()
+        {
+            const int invalidNonceOrTagLength = 100;
+            var randomBytes = CryptographyUtils.GenerateRandomBytes(invalidNonceOrTagLength);
+            var invalidHexadecimalEncodedNonceOrTag = _hexadecimalEncoder.EncodeToString(randomBytes).Substring(1);
+            var invalidBase64EncodedNonceOrTag = _base64Encoder.EncodeToString(randomBytes).Substring(1);
+
+            return new List<object[]>()
+            {
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize128Bits, EncodingType.Hexadecimal), null, null },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize128Bits, EncodingType.Hexadecimal), null, "" },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize128Bits, EncodingType.Hexadecimal), null, "   " },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize128Bits, EncodingType.Hexadecimal), null, invalidHexadecimalEncodedNonceOrTag },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize128Bits, EncodingType.Hexadecimal), "", "" },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize128Bits, EncodingType.Hexadecimal), "", null },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize128Bits, EncodingType.Hexadecimal), "", "   " },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize128Bits, EncodingType.Hexadecimal), "", invalidHexadecimalEncodedNonceOrTag },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize128Bits, EncodingType.Hexadecimal), "   ", "   " },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize128Bits, EncodingType.Hexadecimal), "   ", null },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize128Bits, EncodingType.Hexadecimal), "   ", "" },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize128Bits, EncodingType.Hexadecimal), "   ", invalidHexadecimalEncodedNonceOrTag },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize128Bits, EncodingType.Hexadecimal), invalidHexadecimalEncodedNonceOrTag, invalidHexadecimalEncodedNonceOrTag },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize128Bits, EncodingType.Hexadecimal), invalidHexadecimalEncodedNonceOrTag, null },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize128Bits, EncodingType.Hexadecimal), invalidHexadecimalEncodedNonceOrTag, "" },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize128Bits, EncodingType.Hexadecimal), invalidHexadecimalEncodedNonceOrTag, "   " },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize128Bits, EncodingType.Base64), null, null },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize128Bits, EncodingType.Base64), null, "" },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize128Bits, EncodingType.Base64), null, "   " },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize128Bits, EncodingType.Base64), null, invalidBase64EncodedNonceOrTag },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize128Bits, EncodingType.Base64), "", "" },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize128Bits, EncodingType.Base64), "", null },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize128Bits, EncodingType.Base64), "", "   " },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize128Bits, EncodingType.Base64), "", invalidBase64EncodedNonceOrTag },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize128Bits, EncodingType.Base64), "   ", "   " },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize128Bits, EncodingType.Base64), "   ", null },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize128Bits, EncodingType.Base64), "   ", "" },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize128Bits, EncodingType.Base64), "   ", invalidBase64EncodedNonceOrTag },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize128Bits, EncodingType.Base64), invalidBase64EncodedNonceOrTag, invalidBase64EncodedNonceOrTag },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize128Bits, EncodingType.Base64), invalidBase64EncodedNonceOrTag, null },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize128Bits, EncodingType.Base64), invalidBase64EncodedNonceOrTag, "" },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize128Bits, EncodingType.Base64), invalidBase64EncodedNonceOrTag, "   " },
+
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize192Bits, EncodingType.Hexadecimal), null, null },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize192Bits, EncodingType.Hexadecimal), null, "" },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize192Bits, EncodingType.Hexadecimal), null, "   " },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize192Bits, EncodingType.Hexadecimal), null, invalidHexadecimalEncodedNonceOrTag },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize192Bits, EncodingType.Hexadecimal), "", "" },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize192Bits, EncodingType.Hexadecimal), "", null },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize192Bits, EncodingType.Hexadecimal), "", "   " },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize192Bits, EncodingType.Hexadecimal), "", invalidHexadecimalEncodedNonceOrTag },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize192Bits, EncodingType.Hexadecimal), "   ", "   " },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize192Bits, EncodingType.Hexadecimal), "   ", null },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize192Bits, EncodingType.Hexadecimal), "   ", "" },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize192Bits, EncodingType.Hexadecimal), "   ", invalidHexadecimalEncodedNonceOrTag },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize192Bits, EncodingType.Hexadecimal), invalidHexadecimalEncodedNonceOrTag, invalidHexadecimalEncodedNonceOrTag },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize192Bits, EncodingType.Hexadecimal), invalidHexadecimalEncodedNonceOrTag, null },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize192Bits, EncodingType.Hexadecimal), invalidHexadecimalEncodedNonceOrTag, "" },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize192Bits, EncodingType.Hexadecimal), invalidHexadecimalEncodedNonceOrTag, "   " },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize192Bits, EncodingType.Base64), null, null },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize192Bits, EncodingType.Base64), null, "" },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize192Bits, EncodingType.Base64), null, "   " },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize192Bits, EncodingType.Base64), null, invalidBase64EncodedNonceOrTag },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize192Bits, EncodingType.Base64), "", "" },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize192Bits, EncodingType.Base64), "", null },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize192Bits, EncodingType.Base64), "", "   " },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize192Bits, EncodingType.Base64), "", invalidBase64EncodedNonceOrTag },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize192Bits, EncodingType.Base64), "   ", "   " },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize192Bits, EncodingType.Base64), "   ", null },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize192Bits, EncodingType.Base64), "   ", "" },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize192Bits, EncodingType.Base64), "   ", invalidBase64EncodedNonceOrTag },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize192Bits, EncodingType.Base64), invalidBase64EncodedNonceOrTag, invalidBase64EncodedNonceOrTag },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize192Bits, EncodingType.Base64), invalidBase64EncodedNonceOrTag, null },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize192Bits, EncodingType.Base64), invalidBase64EncodedNonceOrTag, "" },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize192Bits, EncodingType.Base64), invalidBase64EncodedNonceOrTag, "   " },
+
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize256Bits, EncodingType.Hexadecimal), null, null },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize256Bits, EncodingType.Hexadecimal), null, "" },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize256Bits, EncodingType.Hexadecimal), null, "   " },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize256Bits, EncodingType.Hexadecimal), null, invalidHexadecimalEncodedNonceOrTag },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize256Bits, EncodingType.Hexadecimal), "", "" },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize256Bits, EncodingType.Hexadecimal), "", null },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize256Bits, EncodingType.Hexadecimal), "", "   " },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize256Bits, EncodingType.Hexadecimal), "", invalidHexadecimalEncodedNonceOrTag },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize256Bits, EncodingType.Hexadecimal), "   ", "   " },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize256Bits, EncodingType.Hexadecimal), "   ", null },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize256Bits, EncodingType.Hexadecimal), "   ", "" },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize256Bits, EncodingType.Hexadecimal), "   ", invalidHexadecimalEncodedNonceOrTag },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize256Bits, EncodingType.Hexadecimal), invalidHexadecimalEncodedNonceOrTag, invalidHexadecimalEncodedNonceOrTag },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize256Bits, EncodingType.Hexadecimal), invalidHexadecimalEncodedNonceOrTag, null },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize256Bits, EncodingType.Hexadecimal), invalidHexadecimalEncodedNonceOrTag, "" },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize256Bits, EncodingType.Hexadecimal), invalidHexadecimalEncodedNonceOrTag, "   " },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize256Bits, EncodingType.Base64), null, null },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize256Bits, EncodingType.Base64), null, "" },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize256Bits, EncodingType.Base64), null, "   " },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize256Bits, EncodingType.Base64), null, invalidBase64EncodedNonceOrTag },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize256Bits, EncodingType.Base64), "", "" },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize256Bits, EncodingType.Base64), "", null },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize256Bits, EncodingType.Base64), "", "   " },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize256Bits, EncodingType.Base64), "", invalidBase64EncodedNonceOrTag },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize256Bits, EncodingType.Base64), "   ", "   " },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize256Bits, EncodingType.Base64), "   ", null },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize256Bits, EncodingType.Base64), "   ", "" },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize256Bits, EncodingType.Base64), "   ", invalidBase64EncodedNonceOrTag },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize256Bits, EncodingType.Base64), invalidBase64EncodedNonceOrTag, invalidBase64EncodedNonceOrTag },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize256Bits, EncodingType.Base64), invalidBase64EncodedNonceOrTag, null },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize256Bits, EncodingType.Base64), invalidBase64EncodedNonceOrTag, "" },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize256Bits, EncodingType.Base64), invalidBase64EncodedNonceOrTag, "   " },
+            };
+        }
+
         private static IEnumerable<object[]> GetAESAndAssociatedData() =>
             new List<object[]>()
             {
@@ -288,6 +445,25 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES.AEAD
                 new object[]{ new AESGCMCore(AESKeySizes.KeySize256Bits), null },
                 new object[]{ new AESGCMCore(AESKeySizes.KeySize256Bits), Array.Empty<byte>() },
                 new object[]{ new AESGCMCore(AESKeySizes.KeySize256Bits), Guid.NewGuid().ToString().ToUTF8Bytes() },
+            };
+
+        private static IEnumerable<object[]> GetAESAndAssociatedDataText() =>
+            new List<object[]>()
+            {
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize128Bits), null },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize128Bits), "" },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize128Bits), "   " },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize128Bits), Guid.NewGuid().ToString() },
+
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize192Bits), null },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize192Bits), "" },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize192Bits), "   " },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize192Bits), Guid.NewGuid().ToString() },
+
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize256Bits), null },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize256Bits), "" },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize256Bits), "   " },
+                new object[]{ new AESGCMCore(AESKeySizes.KeySize256Bits), Guid.NewGuid().ToString() },
             };
     }
 }

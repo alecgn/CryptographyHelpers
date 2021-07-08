@@ -143,7 +143,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
                 return new AESGCMTextEncryptionResult()
                 {
                     Success = false,
-                    Message = MessageStrings.Encryption_InputStringRequired,
+                    Message = MessageStrings.Encryption_InputTextRequired,
                 };
             }
 
@@ -174,7 +174,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
                         Tag = encryptionResult.Tag,
                         EncodedTag = _encoder.EncodeToString(encryptionResult.Tag),
                         AssociatedData = encryptionResult.AssociatedData,
-                        AssociatedDataString = encryptionResult.AssociatedData.ToUTF8String(),
+                        AssociatedDataString = encryptionResult.AssociatedData?.ToUTF8String(),
                     };
                 }
                 else
@@ -236,6 +236,15 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
 
         public AESGCMTextDecryptionResult DecryptText(string encodedEncryptedText, string encodedNonce, string encodedTag, OffsetOptions? offsetOptions = null, string associatedDataText = null)
         {
+            if (string.IsNullOrWhiteSpace(encodedEncryptedText))
+            {
+                return new AESGCMTextDecryptionResult()
+                {
+                    Success = false,
+                    Message = MessageStrings.Decryption_InputTextRequired,
+                };
+            }
+
             try
             {
                 var offset = offsetOptions.HasValue ? offsetOptions.Value.Offset : 0;
@@ -265,7 +274,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
                         Tag = decryptionResult.Tag,
                         EncodedTag = _encoder.EncodeToString(decryptionResult.Tag),
                         AssociatedData = decryptionResult.AssociatedData,
-                        AssociatedDataString = decryptionResult.AssociatedData.ToUTF8String(),
+                        AssociatedDataString = decryptionResult.AssociatedData?.ToUTF8String(),
                     };
                 }
                 else

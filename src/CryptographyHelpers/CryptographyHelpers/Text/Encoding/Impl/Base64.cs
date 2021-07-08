@@ -14,7 +14,7 @@ namespace CryptographyHelpers.Text.Encoding
         {
             if (string.IsNullOrWhiteSpace(plainString))
             {
-                throw new ArgumentException(MessageStrings.Strings_InvalidInputString, nameof(plainString));
+                throw new ArgumentException(MessageStrings.Encoding_InputTextRequired, nameof(plainString));
             }
 
             var plainStringBytes = plainString.ToUTF8Bytes();
@@ -36,7 +36,7 @@ namespace CryptographyHelpers.Text.Encoding
         {
             if (string.IsNullOrWhiteSpace(base64String))
             {
-                throw new ArgumentException(MessageStrings.Strings_InvalidInputString, nameof(base64String));
+                throw new ArgumentException(MessageStrings.Decoding_InputEncodedTextRequired, nameof(base64String));
             }
 
             if (!IsValidEncodedString(base64String))
@@ -53,7 +53,7 @@ namespace CryptographyHelpers.Text.Encoding
         {
             if (string.IsNullOrWhiteSpace(base64String))
             {
-                throw new ArgumentException(MessageStrings.Strings_InvalidInputString, nameof(base64String));
+                throw new ArgumentException(MessageStrings.Decoding_InputEncodedTextRequired, nameof(base64String));
             }
 
             if (!IsValidEncodedString(base64String))

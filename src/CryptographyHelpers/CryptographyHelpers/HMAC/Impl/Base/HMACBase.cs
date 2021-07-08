@@ -61,7 +61,7 @@ namespace CryptographyHelpers.HMAC
                 return new HMACResult()
                 {
                     Success = false,
-                    Message = MessageStrings.HMAC_InputStringRequired,
+                    Message = MessageStrings.HMAC_InputTextRequired,
                 };
             }
 
@@ -269,7 +269,7 @@ namespace CryptographyHelpers.HMAC
                 return new HMACResult()
                 {
                     Success = false,
-                    Message = MessageStrings.HMAC_InputStringRequired,
+                    Message = MessageStrings.HMAC_InputTextRequired,
                 };
             }
 
@@ -278,7 +278,7 @@ namespace CryptographyHelpers.HMAC
                 return new HMACResult()
                 {
                     Success = false,
-                    Message = MessageStrings.HMAC_InputKeyStringRequired,
+                    Message = MessageStrings.HMAC_InputEncodedKeyStringRequired,
                 };
             }
 
@@ -287,7 +287,7 @@ namespace CryptographyHelpers.HMAC
                 return new HMACResult()
                 {
                     Success = false,
-                    Message = MessageStrings.HMAC_VerificationHMACStringRequired,
+                    Message = MessageStrings.HMAC_VerificationEncodedHMACStringRequired,
                 };
             }
 

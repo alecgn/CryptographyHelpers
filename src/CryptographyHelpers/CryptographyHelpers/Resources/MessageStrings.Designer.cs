@@ -88,6 +88,15 @@ namespace CryptographyHelpers.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Encoded input text to decode required..
+        /// </summary>
+        internal static string Decoding_InputEncodedTextRequired {
+            get {
+                return ResourceManager.GetString("Decoding.InputEncodedTextRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Data succesfully decrypted..
         /// </summary>
         internal static string Decryption_DataDecryptionSuccess {
@@ -97,7 +106,7 @@ namespace CryptographyHelpers.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to File decrypted succesfully..
+        ///   Looks up a localized string similar to File succesfully decrypted..
         /// </summary>
         internal static string Decryption_FileDecryptionSuccess {
             get {
@@ -115,11 +124,20 @@ namespace CryptographyHelpers.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Input string to decrypt required..
+        ///   Looks up a localized string similar to Input text to decrypt required..
         /// </summary>
-        internal static string Decryption_InputStringRequired {
+        internal static string Decryption_InputTextRequired {
             get {
-                return ResourceManager.GetString("Decryption.InputStringRequired", resourceCulture);
+                return ResourceManager.GetString("Decryption.InputTextRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Input text to encode required..
+        /// </summary>
+        internal static string Encoding_InputTextRequired {
+            get {
+                return ResourceManager.GetString("Encoding.InputTextRequired", resourceCulture);
             }
         }
         
@@ -151,11 +169,11 @@ namespace CryptographyHelpers.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Input string to encrypt required..
+        ///   Looks up a localized string similar to Input text to encrypt required..
         /// </summary>
-        internal static string Encryption_InputStringRequired {
+        internal static string Encryption_InputTextRequired {
             get {
-                return ResourceManager.GetString("Encryption.InputStringRequired", resourceCulture);
+                return ResourceManager.GetString("Encryption.InputTextRequired", resourceCulture);
             }
         }
         
@@ -205,11 +223,11 @@ namespace CryptographyHelpers.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Input string to compute hash required..
+        ///   Looks up a localized string similar to Input text to compute/verify hash required..
         /// </summary>
-        internal static string Hash_InputStringRequired {
+        internal static string Hash_InputTextRequired {
             get {
-                return ResourceManager.GetString("Hash.InputStringRequired", resourceCulture);
+                return ResourceManager.GetString("Hash.InputTextRequired", resourceCulture);
             }
         }
         
@@ -259,29 +277,29 @@ namespace CryptographyHelpers.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Input key string to compute/verify HMAC required..
+        ///   Looks up a localized string similar to Input encoded key string to compute/verify HMAC required..
         /// </summary>
-        internal static string HMAC_InputKeyStringRequired {
+        internal static string HMAC_InputEncodedKeyStringRequired {
             get {
-                return ResourceManager.GetString("HMAC.InputKeyStringRequired", resourceCulture);
+                return ResourceManager.GetString("HMAC.InputEncodedKeyStringRequired", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Input string to compute/verify HMAC required..
+        ///   Looks up a localized string similar to Input text to compute/verify HMAC required..
         /// </summary>
-        internal static string HMAC_InputStringRequired {
+        internal static string HMAC_InputTextRequired {
             get {
-                return ResourceManager.GetString("HMAC.InputStringRequired", resourceCulture);
+                return ResourceManager.GetString("HMAC.InputTextRequired", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Verification HMAC string required..
+        ///   Looks up a localized string similar to Verification HMAC encoded string required..
         /// </summary>
-        internal static string HMAC_VerificationHMACStringRequired {
+        internal static string HMAC_VerificationEncodedHMACStringRequired {
             get {
-                return ResourceManager.GetString("HMAC.VerificationHMACStringRequired", resourceCulture);
+                return ResourceManager.GetString("HMAC.VerificationEncodedHMACStringRequired", resourceCulture);
             }
         }
         
@@ -336,15 +354,6 @@ namespace CryptographyHelpers.Resources {
         internal static string Strings_InvalidHexadecimalInputString {
             get {
                 return ResourceManager.GetString("Strings.InvalidHexadecimalInputString", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Input string cannot be null, empty or white-space(s)..
-        /// </summary>
-        internal static string Strings_InvalidInputString {
-            get {
-                return ResourceManager.GetString("Strings.InvalidInputString", resourceCulture);
             }
         }
     }

@@ -40,7 +40,7 @@ namespace CryptographyHelpers.Hash
                 return new HashResult()
                 {
                     Success = false,
-                    Message = MessageStrings.Hash_InputStringRequired,
+                    Message = MessageStrings.Hash_InputTextRequired,
                 };
             }
 
@@ -94,14 +94,14 @@ namespace CryptographyHelpers.Hash
         public HashResult VerifyHash(string stringToVerifyHash, string encodedVerificationHashString) =>
             VerifyHash(stringToVerifyHash, encodedVerificationHashString, new OffsetOptions());
 
-        public HashResult VerifyHash(string stringToVerifyHash, string encodedVerificationHashString, OffsetOptions offsetOptions)
+        public HashResult VerifyHash(string textToVerifyHash, string encodedVerificationHashString, OffsetOptions offsetOptions)
         {
-            if (string.IsNullOrWhiteSpace(stringToVerifyHash))
+            if (string.IsNullOrWhiteSpace(textToVerifyHash))
             {
                 return new HashResult()
                 {
                     Success = false,
-                    Message = MessageStrings.Strings_InvalidInputString,
+                    Message = MessageStrings.Hash_InputTextRequired,
                 };
             }
 
@@ -119,7 +119,7 @@ namespace CryptographyHelpers.Hash
                 var verificationHashBytes = _encodingType == EncodingType.Hexadecimal
                     ? _serviceLocator.GetService<IHexadecimal>().DecodeString(encodedVerificationHashString)
                     : _serviceLocator.GetService<IBase64>().DecodeString(encodedVerificationHashString);
-                var stringToVerifyHashBytes = stringToVerifyHash.ToUTF8Bytes();
+                var stringToVerifyHashBytes = textToVerifyHash.ToUTF8Bytes();
 
                 return VerifyHash(stringToVerifyHashBytes, verificationHashBytes, offsetOptions);
             }

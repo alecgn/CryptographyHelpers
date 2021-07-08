@@ -172,7 +172,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
                 return new AESTextEncryptionResult()
                 {
                     Success = false,
-                    Message = MessageStrings.Encryption_InputStringRequired,
+                    Message = MessageStrings.Encryption_InputTextRequired,
                 };
             }
 
@@ -381,7 +381,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
                 return new AESTextDecryptionResult()
                 {
                     Success = false,
-                    Message = MessageStrings.Decryption_InputStringRequired,
+                    Message = MessageStrings.Decryption_InputTextRequired,
                 };
             }
 

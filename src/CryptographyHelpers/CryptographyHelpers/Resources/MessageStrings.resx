@@ -126,17 +126,23 @@
   <data name="Cryptography.InvalidAESKey" xml:space="preserve">
     <value>Invalid AES key (null or wrong size).</value>
   </data>
+  <data name="Decoding.InputEncodedTextRequired" xml:space="preserve">
+    <value>Encoded input text to decode required.</value>
+  </data>
   <data name="Decryption.DataDecryptionSuccess" xml:space="preserve">
     <value>Data succesfully decrypted.</value>
   </data>
   <data name="Decryption.FileDecryptionSuccess" xml:space="preserve">
-    <value>File decrypted succesfully.</value>
+    <value>File succesfully decrypted.</value>
   </data>
   <data name="Decryption.InputBytesRequired" xml:space="preserve">
     <value>Input bytes to decrypt required.</value>
   </data>
-  <data name="Decryption.InputStringRequired" xml:space="preserve">
-    <value>Input string to decrypt required.</value>
+  <data name="Decryption.InputTextRequired" xml:space="preserve">
+    <value>Input text to decrypt required.</value>
+  </data>
+  <data name="Encoding.InputTextRequired" xml:space="preserve">
+    <value>Input text to encode required.</value>
   </data>
   <data name="Encryption.DataEncryptionSuccess" xml:space="preserve">
     <value>Data encrypted succesfully.</value>
@@ -147,8 +153,8 @@
   <data name="Encryption.InputBytesRequired" xml:space="preserve">
     <value>Input bytes to encrypt required.</value>
   </data>
-  <data name="Encryption.InputStringRequired" xml:space="preserve">
-    <value>Input string to encrypt required.</value>
+  <data name="Encryption.InputTextRequired" xml:space="preserve">
+    <value>Input text to encrypt required.</value>
   </data>
   <data name="File.PathNotFound" xml:space="preserve">
     <value>File not found:</value>
@@ -165,8 +171,8 @@
   <data name="Hash.InputBytesRequired" xml:space="preserve">
     <value>Input bytes to compute hash required.</value>
   </data>
-  <data name="Hash.InputStringRequired" xml:space="preserve">
-    <value>Input string to compute hash required.</value>
+  <data name="Hash.InputTextRequired" xml:space="preserve">
+    <value>Input text to compute/verify hash required.</value>
   </data>
   <data name="Hash.Match" xml:space="preserve">
     <value>Input data and verification hash does match.</value>
@@ -183,14 +189,14 @@
   <data name="HMAC.InputBytesRequired" xml:space="preserve">
     <value>Input bytes to compute/verify HMAC required.</value>
   </data>
-  <data name="HMAC.InputKeyStringRequired" xml:space="preserve">
-    <value>Input key string to compute/verify HMAC required.</value>
+  <data name="HMAC.InputEncodedKeyStringRequired" xml:space="preserve">
+    <value>Input encoded key string to compute/verify HMAC required.</value>
   </data>
-  <data name="HMAC.InputStringRequired" xml:space="preserve">
-    <value>Input string to compute/verify HMAC required.</value>
+  <data name="HMAC.InputTextRequired" xml:space="preserve">
+    <value>Input text to compute/verify HMAC required.</value>
   </data>
-  <data name="HMAC.VerificationHMACStringRequired" xml:space="preserve">
-    <value>Verification HMAC string required.</value>
+  <data name="HMAC.VerificationEncodedHMACStringRequired" xml:space="preserve">
+    <value>Verification HMAC encoded string required.</value>
   </data>
   <data name="KeyDerivation.DerivationSuccess" xml:space="preserve">
     <value>Key derived succesfully.</value>
@@ -209,8 +215,5 @@
   </data>
   <data name="Strings.InvalidHexadecimalInputString" xml:space="preserve">
     <value>Invalid hexadecimal input string.</value>
-  </data>
-  <data name="Strings.InvalidInputString" xml:space="preserve">
-    <value>Input string cannot be null, empty or white-space(s).</value>
   </data>
 </root>
