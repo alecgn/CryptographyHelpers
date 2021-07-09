@@ -34,16 +34,12 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
             //_encoder = _encodingType == EncodingType.Base64
             //    ? _serviceLocator.GetService<IBase64>()
             //    : _serviceLocator.GetService<IHexadecimal>();
-
-            if (_encodingType == EncodingType.Base64)
+            _encoder = _encodingType switch
             {
-                _encoder = _serviceLocator.GetService<IBase64>();
-            }
-            else
-            {
-                _encoder = _serviceLocator.GetService<IHexadecimal>();
-            }
-
+                EncodingType.Base64 => _serviceLocator.GetService<IBase64>(),
+                EncodingType.Hexadecimal => _serviceLocator.GetService<IHexadecimal>(),
+                _ => throw new InvalidOperationException($@"Unexpected enum value ""{_encodingType}"" of type {typeof(EncodingType)}."),
+            };
             _bufferSizeInKBForFileProcessing = bufferSizeInKBForFileProcessing ?? _bufferSizeInKBForFileProcessing;
         }
 
@@ -53,16 +49,12 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
             //_encoder = _encodingType == EncodingType.Base64
             //    ? _serviceLocator.GetService<IBase64>()
             //    : _serviceLocator.GetService<IHexadecimal>();
-
-            if (_encodingType == EncodingType.Base64)
+            _encoder = _encodingType switch
             {
-                _encoder = _serviceLocator.GetService<IBase64>();
-            }
-            else
-            {
-                _encoder = _serviceLocator.GetService<IHexadecimal>();
-            }
-
+                EncodingType.Base64 => _serviceLocator.GetService<IBase64>(),
+                EncodingType.Hexadecimal => _serviceLocator.GetService<IHexadecimal>(),
+                _ => throw new InvalidOperationException($@"Unexpected enum value ""{_encodingType}"" of type {typeof(EncodingType)}."),
+            };
             _aes = Aes.Create();
             _aes.Key = _encoder.DecodeString(encodedKey);
             _aes.IV = _encoder.DecodeString(encodedIV);
@@ -83,7 +75,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
                 AESKeySizes.KeySize128Bits => CryptographyUtils.GenerateRandom128BitsKey(),
                 AESKeySizes.KeySize192Bits => CryptographyUtils.GenerateRandom192BitsKey(),
                 AESKeySizes.KeySize256Bits => CryptographyUtils.GenerateRandom256BitsKey(),
-                _ => throw new ArgumentException($"Invalid enum value for {nameof(keySizeToGenerateRandomKey)} parameter of type {typeof(AESKeySizes)}.", nameof(keySizeToGenerateRandomKey)),
+                _ => throw new ArgumentException($@"Unexpected enum value ""{keySizeToGenerateRandomKey}"" for {nameof(keySizeToGenerateRandomKey)} parameter of type {typeof(AESKeySizes)}.", nameof(keySizeToGenerateRandomKey)),
             };
             _aes.IV = CryptographyUtils.GenerateRandomAESIV();
             _aes.Mode = _cipherMode = cipherMode ?? _cipherMode;
@@ -92,16 +84,12 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
             //_encoder = _encodingType == EncodingType.Base64
             //    ? _serviceLocator.GetService<IBase64>()
             //    : _serviceLocator.GetService<IHexadecimal>();
-
-            if (_encodingType == EncodingType.Base64)
+            _encoder = _encodingType switch
             {
-                _encoder = _serviceLocator.GetService<IBase64>();
-            }
-            else
-            {
-                _encoder = _serviceLocator.GetService<IHexadecimal>();
-            }
-
+                EncodingType.Base64 => _serviceLocator.GetService<IBase64>(),
+                EncodingType.Hexadecimal => _serviceLocator.GetService<IHexadecimal>(),
+                _ => throw new InvalidOperationException($@"Unexpected enum value ""{_encodingType}"" of type {typeof(EncodingType)}."),
+            };
             _bufferSizeInKBForFileProcessing = bufferSizeInKBForFileProcessing ?? _bufferSizeInKBForFileProcessing;
         }
 

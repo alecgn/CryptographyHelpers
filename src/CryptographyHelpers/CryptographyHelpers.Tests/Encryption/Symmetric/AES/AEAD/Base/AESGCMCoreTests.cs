@@ -116,7 +116,7 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES.AEAD
 
         [TestMethod]
         [DynamicData(nameof(GetAESAndInvalidEncodedNoncesAndTags), DynamicDataSourceType.Method)]
-        public void ShouldReturnFalse_InDecryptText_WhenProvidedInvalidEncodedNonceOrTag(AESGCMCore aesGcm, string invalidEncodedNonce, string invalidEncodedTag)
+        public void ShouldReturnSuccessFalse_InDecryptText_WhenProvidedInvalidEncodedNonceOrTag(AESGCMCore aesGcm, string invalidEncodedNonce, string invalidEncodedTag)
         {
             AESGCMDecryptionResult aesGcmTextDecryptionResult;
 
@@ -491,8 +491,8 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES.AEAD
         private static IEnumerable<object[]> GetAESInputDataOffsetOptionsAssociatedDataAndExpecteDecryptedData()
         {
             var data = PlainTestString.ToUTF8Bytes();
-            var truncatedToBeginData = data.Take(PlainTestString.Length / 2).ToArray();
-            var truncatedToEndData = data.Skip(PlainTestString.Length / 2).Take(PlainTestString.Length / 2).ToArray();
+            var truncatedToBeginData = data.Take(data.Length / 2).ToArray();
+            var truncatedToEndData = data.Skip(data.Length / 2).Take(data.Length / 2).ToArray();
             var additionalDataAtBeginLength = 10;
             var additionalDataAtBegin = CryptographyUtils.GenerateRandomBytes(additionalDataAtBeginLength);
             var additionalDataAtEndLength = 10;
