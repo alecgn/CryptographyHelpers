@@ -1,5 +1,4 @@
 ﻿using CryptographyHelpers.EventHandlers;
-using CryptographyHelpers.Options;
 using System;
 
 namespace CryptographyHelpers.Encryption.Symmetric.AES

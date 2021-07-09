@@ -12,7 +12,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
 
         public AES128GCM(byte[] key) : base(ValidateAESKey(key).Invoke()) { }
 
-        
+
         private static Func<byte[]> ValidateAESKey(byte[] key)
         {
             byte[] func()

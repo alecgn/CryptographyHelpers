@@ -1,6 +1,5 @@
 ﻿using CryptographyHelpers.EventHandlers;
 using CryptographyHelpers.IoC;
-using CryptographyHelpers.Options;
 using CryptographyHelpers.Resources;
 using CryptographyHelpers.Text.Encoding;
 using System;

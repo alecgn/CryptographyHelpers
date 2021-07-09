@@ -10,7 +10,7 @@ namespace CryptographyHelpers.IoC
     internal sealed class InternalServiceLocator
     {
         internal static InternalServiceLocator Instance { get { return _lazyInstance.Value; } }
-        
+
         private static readonly Lazy<InternalServiceLocator> _lazyInstance = new Lazy<InternalServiceLocator>(() => new InternalServiceLocator());
         private IDictionary<Type, Type> _servicesType;
         private IDictionary<Type, object> _instantiatedServices;

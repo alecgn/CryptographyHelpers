@@ -16,7 +16,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
         public AES128CBC(byte[] key, byte[] IV)
             : base(ValidateAESKey(key).Invoke(), ValidateAESIV(IV).Invoke(), Mode, Padding) { }
 
-        
+
         private static Func<byte[]> ValidateAESKey(byte[] key)
         {
             byte[] func()

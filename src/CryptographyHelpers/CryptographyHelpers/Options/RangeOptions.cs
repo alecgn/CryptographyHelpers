@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CryptographyHelpers.Options
+namespace CryptographyHelpers
 {
     public struct RangeOptions
     {

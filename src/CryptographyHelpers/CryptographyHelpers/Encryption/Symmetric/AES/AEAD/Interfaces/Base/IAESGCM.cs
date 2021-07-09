@@ -1,5 +1,4 @@
-﻿using CryptographyHelpers.Options;
-using System;
+﻿using System;
 
 namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
 {

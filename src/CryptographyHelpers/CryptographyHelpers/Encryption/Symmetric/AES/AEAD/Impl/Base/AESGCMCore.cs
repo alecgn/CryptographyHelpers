@@ -1,5 +1,4 @@
 ﻿using CryptographyHelpers.IoC;
-using CryptographyHelpers.Options;
 using CryptographyHelpers.Resources;
 using CryptographyHelpers.Text.Encoding;
 using CryptographyHelpers.Utils;
@@ -25,15 +24,12 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
             //_encoder = _encodingType == EncodingType.Base64
             //    ? _serviceLocator.GetService<IBase64>()
             //    : _serviceLocator.GetService<IHexadecimal>();
-
-            if (_encodingType == EncodingType.Base64)
+            _encoder = _encodingType switch
             {
-                _encoder = _serviceLocator.GetService<IBase64>();
-            }
-            else
-            {
-                _encoder = _serviceLocator.GetService<IHexadecimal>();
-            }
+                EncodingType.Base64 => _serviceLocator.GetService<IBase64>(),
+                EncodingType.Hexadecimal => _serviceLocator.GetService<IHexadecimal>(),
+                _ => throw new InvalidOperationException($@"Unexpected enum value ""{_encodingType}"" of type {typeof(EncodingType)}."),
+            };
         }
 
         public AESGCMCore(string encodedKey, EncodingType? encodingType = null)
@@ -42,16 +38,12 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
             //_encoder = _encodingType == EncodingType.Base64
             //    ? _serviceLocator.GetService<IBase64>()
             //    : _serviceLocator.GetService<IHexadecimal>();
-
-            if (_encodingType == EncodingType.Base64)
+            _encoder = _encodingType switch
             {
-                _encoder = _serviceLocator.GetService<IBase64>();
-            }
-            else
-            {
-                _encoder = _serviceLocator.GetService<IHexadecimal>();
-            }
-
+                EncodingType.Base64 => _serviceLocator.GetService<IBase64>(),
+                EncodingType.Hexadecimal => _serviceLocator.GetService<IHexadecimal>(),
+                _ => throw new InvalidOperationException($@"Unexpected enum value ""{_encodingType}"" of type {typeof(EncodingType)}."),
+            };
             _key = _encoder.DecodeString(encodedKey);
             _aesGcm = new AesGcm(_key);
         }
@@ -67,22 +59,19 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
                 AESKeySizes.KeySize128Bits => CryptographyUtils.GenerateRandom128BitsKey(),
                 AESKeySizes.KeySize192Bits => CryptographyUtils.GenerateRandom192BitsKey(),
                 AESKeySizes.KeySize256Bits => CryptographyUtils.GenerateRandom256BitsKey(),
-                _ => throw new ArgumentException($"Invalid enum value for {nameof(keySizeToGenerateRandomKey)} parameter of type {typeof(AESKeySizes)}.", nameof(keySizeToGenerateRandomKey)),
+                _ => throw new ArgumentException($@"Unexpected enum value ""{keySizeToGenerateRandomKey}"" for {nameof(keySizeToGenerateRandomKey)} parameter of type {typeof(AESKeySizes)}.", nameof(keySizeToGenerateRandomKey)),
             };
             _aesGcm = new AesGcm(_key);
             _encodingType = encodingType ?? _encodingType;
             //_encoder = _encodingType == EncodingType.Base64
             //    ? _serviceLocator.GetService<IBase64>()
             //    : _serviceLocator.GetService<IHexadecimal>();
-
-            if (_encodingType == EncodingType.Base64)
+            _encoder = _encodingType switch
             {
-                _encoder = _serviceLocator.GetService<IBase64>();
-            }
-            else
-            {
-                _encoder = _serviceLocator.GetService<IHexadecimal>();
-            }
+                EncodingType.Base64 => _serviceLocator.GetService<IBase64>(),
+                EncodingType.Hexadecimal => _serviceLocator.GetService<IHexadecimal>(),
+                _ => throw new InvalidOperationException($@"Unexpected enum value ""{_encodingType}"" of type {typeof(EncodingType)}."),
+            };
         }
 
 
@@ -156,7 +145,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
                 var plainTextPayload = plainText.Substring(offset, totalCharsToRead);
                 var plainTextPayloadBytes = plainTextPayload.ToUTF8Bytes();
                 var associatedDataTextBytes = string.IsNullOrWhiteSpace(associatedDataText) ? null : associatedDataText.ToUTF8Bytes();
-                var encryptionResult = Encrypt(plainTextPayloadBytes, offsetOptions, associatedDataTextBytes);
+                var encryptionResult = Encrypt(plainTextPayloadBytes, null, associatedDataTextBytes);
 
                 if (encryptionResult.Success)
                 {
@@ -174,7 +163,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
                         Tag = encryptionResult.Tag,
                         EncodedTag = _encoder.EncodeToString(encryptionResult.Tag),
                         AssociatedData = encryptionResult.AssociatedData,
-                        AssociatedDataString = encryptionResult.AssociatedData?.ToUTF8String(),
+                        AssociatedDataText = encryptionResult.AssociatedData?.ToUTF8String(),
                     };
                 }
                 else
@@ -207,11 +196,27 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
                 };
             }
 
-            var decryptedData = new byte[encryptedData.Length];
-
             try
             {
-                _aesGcm.Decrypt(nonce, encryptedData, tag, decryptedData, associatedData);
+                var offset = offsetOptions.HasValue ? offsetOptions.Value.Offset : 0;
+                var totalBytesToRead = offsetOptions.HasValue
+                    ? offsetOptions.Value.Count == 0 ? encryptedData.Length : offsetOptions.Value.Count
+                    : encryptedData.Length;
+                var encryptedDataPayload = new byte[totalBytesToRead];
+                var decryptedData = new byte[totalBytesToRead];
+                Array.Copy(encryptedData, offset, encryptedDataPayload, 0, totalBytesToRead);
+                _aesGcm.Decrypt(nonce, encryptedDataPayload, tag, decryptedData, associatedData);
+
+                return new AESGCMDecryptionResult()
+                {
+                    Success = true,
+                    Message = MessageStrings.Decryption_DataDecryptionSuccess,
+                    DecryptedData = decryptedData,
+                    Key = _key,
+                    Nonce = nonce,
+                    Tag = tag,
+                    AssociatedData = associatedData,
+                };
             }
             catch (Exception ex)
             {
@@ -221,17 +226,6 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
                     Message = ex.ToString(),
                 };
             }
-
-            return new AESGCMDecryptionResult()
-            {
-                Success = true,
-                Message = MessageStrings.Decryption_DataDecryptionSuccess,
-                DecryptedData = decryptedData,
-                Key = _key,
-                Nonce = nonce,
-                Tag = tag,
-                AssociatedData = associatedData,
-            };
         }
 
         public AESGCMTextDecryptionResult DecryptText(string encodedEncryptedText, string encodedNonce, string encodedTag, OffsetOptions? offsetOptions = null, string associatedDataText = null)
@@ -256,7 +250,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
                 var associatedDataTextBytes = string.IsNullOrWhiteSpace(associatedDataText) ? null : associatedDataText.ToUTF8Bytes();
                 var nonceBytes = _encoder.DecodeString(encodedNonce);
                 var tagBytes = _encoder.DecodeString(encodedTag);
-                var decryptionResult = Decrypt(encryptedTextPayloadBytes, nonceBytes, tagBytes, offsetOptions, associatedDataTextBytes);
+                var decryptionResult = Decrypt(encryptedTextPayloadBytes, nonceBytes, tagBytes, null, associatedDataTextBytes);
 
                 if (decryptionResult.Success)
                 {
@@ -274,7 +268,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
                         Tag = decryptionResult.Tag,
                         EncodedTag = _encoder.EncodeToString(decryptionResult.Tag),
                         AssociatedData = decryptionResult.AssociatedData,
-                        AssociatedDataString = decryptionResult.AssociatedData?.ToUTF8String(),
+                        AssociatedDataText = decryptionResult.AssociatedData?.ToUTF8String(),
                     };
                 }
                 else

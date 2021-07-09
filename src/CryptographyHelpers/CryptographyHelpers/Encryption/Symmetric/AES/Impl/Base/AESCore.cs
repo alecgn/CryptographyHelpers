@@ -1,6 +1,5 @@
 ﻿using CryptographyHelpers.EventHandlers;
 using CryptographyHelpers.IoC;
-using CryptographyHelpers.Options;
 using CryptographyHelpers.Resources;
 using CryptographyHelpers.Text.Encoding;
 using CryptographyHelpers.Utils;
@@ -121,7 +120,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
             try
             {
                 var offset = offsetOptions.HasValue ? offsetOptions.Value.Offset : 0;
-                var totalBytesToRead = offsetOptions.HasValue 
+                var totalBytesToRead = offsetOptions.HasValue
                     ? offsetOptions.Value.Count == 0 ? data.Length : offsetOptions.Value.Count
                     : data.Length;
                 var dataPayload = new byte[totalBytesToRead];

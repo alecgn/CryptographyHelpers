@@ -1,5 +1,4 @@
-﻿using CryptographyHelpers.Options;
-using CryptographyHelpers.Resources;
+﻿using CryptographyHelpers.Resources;
 using System;
 using System.IO;
 

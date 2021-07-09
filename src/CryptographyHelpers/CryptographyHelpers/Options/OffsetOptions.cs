@@ -1,4 +1,4 @@
-﻿namespace CryptographyHelpers.Options
+﻿namespace CryptographyHelpers
 {
     public struct OffsetOptions
     {

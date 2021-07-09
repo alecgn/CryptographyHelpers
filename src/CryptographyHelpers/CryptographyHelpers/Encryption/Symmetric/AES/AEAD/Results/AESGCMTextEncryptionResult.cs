@@ -3,6 +3,6 @@
     public class AESGCMTextEncryptionResult : AESGCMEncryptionResult
     {
         public string EncodedEncryptedText { get; set; }
-        public string AssociatedDataString { get; set; }
+        public string AssociatedDataText { get; set; }
     }
 }
