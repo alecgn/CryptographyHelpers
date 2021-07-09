@@ -35,7 +35,7 @@ namespace CryptographyHelpers.Utils
         {
             if (key is null || key.Length != (int)expectedAesKeySize / Constants.BitsPerByte)
             {
-                throw new ArgumentException($"{MessageStrings.Cryptography_InvalidAESKey}", nameof(key));
+                throw new ArgumentException(MessageStrings.Cryptography_InvalidAESKey, nameof(key));
             }
         }
 
@@ -43,7 +43,7 @@ namespace CryptographyHelpers.Utils
         {
             if (IV is null || IV.Length * Constants.BitsPerByte != Constants.AESIVBitSize)
             {
-                throw new ArgumentException($"{MessageStrings.Cryptography_InvalidAESIV}", nameof(IV));
+                throw new ArgumentException(MessageStrings.Cryptography_InvalidAESIV, nameof(IV));
             }
         }
     }

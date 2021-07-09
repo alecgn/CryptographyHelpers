@@ -10,6 +10,6 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
 
         AESGCMDecryptionResult Decrypt(byte[] encryptedData, byte[] nonce, byte[] tag, OffsetOptions? offsetOptions = null, byte[] associatedData = null);
 
-        AESGCMTextDecryptionResult DecryptText(string encodedEncryptedText, string encodedNonce, string encodedTag, OffsetOptions? offsetOptions = null, string associatedDataString = null);
+        AESGCMTextDecryptionResult DecryptText(string encodedEncryptedText, string encodedNonce, string encodedTag, OffsetOptions? offsetOptions = null, string associatedDataText = null);
     }
 }
