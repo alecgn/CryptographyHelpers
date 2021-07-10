@@ -7,32 +7,18 @@ namespace CryptographyHelpers.Hash
     {
         event OnProgressHandler OnComputeFileHashProgress;
 
-        HashResult ComputeHash(string stringToComputeHash);
+        HashResult ComputeHash(byte[] bytesToComputeHash, OffsetOptions? offsetOptions = null);
 
-        HashResult ComputeHash(string stringToComputeHash, OffsetOptions offsetOptions);
+        HashResult ComputeHash(string textToComputeHash, OffsetOptions? offsetOptions = null);
 
-        HashResult ComputeHash(byte[] bytesToComputeHash);
+        HashResult ComputeFileHash(string fileToComputeHash, LongOffsetOptions? offsetOptions = null);
 
-        HashResult ComputeHash(byte[] bytesToComputeHash, OffsetOptions offsetOptions);
+        HashResult VerifyHash(byte[] bytesToVerifyHash, byte[] verificationHashBytes, OffsetOptions? offsetOptions = null);
 
-        HashResult VerifyHash(string stringToVerifyHash, string encodedVerificationHashString);
-
-        HashResult VerifyHash(string stringToVerifyHash, string encodedVerificationHashString, OffsetOptions offsetOptions);
-
-        HashResult VerifyHash(byte[] bytesToVerifyHash, byte[] verificationHashBytes);
-
-        HashResult VerifyHash(byte[] bytesToVerifyHash, byte[] verificationHashBytes, OffsetOptions offsetOptions);
-
-        HashResult ComputeFileHash(string fileToComputeHash);
-
-        HashResult ComputeFileHash(string fileToComputeHash, LongOffsetOptions offsetOptions);
-
-        HashResult VerifyFileHash(string fileToVerifyHash, string encodedVerificationHashString);
-
-        HashResult VerifyFileHash(string fileToVerifyHash, string encodedVerificationHashString, LongOffsetOptions offsetOptions);
-
-        HashResult VerifyFileHash(string fileToVerifyHash, byte[] verificationHashBytes);
+        HashResult VerifyHash(string textToVerifyHash, string encodedVerificationHashString, OffsetOptions? offsetOptions = null);
 
         HashResult VerifyFileHash(string fileToVerifyHash, byte[] verificationHashBytes, LongOffsetOptions offsetOptions);
+
+        HashResult VerifyFileHash(string fileToVerifyHash, string encodedVerificationHashString, LongOffsetOptions offsetOptions);
     }
 }

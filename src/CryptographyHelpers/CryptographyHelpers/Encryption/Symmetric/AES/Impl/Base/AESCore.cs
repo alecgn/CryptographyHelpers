@@ -511,6 +511,6 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
         }
 
         public void Dispose() =>
-            _aes.Dispose();
+            _aes?.Dispose();
     }
 }

@@ -291,6 +291,6 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
         }
 
         public void Dispose() =>
-            _aesGcm.Dispose();
+            _aesGcm?.Dispose();
     }
 }
