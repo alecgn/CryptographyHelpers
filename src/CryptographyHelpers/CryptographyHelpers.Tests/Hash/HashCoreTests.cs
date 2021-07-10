@@ -1,195 +1,282 @@
-﻿//using CryptographyHelpers.Hash;
-//using CryptographyHelpers.Options;
-//using CryptographyHelpers.Resources;
-//using CryptographyHelpers.Text.Encoding;
-//using FluentAssertions;
-//using Microsoft.VisualStudio.TestTools.UnitTesting;
-//using System;
-//using System.Security.Authentication;
+﻿using CryptographyHelpers.Hash;
+using CryptographyHelpers.IoC;
+using CryptographyHelpers.Resources;
+using CryptographyHelpers.Text.Encoding;
+using CryptographyHelpers.Utils;
+using FluentAssertions;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.Collections.Generic;
 
-//namespace CryptographyHelpers.Tests.Hash
-//{
-//    [TestClass]
-//    public class HashTests
-//    {
-//        private readonly HashCore _hash;
-//        private const string InvalidHexadecimalTestString = "546869732069732061207465737420737472696E672G";
-//        private const string InvalidBase64TestString = "VGhpcyBpcyBhIHRlc3Qgc3RyaW5nIQ=";
-//        private const EncodingType DefaultEncodingType = EncodingType.Hexadecimal;
+namespace CryptographyHelpers.Tests.Hash
+{
+    [TestClass]
+    public class HashTests
+    {
+        private const string PlainTestString = "This is a test string!";
+        private const string InvalidHexadecimalTestString = "546869732069732061207465737420737472696E672G";
+        private const string InvalidBase64TestString = "VGhpcyBpcyBhIHRlc3Qgc3RyaW5nIQ=";
+        private static readonly IBase64 _base64Encoder = InternalServiceLocator.Instance.GetService<IBase64>();
+        private static readonly IHexadecimal _hexadecimalEncoder = InternalServiceLocator.Instance.GetService<IHexadecimal>();
 
-//        public HashTests()
-//        {
-//            _hash = new HashCore(HashAlgorithmType.Md5); // could be any other concrete implementation
-//        }
+        
+        [TestMethod]
+        [DynamicData(nameof(GetHashAlgorithmAndInvalidInputData), DynamicDataSourceType.Method)]
+        public void ShouldReturnSuccessFalse_InComputeHash_WhenProvidedInvalidInputData(HashCore hashAlgorithm, byte[] invalidInputData)
+        {
+            HashResult hashResult;
+            var expectedHashResult = new HashResult()
+            {
+                Success = false,
+                Message = MessageStrings.Hash_InputBytesRequired,
+            };
 
-//        [TestMethod]
-//        [DataRow(null)]
-//        [DataRow("")]
-//        [DataRow("   ")]
-//        public void ShouldReturnSuccessFalse_InComputeHash_WhenProvidedNullEmptyOrWhiteSpaceStringToComputeHash(string nullEmptyOrWhiteSpaceString)
-//        {
-//            var expectedHashResult = new HashResult()
-//            {
-//                Success = false,
-//                Message = MessageStrings.Hash_InputTextRequired,
-//            };
+            using (hashAlgorithm)
+            {
+                hashResult = hashAlgorithm.ComputeHash(invalidInputData);
+            }
 
-//            var hashResult = _hash.ComputeHash(nullEmptyOrWhiteSpaceString, new OffsetOptions());
+            hashResult.Should().BeEquivalentTo(expectedHashResult);
+        }
 
-//            hashResult.Should().BeEquivalentTo(expectedHashResult);
-//        }
+        [TestMethod]
+        [DynamicData(nameof(GetHashAlgorithmAndInvalidInputText), DynamicDataSourceType.Method)]
+        public void ShouldReturnSuccessFalse_InComputeHash_WhenProvidedInvalidInputText(HashCore hashAlgorithm, string invalidInputText)
+        {
+            HashResult hashResult;
+            var expectedHashResult = new HashResult()
+            {
+                Success = false,
+                Message = MessageStrings.Hash_InputTextRequired,
+            };
 
-//        [TestMethod]
-//        [DataRow(null)]
-//        [DataRow(new byte[0])]
-//        public void ShouldReturnSuccessFalse_InComputeHash_WhenProvidedNullOrEmptyByteArrayToComputeHash(byte[] nullOrEmptyByteArray)
-//        {
-//            var expectedHashResult = new HashResult()
-//            {
-//                Success = false,
-//                Message = MessageStrings.Hash_InputBytesRequired,
-//            };
+            using (hashAlgorithm)
+            {
+                hashResult = hashAlgorithm.ComputeHash(invalidInputText);
+            }
 
-//            var hashResult = _hash.ComputeHash(nullOrEmptyByteArray, new OffsetOptions());
+            hashResult.Should().BeEquivalentTo(expectedHashResult);
+        }
 
-//            hashResult.Should().BeEquivalentTo(expectedHashResult);
-//        }
+        [TestMethod]
+        [DynamicData(nameof(GetHashAlgorithmAndInvalidInputFilePath), DynamicDataSourceType.Method)]
+        public void ShouldReturnSuccessFalse_InComputeFileHash_WhenProvidedInvalidFilePathToComputeHash(HashCore hashAlgorithm, string invalidInputFilePath)
+        {
+            HashResult hashResult;
+            var expectedHashResult = new HashResult()
+            {
+                Success = false,
+                Message = $@"{MessageStrings.File_PathNotFound} ""{invalidInputFilePath}"".",
+            };
 
-//        [TestMethod]
-//        [DataRow(null)]
-//        [DataRow("")]
-//        [DataRow("   ")]
-//        [DataRow(@"Z:\8f297b5d-e0d4-4c91-bc45-38a857c20fa2\cf8152bb-d185-4127-a811-975460bca6fc.txt")]
-//        public void ShouldReturnSuccessFalse_InComputeFileHash_WhenProvidedInvalidFilePathToComputeHash(string invalidFilePath)
-//        {
-//            var expectedHashResult = new HashResult()
-//            {
-//                Success = false,
-//                Message = $@"{MessageStrings.File_PathNotFound} ""{invalidFilePath}"".",
-//            };
+            using (hashAlgorithm)
+            {
+                hashResult = hashAlgorithm.ComputeFileHash(invalidInputFilePath);
+            }
 
-//            var hashResult = _hash.ComputeFileHash(invalidFilePath, new LongOffsetOptions());
+            hashResult.Should().BeEquivalentTo(expectedHashResult);
+        }
 
-//            hashResult.Should().BeEquivalentTo(expectedHashResult);
-//        }
+        [TestMethod]
+        [DynamicData(nameof(GetHashAlgorithmAndInvalidInputData), DynamicDataSourceType.Method)]
+        public void ShouldReturnSuccessFalse_InVerifyHash_WhenProvidedInvalidInputVerificationHash(HashCore hashAlgorithm, byte[] invalidInputVerificationHash)
+        {
+            HashResult hashResult;
+            var expectedHashResult = new HashResult()
+            {
+                Success = false,
+                Message = MessageStrings.Hash_VerificationHashBytesRequired,
+            };
 
-//        [TestMethod]
-//        [DataRow(null)]
-//        [DataRow("")]
-//        [DataRow("   ")]
-//        public void ShouldReturnSuccessFalse_InVerifyHash_WhenProvidedNullEmptyOrWhitespaceStringToComputeHash(string nullEmptyOrWhitespaceString)
-//        {
-//            var expectedHashResult = new HashResult()
-//            {
-//                Success = false,
-//                Message = MessageStrings.Strings_InvalidInputText,
-//            };
+            using (hashAlgorithm)
+            {
+                hashResult = hashAlgorithm.VerifyHash(Array.Empty<byte>(), invalidInputVerificationHash);
+            }
 
-//            var hashResult = _hash.VerifyHash(nullEmptyOrWhitespaceString, Guid.NewGuid().ToString(), new OffsetOptions());
+            hashResult.Should().BeEquivalentTo(expectedHashResult);
+        }
 
-//            hashResult.Should().BeEquivalentTo(expectedHashResult);
-//        }
+        [TestMethod]
+        [DynamicData(nameof(GetHashAlgorithmAndInvalidInputText), DynamicDataSourceType.Method)]
+        public void ShouldReturnSuccessFalse_InVerifyHash_WhenProvidedInvalidInputText(HashCore hashAlgorithm, string invalidInputText)
+        {
+            HashResult hashResult;
+            var expectedHashResult = new HashResult()
+            {
+                Success = false,
+                Message = MessageStrings.Hash_InputTextRequired,
+            };
 
-//        [TestMethod]
-//        [DataRow(null)]
-//        [DataRow("")]
-//        [DataRow("   ")]
-//        public void ShouldReturnSuccessFalse_InVerifyHash_WhenProvidedNullEmptyOrWhitespaceVerificationHashString(string nullEmptyOrWhitespaceVerificationHashString)
-//        {
-//            var expectedHashResult = new HashResult()
-//            {
-//                Success = false,
-//                Message = MessageStrings.Hash_VerificationHashStringRequired,
-//            };
+            using (hashAlgorithm)
+            {
+                hashResult = hashAlgorithm.VerifyHash(invalidInputText, Guid.NewGuid().ToString());
+            }
 
-//            var hashResult = _hash.VerifyHash(Guid.NewGuid().ToString(), nullEmptyOrWhitespaceVerificationHashString, new OffsetOptions());
+            hashResult.Should().BeEquivalentTo(expectedHashResult);
+        }
 
-//            hashResult.Should().BeEquivalentTo(expectedHashResult);
-//        }
+        [TestMethod]
+        [DynamicData(nameof(GetHashAlgorithmAndInvalidEncodedInputVerificationHashString), DynamicDataSourceType.Method)]
+        public void ShouldReturnSuccessFalse_InVerifyHash_WhenProvidedInvalidEncodedInputVerificationHashString(HashCore hashAlgorithm, string invalidEncodedInputVerificationHashString)
+        {
+            HashResult hashResult;
 
-//        [TestMethod]
-//        public void ShouldReturnSuccessFalse_InVerifyHash_WhenProvidedInvalidHexadecimalVerificationHashString()
-//        {
-//            var hashResult = _hash.VerifyHash(Guid.NewGuid().ToString(), InvalidHexadecimalTestString, new OffsetOptions());
+            using (hashAlgorithm)
+            {
+                hashResult = hashAlgorithm.VerifyHash(Guid.NewGuid().ToString(), invalidEncodedInputVerificationHashString);
+            }
 
-//            hashResult.Success.Should().BeFalse();
-//            hashResult.Message.Should().Contain(MessageStrings.Strings_InvalidHexadecimalInputString);
-//        }
+            hashResult.Success.Should().BeFalse();
+        }
 
-//        [TestMethod]
-//        public void ShouldReturnSuccessFalse_InVerifyHash_WhenProvidedInvalidBase64VerificationHashString()
-//        {
-//            var hashResult = _hash.VerifyHash(Guid.NewGuid().ToString(), InvalidBase64TestString, new OffsetOptions());
+        [TestMethod]
+        [DynamicData(nameof(GetHashAlgorithmAndInvalidInputData), DynamicDataSourceType.Method)]
+        public void ShouldReturnSuccessFalse_InVerifyFileHash_WhenProvidedInvalidInputVerificationHash(HashCore hashAlgorithm, byte[] invalidInputVerificationHash)
+        {
+            HashResult hashResult;
+            var expectedHashResult = new HashResult()
+            {
+                Success = false,
+                Message = MessageStrings.Hash_VerificationHashBytesRequired,
+            };
 
-//            hashResult.Success.Should().BeFalse();
-//            hashResult.Message.Should().Contain(MessageStrings.Strings_InvalidBase64InputString);
-//        }
+            using (hashAlgorithm)
+            {
+                hashResult = hashAlgorithm.VerifyFileHash(Guid.NewGuid().ToString(), invalidInputVerificationHash);
+            }
 
-//        [TestMethod]
-//        [DataRow(null)]
-//        [DataRow(new byte[0])]
-//        public void ShouldReturnSuccessFalse_InVerifyHash_WhenProvidedNullOrEmptyVerificationHashByteArray(byte[] nullOrEmptyVerificationHashByteArray)
-//        {
-//            var expectedHashResult = new HashResult()
-//            {
-//                Success = false,
-//                Message = MessageStrings.Hash_VerificationHashBytesRequired,
-//            };
+            hashResult.Should().BeEquivalentTo(expectedHashResult);
+        }
 
-//            var hashResult = _hash.VerifyHash(Array.Empty<byte>(), nullOrEmptyVerificationHashByteArray, new OffsetOptions());
+        [TestMethod]
+        [DynamicData(nameof(GetHashAlgorithmAndInvalidEncodedInputVerificationHashString), DynamicDataSourceType.Method)]
+        public void ShouldReturnSuccessFalse_InVerifyFileHash_WhenProvidedInvalidEncodedInputVerificationHashString(HashCore hashAlgorithm, string invalidEncodedInputVerificationHashString)
+        {
+            HashResult hashResult;
 
-//            hashResult.Should().BeEquivalentTo(expectedHashResult);
-//        }
+            using (hashAlgorithm)
+            {
+                hashResult = hashAlgorithm.VerifyFileHash(Guid.NewGuid().ToString(), invalidEncodedInputVerificationHashString);
+            }
 
-//        [TestMethod]
-//        [DataRow(null)]
-//        [DataRow("")]
-//        [DataRow("   ")]
-//        public void ShouldReturnSuccessFalse_InVerifyFileHash_WhenProvidedNullEmptyOrWhitespaceVerificationHashString(string nullEmptyOrWhitespaceVerificationHashString)
-//        {
-//            var expectedHashResult = new HashResult()
-//            {
-//                Success = false,
-//                Message = MessageStrings.Hash_VerificationHashStringRequired,
-//            };
+            hashResult.Success.Should().BeFalse();
+        }
 
-//            var hashResult = _hash.VerifyFileHash(Guid.NewGuid().ToString(), nullEmptyOrWhitespaceVerificationHashString, new LongOffsetOptions());
 
-//            hashResult.Should().BeEquivalentTo(expectedHashResult);
-//        }
+        private static IEnumerable<object[]> GetHashAlgorithmAndInvalidInputData() =>
+            new List<object[]>()
+            {
+                new object[]{ new MD5(), null },
+                new object[]{ new MD5(), Array.Empty<byte>() },
 
-//        [TestMethod]
-//        public void ShouldReturnSuccessFalse_InVerifyFileHash_WhenProvidedInvalidHexadecimalVerificationHashString()
-//        {
-//            var hashResult = _hash.VerifyFileHash(Guid.NewGuid().ToString(), InvalidHexadecimalTestString, new LongOffsetOptions());
+                new object[]{ new SHA1(), null },
+                new object[]{ new SHA1(), Array.Empty<byte>() },
 
-//            hashResult.Success.Should().BeFalse();
-//            hashResult.Message.Should().Contain(MessageStrings.Strings_InvalidHexadecimalInputString);
-//        }
+                new object[]{ new SHA256(), null },
+                new object[]{ new SHA256(), Array.Empty<byte>() },
 
-//        [TestMethod]
-//        public void ShouldReturnSuccessFalse_InVerifyFileHash_WhenProvidedInvalidBase64VerificationHashString()
-//        {
-//            var hashResult = _hash.VerifyFileHash(Guid.NewGuid().ToString(), InvalidBase64TestString, new LongOffsetOptions());
+                new object[]{ new SHA384(), null },
+                new object[]{ new SHA384(), Array.Empty<byte>() },
 
-//            hashResult.Success.Should().BeFalse();
-//            hashResult.Message.Should().Contain(MessageStrings.Strings_InvalidBase64InputString);
-//        }
+                new object[]{ new SHA512(), null },
+                new object[]{ new SHA512(), Array.Empty<byte>() },
+            };
 
-//        [TestMethod]
-//        [DataRow(null)]
-//        [DataRow(new byte[0])]
-//        public void ShouldNotReturnSuccess_InVerifyFileHash_WhenProvidedNullOrEmptyVerificationHashByteArray(byte[] nullOrEmptyVerificationHashByteArray)
-//        {
-//            var expectedHashResult = new HashResult()
-//            {
-//                Success = false,
-//                Message = MessageStrings.Hash_VerificationHashBytesRequired,
-//            };
+        private static IEnumerable<object[]> GetHashAlgorithmAndInvalidInputText() =>
+            new List<object[]>()
+            {
+                new object[]{ new MD5(), null },
+                new object[]{ new MD5(), "" },
+                new object[]{ new MD5(), "   " },
 
-//            var hashResult = _hash.VerifyFileHash(Guid.NewGuid().ToString(), nullOrEmptyVerificationHashByteArray, new LongOffsetOptions());
+                new object[]{ new SHA1(), null },
+                new object[]{ new SHA1(), "" },
+                new object[]{ new SHA1(), "   " },
 
-//            hashResult.Should().BeEquivalentTo(expectedHashResult);
-//        }
-//    }
-//}
+                new object[]{ new SHA256(), null },
+                new object[]{ new SHA256(), "" },
+                new object[]{ new SHA256(), "   " },
+
+                new object[]{ new SHA384(), null },
+                new object[]{ new SHA384(), "" },
+                new object[]{ new SHA384(), "   " },
+
+                new object[]{ new SHA512(), null },
+                new object[]{ new SHA512(), "" },
+                new object[]{ new SHA512(), "   " },
+            };
+
+        private static IEnumerable<object[]> GetHashAlgorithmAndInvalidInputFilePath()
+        {
+            var invalidFilePath = $@"Z:\{Guid.NewGuid()}\{Guid.NewGuid()}.txt";
+
+            return new List<object[]>()
+            {
+                new object[]{ new MD5(), null },
+                new object[]{ new MD5(), "" },
+                new object[]{ new MD5(), "   " },
+                new object[]{ new MD5(), invalidFilePath },
+
+                new object[]{ new SHA1(), null },
+                new object[]{ new SHA1(), "" },
+                new object[]{ new SHA1(), "   " },
+                new object[]{ new SHA1(), invalidFilePath },
+
+                new object[]{ new SHA256(), null },
+                new object[]{ new SHA256(), "" },
+                new object[]{ new SHA256(), "   " },
+                new object[]{ new SHA256(), invalidFilePath },
+
+                new object[]{ new SHA384(), null },
+                new object[]{ new SHA384(), "" },
+                new object[]{ new SHA384(), "   " },
+                new object[]{ new SHA384(), invalidFilePath },
+
+                new object[]{ new SHA512(), null },
+                new object[]{ new SHA512(), "" },
+                new object[]{ new SHA512(), "   " },
+                new object[]{ new SHA512(), invalidFilePath },
+            };
+        }
+
+        private static IEnumerable<object> GetHashAlgorithmAndInvalidEncodedInputVerificationHashString()
+        {
+            var randomBytes = CryptographyUtils.GenerateRandomBytes(10);
+            var invalidHexadecimalEncodedString = _hexadecimalEncoder.EncodeToString(randomBytes).Substring(1);
+            var invalidBase64EncodedString = _base64Encoder.EncodeToString(randomBytes).Substring(1);
+
+            return new List<object[]>()
+            {
+                new object[]{ new MD5(), null },
+                new object[]{ new MD5(), "" },
+                new object[]{ new MD5(), "   " },
+                new object[]{ new MD5(), invalidHexadecimalEncodedString },
+                new object[]{ new MD5(), invalidBase64EncodedString },
+
+                new object[]{ new SHA1(), null },
+                new object[]{ new SHA1(), "" },
+                new object[]{ new SHA1(), "   " },
+                new object[]{ new SHA1(), invalidHexadecimalEncodedString },
+                new object[]{ new SHA1(), invalidBase64EncodedString },
+
+                new object[]{ new SHA256(), null },
+                new object[]{ new SHA256(), "" },
+                new object[]{ new SHA256(), "   " },
+                new object[]{ new SHA256(), invalidHexadecimalEncodedString },
+                new object[]{ new SHA256(), invalidBase64EncodedString },
+
+                new object[]{ new SHA384(), null },
+                new object[]{ new SHA384(), "" },
+                new object[]{ new SHA384(), "   " },
+                new object[]{ new SHA384(), invalidHexadecimalEncodedString },
+                new object[]{ new SHA384(), invalidBase64EncodedString },
+
+                new object[]{ new SHA512(), null },
+                new object[]{ new SHA512(), "" },
+                new object[]{ new SHA512(), "   " },
+                new object[]{ new SHA512(), invalidHexadecimalEncodedString },
+                new object[]{ new SHA512(), invalidBase64EncodedString },
+            };
+        }
+    }
+}

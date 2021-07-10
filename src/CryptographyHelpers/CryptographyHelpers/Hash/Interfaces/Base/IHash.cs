@@ -17,8 +17,8 @@ namespace CryptographyHelpers.Hash
 
         HashResult VerifyHash(string textToVerifyHash, string encodedVerificationHashString, OffsetOptions? offsetOptions = null);
 
-        HashResult VerifyFileHash(string fileToVerifyHash, byte[] verificationHashBytes, LongOffsetOptions offsetOptions);
+        HashResult VerifyFileHash(string fileToVerifyHash, byte[] verificationHashBytes, LongOffsetOptions? offsetOptions = null);
 
-        HashResult VerifyFileHash(string fileToVerifyHash, string encodedVerificationHashString, LongOffsetOptions offsetOptions);
+        HashResult VerifyFileHash(string fileToVerifyHash, string encodedVerificationHashString, LongOffsetOptions? offsetOptions = null);
     }
 }

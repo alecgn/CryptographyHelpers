@@ -219,19 +219,10 @@ namespace CryptographyHelpers.Hash
                 };
             }
 
-            if (string.IsNullOrWhiteSpace(encodedVerificationHashString))
-            {
-                return new HashResult()
-                {
-                    Success = false,
-                    Message = MessageStrings.Hash_VerificationHashStringRequired,
-                };
-            }
-
             try
             {
                 var verificationHashBytes = _encoder.DecodeString(encodedVerificationHashString);
-                var textToVerifyHashBytes = textToVerifyHash.ToUTF8Bytes();
+                var textToVerifyHashBytes = textToVerifyHash?.ToUTF8Bytes();
 
                 return VerifyHash(textToVerifyHashBytes, verificationHashBytes, offsetOptions);
             }
@@ -245,7 +236,7 @@ namespace CryptographyHelpers.Hash
             }
         }
 
-        public HashResult VerifyFileHash(string fileToVerifyHash, byte[] verificationHashBytes, LongOffsetOptions offsetOptions)
+        public HashResult VerifyFileHash(string fileToVerifyHash, byte[] verificationHashBytes, LongOffsetOptions? offsetOptions = null)
         {
             if (verificationHashBytes is null || verificationHashBytes.Length == 0)
             {
@@ -269,7 +260,7 @@ namespace CryptographyHelpers.Hash
             return hashResult;
         }
 
-        public HashResult VerifyFileHash(string fileToVerifyHash, string encodedVerificationHashString, LongOffsetOptions offsetOptions)
+        public HashResult VerifyFileHash(string fileToVerifyHash, string encodedVerificationHashString, LongOffsetOptions? offsetOptions = null)
         {
             if (string.IsNullOrWhiteSpace(encodedVerificationHashString))
             {
