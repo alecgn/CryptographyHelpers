@@ -1,4 +1,5 @@
 ﻿using CryptographyHelpers.Utils;
+using System;
 using System.Security.Cryptography;
 
 namespace CryptographyHelpers.Encryption.Symmetric.AES
@@ -12,9 +13,32 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
 
         public AES192CBC() : base(keySizeToGenerateRandomKey: AESKeySize) { }
 
-        public AES192CBC(byte[] key, byte[] IV) : base(key, IV, Mode, Padding)
+        public AES192CBC(byte[] key, byte[] IV)
+            : base(ValidateAESKey(key).Invoke(), ValidateAESIV(IV).Invoke(), Mode, Padding) { }
+
+
+        private static Func<byte[]> ValidateAESKey(byte[] key)
         {
-            CryptographyUtils.ValidateAESKey(key, expectedAesKeySize: AESKeySize);
+            byte[] func()
+            {
+                CryptographyUtils.ValidateAESKey(key, AESKeySize);
+
+                return key;
+            }
+
+            return func;
+        }
+
+        private static Func<byte[]> ValidateAESIV(byte[] IV)
+        {
+            byte[] func()
+            {
+                CryptographyUtils.ValidateAESIV(IV);
+
+                return IV;
+            }
+
+            return func;
         }
     }
 }

@@ -130,7 +130,7 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES.AEAD
 
         [TestMethod]
         [DynamicData(nameof(GetAESInputDataOffsetOptionsAssociatedDataAndExpecteDecryptedData), DynamicDataSourceType.Method)]
-        public void ShouldEncryptAndDecryptDataSucessfully_WithAndWithoutOffsetOptionsAndAssociatedData_InEncrypt(AESGCMCore aesGcm, byte[] inputData, OffsetOptions offsetOptions, byte[] associatedData, byte[] expectedDecryptedData)
+        public void ShouldEncryptAndDecryptDataSucessfully_WithAndWithoutOffsetOptionsAndAssociatedData_InEncrypt_And_WithoutOffsetOptions_InDecrypt(AESGCMCore aesGcm, byte[] inputData, OffsetOptions offsetOptions, byte[] associatedData, byte[] expectedDecryptedData)
         {
             AESGCMEncryptionResult aesGcmEncryptionResult;
             AESGCMDecryptionResult aesGcmDecryptionResult;
@@ -162,7 +162,7 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES.AEAD
 
         [TestMethod]
         [DynamicData(nameof(GetAESAndAssociatedData), DynamicDataSourceType.Method)]
-        public void ShouldEncryptAndDecryptDataSucessfully_WithAndWithoutAssociatedData_And_WithOffsetOptions_InDecrypt(AESGCMCore aesGcm, byte[] associatedData)
+        public void ShouldEncryptAndDecryptDataSucessfully_WithAndWithoutAssociatedData_And_WithOffsetOptions_InDecrypt_And_WithoutOffsetOptions_InEncrypt(AESGCMCore aesGcm, byte[] associatedData)
         {
             AESGCMEncryptionResult aesGcmEncryptionResult;
             AESGCMDecryptionResult aesGcmDecryptionResult;
@@ -199,7 +199,7 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES.AEAD
 
         [TestMethod]
         [DynamicData(nameof(GetAESInputPlainTextOffsetOptionsAssociatedDataTextAndExpecteDecryptedText), DynamicDataSourceType.Method)]
-        public void ShouldEncryptAndDecryptTextSucessfully_WithAndWithoutOffsetOptionsAndAssociatedDataText_InEncryptText(AESGCMCore aesGcm, string inputPlainText, OffsetOptions offsetOptions, string associatedDataText, string expectedDecryptedText)
+        public void ShouldEncryptAndDecryptTextSucessfully_WithAndWithoutOffsetOptionsAndAssociatedDataText_InEncryptText_And_WithoutOffsetOptions_InDecryptText(AESGCMCore aesGcm, string inputPlainText, OffsetOptions offsetOptions, string associatedDataText, string expectedDecryptedText)
         {
             AESGCMTextEncryptionResult aesGcmTextEncryptionResult;
             AESGCMTextDecryptionResult aesGcmTextDecryptionResult;
@@ -231,7 +231,7 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES.AEAD
 
         [TestMethod]
         [DynamicData(nameof(GetAESAndAssociatedDataText), DynamicDataSourceType.Method)]
-        public void ShouldEncryptAndDecryptTextSucessfully_WithAndWithoutAssociatedDataText_And_WithOffsetOptions_InDecryptText(AESGCMCore aesGcm, string associatedDataText)
+        public void ShouldEncryptAndDecryptTextSucessfully_WithAndWithoutAssociatedDataText_And_WithOffsetOptions_InDecryptText_And_WithoutOffsetOptions_InEncryptText(AESGCMCore aesGcm, string associatedDataText)
         {
             AESGCMTextEncryptionResult aesGcmTextEncryptionResult;
             AESGCMTextDecryptionResult aesGcmTextDecryptionResult;

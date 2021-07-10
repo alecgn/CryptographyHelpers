@@ -4,7 +4,6 @@ using CryptographyHelpers.Resources;
 using CryptographyHelpers.Text.Encoding;
 using CryptographyHelpers.Utils;
 using FluentAssertions;
-using FluentAssertions.Events;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -164,7 +163,7 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
 
         [TestMethod]
         [DynamicData(nameof(GetAESInputDataOffsetOptionsAndExpecteDecryptedData), DynamicDataSourceType.Method)]
-        public void ShouldEncryptAndDecryptDataSucessfully_WithAndWithoutOffsetOptions_InEncrypt(AESCore aes, byte[] inputData, OffsetOptions offsetOptions, byte[] expectedDecryptedData)
+        public void ShouldEncryptAndDecryptDataSucessfully_WithAndWithoutOffsetOptions_InEncrypt_And_WithoutOffsetOptions_InDecrypt(AESCore aes, byte[] inputData, OffsetOptions offsetOptions, byte[] expectedDecryptedData)
         {
             AESEncryptionResult aesEncryptionResult;
             AESDecryptionResult aesDecryptionResult;
@@ -191,35 +190,7 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
 
         [TestMethod]
         [DynamicData(nameof(GetAES), DynamicDataSourceType.Method)]
-        public void ShouldEncryptAndDecryptDataSucessfully_WithoutOffsetOptions_InDecrypt(AESCore aes)
-        {
-            AESEncryptionResult aesEncryptionResult;
-            AESDecryptionResult aesDecryptionResult;
-            var dataBytes = PlainTestString.ToUTF8Bytes();
-
-            using (aes)
-            {
-                aesEncryptionResult = aes.Encrypt(dataBytes);
-
-                if (!aesEncryptionResult.Success)
-                {
-                    Assert.Fail(aesEncryptionResult.Message);
-                }
-
-                aesDecryptionResult = aes.Decrypt(aesEncryptionResult.EncryptedData);
-
-                if (!aesDecryptionResult.Success)
-                {
-                    Assert.Fail(aesDecryptionResult.Message);
-                }
-            }
-
-            aesDecryptionResult.DecryptedData.Should().BeEquivalentTo(dataBytes);
-        }
-
-        [TestMethod]
-        [DynamicData(nameof(GetAES), DynamicDataSourceType.Method)]
-        public void ShouldEncryptAndDecryptDataSucessfully_WithOffsetOptions_InDecrypt(AESCore aes)
+        public void ShouldEncryptAndDecryptDataSucessfully_WithOffsetOptions_InDecrypt_And_WithoutOffsetOptions_InEncrypt(AESCore aes)
         {
             AESEncryptionResult aesEncryptionResult;
             AESDecryptionResult aesDecryptionResult;
@@ -255,15 +226,15 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
         }
 
         [TestMethod]
-        [DynamicData(nameof(GetAESInputTextOffsetOptionsAndExpectedText), DynamicDataSourceType.Method)]
-        public void ShouldEncryptAndDecryptTextSucessfully_WithAndWithoutOffsetOption_InEncryptText(AESCore aes, string inputText, OffsetOptions offsetOptions, string expectedText)
+        [DynamicData(nameof(GetAESInputPlainTextOffsetOptionsAndExpectedDecryptedText), DynamicDataSourceType.Method)]
+        public void ShouldEncryptAndDecryptTextSucessfully_WithAndWithoutOffsetOption_InEncryptText_And_WithoutOffsetOptions_InDecryptText(AESCore aes, string inputPainText, OffsetOptions offsetOptions, string expectedDecryptedText)
         {
             AESTextEncryptionResult aesTextEncryptionResult;
             AESTextDecryptionResult aesTextDecryptionResult;
 
             using (aes)
             {
-                aesTextEncryptionResult = aes.EncryptText(inputText, offsetOptions);
+                aesTextEncryptionResult = aes.EncryptText(inputPainText, offsetOptions);
 
                 if (!aesTextEncryptionResult.Success)
                 {
@@ -278,12 +249,12 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
                 }
             }
 
-            aesTextDecryptionResult.DecryptedText.Should().Be(expectedText);
+            aesTextDecryptionResult.DecryptedText.Should().Be(expectedDecryptedText);
         }
 
         [TestMethod]
         [DynamicData(nameof(GetAES), DynamicDataSourceType.Method)]
-        public void ShouldEncryptAndDecryptTextSucessfully_WithOffsetOptions_InDecryptText(AESCore aes)
+        public void ShouldEncryptAndDecryptTextSucessfully_WithOffsetOptions_InDecryptText_And_WithoutOffsetOptions_InEncryptText(AESCore aes)
         {
             AESTextEncryptionResult aesTextEncryptionResult;
             AESTextDecryptionResult aesTextDecryptionResult;
@@ -354,72 +325,99 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
 
         [TestMethod]
         [DynamicData(nameof(GetAES), DynamicDataSourceType.Method)]
-        public void ShouldEncryptAndDecryptFileSucessfully_WithAndWithoutLongOffsetOptions_InEncryptFile(AESCore aes, LongOffsetOptions offsetOptions)
+        public void ShouldEncryptAndDecryptFileSucessfully_WithAndWithoutLongOffsetOptions_InEncryptFile_And_WithoutOffsetOptions_InDecryptFile(AESCore aes)
         {
+            AESFileEncryptionResult aesFileEncryptionResult;
+            AESFileDecryptionResult aesFileDecryptionResult;
             var testFilePath = Path.GetTempFileName();
-            CreateFileAndWriteText(testFilePath, PlainTestString);
             var encryptedTestFilePath = Path.ChangeExtension(testFilePath, ".encrypted");
 
-            var aesFileEncryptionResult = _aes.EncryptFile(testFilePath, encryptedTestFilePath, offsetOptions);
-
-            if (!aesFileEncryptionResult.Success)
+            using (aes)
             {
-                Assert.Fail(aesFileEncryptionResult.Message);
+                using (var monitoredAes = aes.Monitor())
+                {
+                    var additionalDataAtBeginLenght = 10L;
+                    var additionalDataAtBegin = CryptographyUtils.GenerateRandomBytes((int)additionalDataAtBeginLenght);
+                    var additionalDataAtEndLenght = 10L;
+                    var additionalDataAtEnd = CryptographyUtils.GenerateRandomBytes((int)additionalDataAtEndLenght);
+                    var fileData = PlainTestString.ToUTF8Bytes();
+                    var fileDataWithAdditionalInfo = new byte[additionalDataAtBeginLenght + fileData.Length + additionalDataAtEndLenght];
+                    Array.Copy(additionalDataAtBegin, 0, fileDataWithAdditionalInfo, 0, additionalDataAtBeginLenght);
+                    Array.Copy(fileData, 0, fileDataWithAdditionalInfo, additionalDataAtBeginLenght, fileData.Length);
+                    Array.Copy(additionalDataAtEnd, 0, fileDataWithAdditionalInfo, additionalDataAtBeginLenght + fileData.Length, additionalDataAtEndLenght);
+                    File.WriteAllBytes(testFilePath, fileDataWithAdditionalInfo);
+                    aesFileEncryptionResult = aes.EncryptFile(testFilePath, encryptedTestFilePath, new LongOffsetOptions(additionalDataAtBeginLenght, fileData.Length));
+
+                    if (!aesFileEncryptionResult.Success)
+                    {
+                        Assert.Fail(aesFileEncryptionResult.Message);
+                    }
+
+                    var decryptedTestFilePath = Path.ChangeExtension(encryptedTestFilePath, ".decrypted");
+                    aesFileDecryptionResult = aes.DecryptFile(encryptedTestFilePath, decryptedTestFilePath);
+
+                    if (!aesFileDecryptionResult.Success)
+                    {
+                        Assert.Fail(aesFileDecryptionResult.Message);
+                    }
+
+                    monitoredAes.Should().Raise(nameof(AESCore.OnEncryptFileProgress));
+                    monitoredAes.Should().Raise(nameof(AESCore.OnDecryptFileProgress));
+                    aesFileDecryptionResult.Success.Should().BeTrue();
+                    var decryptedText = ReadFileText(decryptedTestFilePath);
+                    decryptedText.Should().Be(PlainTestString);
+                }
             }
-
-            var decryptedTestFilePath = Path.ChangeExtension(encryptedTestFilePath, ".decrypted");
-            var aesFileDecryptionResult = _aes.DecryptFile(encryptedTestFilePath, decryptedTestFilePath);
-
-            if (!aesFileDecryptionResult.Success)
-            {
-                Assert.Fail(aesFileDecryptionResult.Message);
-            }
-
-            _monitoredAes.Should().Raise(nameof(AESCore.OnEncryptFileProgress));
-            _monitoredAes.Should().Raise(nameof(AESCore.OnDecryptFileProgress));
-            aesFileDecryptionResult.Success.Should().BeTrue();
-            var decryptedText = ReadFileText(decryptedTestFilePath);
-            decryptedText.Should().Be(expectedText);
         }
 
         [TestMethod]
-        public void ShouldEncryptAndDecryptFileSucessfully_WithLongOffsetOptions_InDecryptFile()
+        [DynamicData(nameof(GetAES), DynamicDataSourceType.Method)]
+        public void ShouldEncryptAndDecryptFileSucessfully_WithLongOffsetOptions_InDecryptFile(AESCore aes)
         {
+            AESFileEncryptionResult aesFileEncryptionResult;
+            AESFileDecryptionResult aesFileDecryptionResult;
             var testFilePath = Path.GetTempFileName();
             CreateFileAndWriteText(testFilePath, PlainTestString);
             var encryptedTestFilePath = Path.ChangeExtension(testFilePath, ".encrypted");
 
-            var aesFileEncryptionResult = _aes.EncryptFile(testFilePath, encryptedTestFilePath);
-
-            if (!aesFileEncryptionResult.Success)
+            using (aes)
             {
-                Assert.Fail(aesFileEncryptionResult.Message);
+                using (var monitoredAes = aes.Monitor())
+                {
+                    aesFileEncryptionResult = aes.EncryptFile(testFilePath, encryptedTestFilePath);
+
+                    if (!aesFileEncryptionResult.Success)
+                    {
+                        Assert.Fail(aesFileEncryptionResult.Message);
+                    }
+
+                    var additionalDataAtBeginLenght = 10L;
+                    var additionalDataAtBegin = CryptographyUtils.GenerateRandomBytes((int)additionalDataAtBeginLenght);
+                    var additionalDataAtEndLenght = 10L;
+                    var additionalDataAtEnd = CryptographyUtils.GenerateRandomBytes((int)additionalDataAtEndLenght);
+                    var encryptedFileData = File.ReadAllBytes(encryptedTestFilePath);
+                    var encryptedFileDataWithAdditionalInfo = new byte[additionalDataAtBeginLenght + encryptedFileData.Length + additionalDataAtEndLenght];
+                    Array.Copy(additionalDataAtBegin, 0, encryptedFileDataWithAdditionalInfo, 0, additionalDataAtBeginLenght);
+                    Array.Copy(encryptedFileData, 0, encryptedFileDataWithAdditionalInfo, additionalDataAtBeginLenght, encryptedFileData.Length);
+                    Array.Copy(additionalDataAtEnd, 0, encryptedFileDataWithAdditionalInfo, additionalDataAtBeginLenght + encryptedFileData.Length, additionalDataAtEndLenght);
+                    // overwrites previous encrypted file with additional data at begin and at end
+                    File.WriteAllBytes(encryptedTestFilePath, encryptedFileDataWithAdditionalInfo);
+                    var decryptedTestFilePath = Path.ChangeExtension(encryptedTestFilePath, ".decrypted");
+
+                    aesFileDecryptionResult = aes.DecryptFile(encryptedTestFilePath, decryptedTestFilePath, new LongOffsetOptions(additionalDataAtBeginLenght, encryptedFileData.Length));
+
+                    if (!aesFileDecryptionResult.Success)
+                    {
+                        Assert.Fail(aesFileDecryptionResult.Message);
+                    }
+
+                    monitoredAes.Should().Raise(nameof(AESCore.OnEncryptFileProgress));
+                    monitoredAes.Should().Raise(nameof(AESCore.OnDecryptFileProgress));
+                    aesFileDecryptionResult.Success.Should().BeTrue();
+                    var decryptedText = ReadFileText(decryptedTestFilePath);
+                    decryptedText.Should().Be(PlainTestString);
+                }
             }
-
-            var additionalDataAtBeginLenght = 10L;
-            var additionalDataAtBegin = CryptographyUtils.GenerateRandomBytes((int)additionalDataAtBeginLenght);
-            var additionalDataAtEndLenght = 10L;
-            var additionalDataAtEnd = CryptographyUtils.GenerateRandomBytes((int)additionalDataAtEndLenght);
-            var fileData = File.ReadAllBytes(encryptedTestFilePath);
-            var fileDataWithAdditionalInfo = new byte[additionalDataAtBeginLenght + fileData.Length + additionalDataAtEndLenght];
-            Array.Copy(additionalDataAtBegin, 0, fileDataWithAdditionalInfo, 0, additionalDataAtBeginLenght);
-            Array.Copy(fileData, 0, fileDataWithAdditionalInfo, additionalDataAtBeginLenght, fileData.Length);
-            Array.Copy(additionalDataAtEnd, 0, fileDataWithAdditionalInfo, additionalDataAtBeginLenght + fileData.Length, additionalDataAtEndLenght);
-            File.WriteAllBytes(encryptedTestFilePath, fileDataWithAdditionalInfo);
-            var decryptedTestFilePath = Path.ChangeExtension(encryptedTestFilePath, ".decrypted");
-
-            var aesFileDecryptionResult = _aes.DecryptFile(encryptedTestFilePath, decryptedTestFilePath, new LongOffsetOptions(additionalDataAtBeginLenght, fileData.Length));
-
-            if (!aesFileDecryptionResult.Success)
-            {
-                Assert.Fail(aesFileDecryptionResult.Message);
-            }
-
-            _monitoredAes.Should().Raise(nameof(AESCore.OnEncryptFileProgress));
-            _monitoredAes.Should().Raise(nameof(AESCore.OnDecryptFileProgress));
-            aesFileDecryptionResult.Success.Should().BeTrue();
-            var decryptedText = ReadFileText(decryptedTestFilePath);
-            decryptedText.Should().Be(PlainTestString);
         }
 
 
@@ -647,7 +645,7 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
             };
         }
 
-        private static IEnumerable<object[]> GetAESInputTextOffsetOptionsAndExpectedText()
+        private static IEnumerable<object[]> GetAESInputPlainTextOffsetOptionsAndExpectedDecryptedText()
         {
             var text = PlainTestString;
             var truncatedToBeginText = text.Substring(0, text.Length / 2);
@@ -681,30 +679,7 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
         private static void CreateFileAndWriteText(string filePath, string text) =>
             File.WriteAllText(filePath, text);
 
-        private long GetFileLenght(string filePath) =>
-            new FileInfo(filePath).Length;
-
         private static string ReadFileText(string filePath) =>
             File.ReadAllText(filePath);
-
-        private static IEnumerable<object[]> GetAESInputTextAndLongOffsetOptions()
-        {
-            var splitedStringlenght = PlainTestString.Length / 2;
-
-            return new List<object[]>()
-            {
-                new object[]{ new AESCore(AESKeySizes.KeySize128Bits), PlainTestString, new LongOffsetOptions(), },
-                new object[]{ new AESCore(AESKeySizes.KeySize128Bits), PlainTestString.Substring(0, splitedStringlenght), new LongOffsetOptions(offset: 0, count: splitedStringlenght), },
-                new object[]{ new AESCore(AESKeySizes.KeySize128Bits), PlainTestString.Substring(splitedStringlenght, splitedStringlenght), new LongOffsetOptions(offset: splitedStringlenght, count: splitedStringlenght), },
-
-                new object[]{ new AESCore(AESKeySizes.KeySize192Bits), PlainTestString, new LongOffsetOptions(), },
-                new object[]{ new AESCore(AESKeySizes.KeySize192Bits), PlainTestString.Substring(0, splitedStringlenght), new LongOffsetOptions(offset: 0, count: splitedStringlenght), },
-                new object[]{ new AESCore(AESKeySizes.KeySize192Bits), PlainTestString.Substring(splitedStringlenght, splitedStringlenght), new LongOffsetOptions(offset: splitedStringlenght, count: splitedStringlenght), },
-
-                new object[]{ new AESCore(AESKeySizes.KeySize256Bits), PlainTestString, new LongOffsetOptions(), },
-                new object[]{ new AESCore(AESKeySizes.KeySize256Bits), PlainTestString.Substring(0, splitedStringlenght), new LongOffsetOptions(offset: 0, count: splitedStringlenght), },
-                new object[]{ new AESCore(AESKeySizes.KeySize256Bits), PlainTestString.Substring(splitedStringlenght, splitedStringlenght), new LongOffsetOptions(offset: splitedStringlenght, count: splitedStringlenght), },
-            };
-        }
     }
 }

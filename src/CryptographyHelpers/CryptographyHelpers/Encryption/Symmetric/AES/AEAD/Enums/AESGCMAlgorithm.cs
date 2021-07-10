@@ -2,8 +2,8 @@
 {
     public enum AESGCMAlgorithm
     {
-        AESGCM128,
-        AESGCM192,
-        AESGCM256,
+        AES128GCM,
+        AES192GCM,
+        AES256GCM,
     }
 }
