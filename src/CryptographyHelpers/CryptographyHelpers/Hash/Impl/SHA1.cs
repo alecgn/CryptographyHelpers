@@ -1,4 +1,5 @@
-﻿using System.Security.Authentication;
+﻿using CryptographyHelpers.Text.Encoding;
+using System.Security.Authentication;
 
 namespace CryptographyHelpers.Hash
 {
@@ -6,6 +7,6 @@ namespace CryptographyHelpers.Hash
     {
         private const HashAlgorithmType HashAlgorithm = HashAlgorithmType.Sha1;
 
-        public SHA1() : base(HashAlgorithm) { }
+        public SHA1(EncodingType? encodingType = null) : base(HashAlgorithm, encodingType) { }
     }
 }

@@ -127,7 +127,6 @@ namespace CryptographyHelpers.Hash
                     var totalBytesToRead = offsetOptions.HasValue
                         ? offsetOptions.Value.Count == 0L ? fileStream.Length : offsetOptions.Value.Count
                         : fileStream.Length;
-
                     fileStream.Position = offset;
                     var buffer = new byte[_bufferSizeInKBForFileHashing];
                     var totalBytesNotRead = totalBytesToRead;
@@ -221,10 +220,15 @@ namespace CryptographyHelpers.Hash
 
             try
             {
+                var offset = offsetOptions.HasValue ? offsetOptions.Value.Offset : 0;
+                var totalCharsToRead = offsetOptions.HasValue
+                    ? offsetOptions.Value.Count == 0 ? textToVerifyHash.Length : offsetOptions.Value.Count
+                    : textToVerifyHash.Length;
+                var textToVerifyHashPayload = textToVerifyHash.Substring(offset, totalCharsToRead);
                 var verificationHashBytes = _encoder.DecodeString(encodedVerificationHashString);
-                var textToVerifyHashBytes = textToVerifyHash?.ToUTF8Bytes();
+                var textToVerifyHashBytes = textToVerifyHashPayload.ToUTF8Bytes();
 
-                return VerifyHash(textToVerifyHashBytes, verificationHashBytes, offsetOptions);
+                return VerifyHash(textToVerifyHashBytes, verificationHashBytes);
             }
             catch (Exception ex)
             {

@@ -1,4 +1,4 @@
 ﻿namespace CryptographyHelpers.Text
 {
-    public enum CharacterCasing { Lower, Normal, Upper, };
+    public enum CharacterCasing { Upper, Lower, Normal, };
 }

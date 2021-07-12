@@ -1,4 +1,5 @@
-﻿using System.Security.Authentication;
+﻿using CryptographyHelpers.Text.Encoding;
+using System.Security.Authentication;
 
 namespace CryptographyHelpers.Hash
 {
@@ -6,6 +7,6 @@ namespace CryptographyHelpers.Hash
     {
         private const HashAlgorithmType HashAlgorithm = HashAlgorithmType.Md5;
 
-        public MD5() : base(HashAlgorithm) { }
+        public MD5(EncodingType? encodingType = null) : base(HashAlgorithm, encodingType) { }
     }
 }
