@@ -76,7 +76,7 @@ namespace CryptographyHelpers.Hash
             }
         }
 
-        public HashResult ComputeHash(string textToComputeHash, OffsetOptions? offsetOptions = null)
+        public HashResult ComputeTextHash(string textToComputeHash, OffsetOptions? offsetOptions = null)
         {
             if (string.IsNullOrWhiteSpace(textToComputeHash))
             {
@@ -207,7 +207,7 @@ namespace CryptographyHelpers.Hash
             return hashResult;
         }
 
-        public HashResult VerifyHash(string textToVerifyHash, string encodedVerificationHashString, OffsetOptions? offsetOptions = null)
+        public HashResult VerifyTextHash(string textToVerifyHash, string encodedVerificationHashString, OffsetOptions? offsetOptions = null)
         {
             if (string.IsNullOrWhiteSpace(textToVerifyHash))
             {
@@ -277,9 +277,7 @@ namespace CryptographyHelpers.Hash
 
             try
             {
-                var verificationHashBytes = _encodingType == EncodingType.Hexadecimal
-                        ? _serviceLocator.GetService<IHexadecimal>().DecodeString(encodedVerificationHashString)
-                        : _serviceLocator.GetService<IBase64>().DecodeString(encodedVerificationHashString);
+                var verificationHashBytes = _encoder.DecodeString(encodedVerificationHashString);
 
                 return VerifyFileHash(fileToVerifyHash, verificationHashBytes, offsetOptions);
             }
