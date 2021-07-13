@@ -15,6 +15,20 @@ namespace CryptographyHelpers.Tests.Hash
     public class HashTests
     {
         private const string PlainTestString = "This is a test string!";
+        private const string TestStringMd5HashHexEncoded = "ACB5A0BB8B17EADA5ACD8CED350BB856";
+        private const string TestStringMd5HashBase64Encoded = "rLWgu4sX6tpazYztNQu4Vg==";
+        private const string TestStringSha1HashHexEncoded = "923E2FEF491AFD5A92097C0AAE64AC322FF8DBBC";
+        private const string TestStringSha1HashBase64Encoded = "kj4v70ka/VqSCXwKrmSsMi/427w=";
+        private const string TestStringSha256HashHexEncoded = "31F83B0A652333BB8CA3644D4EC8BAAB2CC7B5AB9BAC5FC72986E47B591F0705";
+        private const string TestStringSha256HashBase64Encoded = "Mfg7CmUjM7uMo2RNTsi6qyzHtaubrF/HKYbke1kfBwU=";
+        private const string TestStringSha384HashHexEncoded = "2E4C0C89E1E1B6D762477B3A0F61CE4D50F130166CFA4E12F811E7B778199C553AC83F90ED7F5868E1C5FE8DD6C55165";
+        private const string TestStringSha384HashBase64Encoded = "LkwMieHhttdiR3s6D2HOTVDxMBZs+k4S+BHnt3gZnFU6yD+Q7X9YaOHF/o3WxVFl";
+        private const string TestStringSha512HashHexEncoded = "C2DC10A16CB105F4D68CB180024ECB93DA298A2BB9DCDBD82A24F6676AA6F129A899BDB99467F4DDF958767696BEC5D0AC3D5C938B9DB798439EDA573F0985FF";
+        private const string TestStringSha512HashBase64Encoded = "wtwQoWyxBfTWjLGAAk7Lk9opiiu53NvYKiT2Z2qm8Smomb25lGf03flYdnaWvsXQrD1ck4udt5hDntpXPwmF/w==";
+
+
+        private const string WhiteSpaceString = " ";
+
         private static readonly IBase64 _base64Encoder = InternalServiceLocator.Instance.GetService<IBase64>();
         private static readonly IHexadecimal _hexadecimalEncoder = InternalServiceLocator.Instance.GetService<IHexadecimal>();
 
@@ -277,24 +291,24 @@ namespace CryptographyHelpers.Tests.Hash
             new List<object[]>()
             {
                 new object[]{ new MD5(), null },
-                new object[]{ new MD5(), "" },
-                new object[]{ new MD5(), "   " },
+                new object[]{ new MD5(), string.Empty },
+                new object[]{ new MD5(), WhiteSpaceString },
 
                 new object[]{ new SHA1(), null },
-                new object[]{ new SHA1(), "" },
-                new object[]{ new SHA1(), "   " },
+                new object[]{ new SHA1(), string.Empty },
+                new object[]{ new SHA1(), WhiteSpaceString },
 
                 new object[]{ new SHA256(), null },
-                new object[]{ new SHA256(), "" },
-                new object[]{ new SHA256(), "   " },
+                new object[]{ new SHA256(), string.Empty },
+                new object[]{ new SHA256(), WhiteSpaceString },
 
                 new object[]{ new SHA384(), null },
-                new object[]{ new SHA384(), "" },
-                new object[]{ new SHA384(), "   " },
+                new object[]{ new SHA384(), string.Empty },
+                new object[]{ new SHA384(), WhiteSpaceString },
 
                 new object[]{ new SHA512(), null },
-                new object[]{ new SHA512(), "" },
-                new object[]{ new SHA512(), "   " },
+                new object[]{ new SHA512(), string.Empty },
+                new object[]{ new SHA512(), WhiteSpaceString },
             };
 
         private static IEnumerable<object[]> GetHashAlgorithmAndInvalidInputFilePath()
@@ -304,28 +318,28 @@ namespace CryptographyHelpers.Tests.Hash
             return new List<object[]>()
             {
                 new object[]{ new MD5(), null },
-                new object[]{ new MD5(), "" },
-                new object[]{ new MD5(), "   " },
+                new object[]{ new MD5(), string.Empty },
+                new object[]{ new MD5(), WhiteSpaceString },
                 new object[]{ new MD5(), invalidFilePath },
 
                 new object[]{ new SHA1(), null },
-                new object[]{ new SHA1(), "" },
-                new object[]{ new SHA1(), "   " },
+                new object[]{ new SHA1(), string.Empty },
+                new object[]{ new SHA1(), WhiteSpaceString },
                 new object[]{ new SHA1(), invalidFilePath },
 
                 new object[]{ new SHA256(), null },
-                new object[]{ new SHA256(), "" },
-                new object[]{ new SHA256(), "   " },
+                new object[]{ new SHA256(), string.Empty },
+                new object[]{ new SHA256(), WhiteSpaceString },
                 new object[]{ new SHA256(), invalidFilePath },
 
                 new object[]{ new SHA384(), null },
-                new object[]{ new SHA384(), "" },
-                new object[]{ new SHA384(), "   " },
+                new object[]{ new SHA384(), string.Empty },
+                new object[]{ new SHA384(), WhiteSpaceString },
                 new object[]{ new SHA384(), invalidFilePath },
 
                 new object[]{ new SHA512(), null },
-                new object[]{ new SHA512(), "" },
-                new object[]{ new SHA512(), "   " },
+                new object[]{ new SHA512(), string.Empty },
+                new object[]{ new SHA512(), WhiteSpaceString },
                 new object[]{ new SHA512(), invalidFilePath },
             };
         }
@@ -339,32 +353,32 @@ namespace CryptographyHelpers.Tests.Hash
             return new List<object[]>()
             {
                 new object[]{ new MD5(), null },
-                new object[]{ new MD5(), "" },
-                new object[]{ new MD5(), "   " },
+                new object[]{ new MD5(), string.Empty },
+                new object[]{ new MD5(), WhiteSpaceString },
                 new object[]{ new MD5(), invalidHexadecimalEncodedString },
                 new object[]{ new MD5(), invalidBase64EncodedString },
 
                 new object[]{ new SHA1(), null },
-                new object[]{ new SHA1(), "" },
-                new object[]{ new SHA1(), "   " },
+                new object[]{ new SHA1(), string.Empty },
+                new object[]{ new SHA1(), WhiteSpaceString },
                 new object[]{ new SHA1(), invalidHexadecimalEncodedString },
                 new object[]{ new SHA1(), invalidBase64EncodedString },
 
                 new object[]{ new SHA256(), null },
-                new object[]{ new SHA256(), "" },
-                new object[]{ new SHA256(), "   " },
+                new object[]{ new SHA256(), string.Empty },
+                new object[]{ new SHA256(), WhiteSpaceString },
                 new object[]{ new SHA256(), invalidHexadecimalEncodedString },
                 new object[]{ new SHA256(), invalidBase64EncodedString },
 
                 new object[]{ new SHA384(), null },
-                new object[]{ new SHA384(), "" },
-                new object[]{ new SHA384(), "   " },
+                new object[]{ new SHA384(), string.Empty },
+                new object[]{ new SHA384(), WhiteSpaceString },
                 new object[]{ new SHA384(), invalidHexadecimalEncodedString },
                 new object[]{ new SHA384(), invalidBase64EncodedString },
 
                 new object[]{ new SHA512(), null },
-                new object[]{ new SHA512(), "" },
-                new object[]{ new SHA512(), "   " },
+                new object[]{ new SHA512(), string.Empty },
+                new object[]{ new SHA512(), WhiteSpaceString },
                 new object[]{ new SHA512(), invalidHexadecimalEncodedString },
                 new object[]{ new SHA512(), invalidBase64EncodedString },
             };
@@ -376,48 +390,32 @@ namespace CryptographyHelpers.Tests.Hash
             var inputText = PlainTestString;
             var inputTextWithAdditionalData = $"{new string('a', additionalDataLength)}{inputText}{new string('z', additionalDataLength)}";
 
-            var testStringHexEncodedMd5Hash = "ACB5A0BB8B17EADA5ACD8CED350BB856";
-            var testStringBase64EncodedMd5Hash = "rLWgu4sX6tpazYztNQu4Vg==";
-
-            var testStringHexEncodedSha1Hash = "923E2FEF491AFD5A92097C0AAE64AC322FF8DBBC";
-            var testStringBase64EncodedSha1Hash = "kj4v70ka/VqSCXwKrmSsMi/427w=";
-
-            var testStringHexEncodedSha256Hash = "31F83B0A652333BB8CA3644D4EC8BAAB2CC7B5AB9BAC5FC72986E47B591F0705";
-            var testStringBase64EncodedSha256Hash = "Mfg7CmUjM7uMo2RNTsi6qyzHtaubrF/HKYbke1kfBwU=";
-
-            var testStringHexEncodedSha384Hash = "2E4C0C89E1E1B6D762477B3A0F61CE4D50F130166CFA4E12F811E7B778199C553AC83F90ED7F5868E1C5FE8DD6C55165";
-            var testStringBase64EncodedSha384Hash = "LkwMieHhttdiR3s6D2HOTVDxMBZs+k4S+BHnt3gZnFU6yD+Q7X9YaOHF/o3WxVFl";
-
-            var testStringHexEncodedSha512Hash = "C2DC10A16CB105F4D68CB180024ECB93DA298A2BB9DCDBD82A24F6676AA6F129A899BDB99467F4DDF958767696BEC5D0AC3D5C938B9DB798439EDA573F0985FF";
-            var testStringBase64EncodedSha512Hash = "wtwQoWyxBfTWjLGAAk7Lk9opiiu53NvYKiT2Z2qm8Smomb25lGf03flYdnaWvsXQrD1ck4udt5hDntpXPwmF/w==";
-
-
             return new List<object[]>()
             {
-                new object[]{ new MD5(EncodingType.Hexadecimal), inputText, new OffsetOptions(), testStringHexEncodedMd5Hash },
-                new object[]{ new MD5(EncodingType.Hexadecimal), inputTextWithAdditionalData, new OffsetOptions(additionalDataLength, inputText.Length), testStringHexEncodedMd5Hash },
-                new object[]{ new MD5(EncodingType.Base64), inputText, new OffsetOptions(), testStringBase64EncodedMd5Hash },
-                new object[]{ new MD5(EncodingType.Base64), inputTextWithAdditionalData, new OffsetOptions(additionalDataLength, inputText.Length), testStringBase64EncodedMd5Hash },
+                new object[]{ new MD5(EncodingType.Hexadecimal), inputText, new OffsetOptions(), TestStringMd5HashHexEncoded },
+                new object[]{ new MD5(EncodingType.Hexadecimal), inputTextWithAdditionalData, new OffsetOptions(additionalDataLength, inputText.Length), TestStringMd5HashHexEncoded },
+                new object[]{ new MD5(EncodingType.Base64), inputText, new OffsetOptions(), TestStringMd5HashBase64Encoded },
+                new object[]{ new MD5(EncodingType.Base64), inputTextWithAdditionalData, new OffsetOptions(additionalDataLength, inputText.Length), TestStringMd5HashBase64Encoded },
 
-                new object[]{ new SHA1(EncodingType.Hexadecimal), inputText, new OffsetOptions(), testStringHexEncodedSha1Hash },
-                new object[]{ new SHA1(EncodingType.Hexadecimal), inputTextWithAdditionalData, new OffsetOptions(additionalDataLength, inputText.Length), testStringHexEncodedSha1Hash },
-                new object[]{ new SHA1(EncodingType.Base64), inputText, new OffsetOptions(), testStringBase64EncodedSha1Hash },
-                new object[]{ new SHA1(EncodingType.Base64), inputTextWithAdditionalData, new OffsetOptions(additionalDataLength, inputText.Length), testStringBase64EncodedSha1Hash },
+                new object[]{ new SHA1(EncodingType.Hexadecimal), inputText, new OffsetOptions(), TestStringSha1HashHexEncoded },
+                new object[]{ new SHA1(EncodingType.Hexadecimal), inputTextWithAdditionalData, new OffsetOptions(additionalDataLength, inputText.Length), TestStringSha1HashHexEncoded },
+                new object[]{ new SHA1(EncodingType.Base64), inputText, new OffsetOptions(), TestStringSha1HashBase64Encoded },
+                new object[]{ new SHA1(EncodingType.Base64), inputTextWithAdditionalData, new OffsetOptions(additionalDataLength, inputText.Length), TestStringSha1HashBase64Encoded },
 
-                new object[]{ new SHA256(EncodingType.Hexadecimal), inputText, new OffsetOptions(), testStringHexEncodedSha256Hash },
-                new object[]{ new SHA256(EncodingType.Hexadecimal), inputTextWithAdditionalData, new OffsetOptions(additionalDataLength, inputText.Length), testStringHexEncodedSha256Hash },
-                new object[]{ new SHA256(EncodingType.Base64), inputText, new OffsetOptions(), testStringBase64EncodedSha256Hash },
-                new object[]{ new SHA256(EncodingType.Base64), inputTextWithAdditionalData, new OffsetOptions(additionalDataLength, inputText.Length), testStringBase64EncodedSha256Hash },
+                new object[]{ new SHA256(EncodingType.Hexadecimal), inputText, new OffsetOptions(), TestStringSha256HashHexEncoded },
+                new object[]{ new SHA256(EncodingType.Hexadecimal), inputTextWithAdditionalData, new OffsetOptions(additionalDataLength, inputText.Length), TestStringSha256HashHexEncoded },
+                new object[]{ new SHA256(EncodingType.Base64), inputText, new OffsetOptions(), TestStringSha256HashBase64Encoded },
+                new object[]{ new SHA256(EncodingType.Base64), inputTextWithAdditionalData, new OffsetOptions(additionalDataLength, inputText.Length), TestStringSha256HashBase64Encoded },
 
-                new object[]{ new SHA384(EncodingType.Hexadecimal), inputText, new OffsetOptions(), testStringHexEncodedSha384Hash },
-                new object[]{ new SHA384(EncodingType.Hexadecimal), inputTextWithAdditionalData, new OffsetOptions(additionalDataLength, inputText.Length), testStringHexEncodedSha384Hash },
-                new object[]{ new SHA384(EncodingType.Base64), inputText, new OffsetOptions(), testStringBase64EncodedSha384Hash },
-                new object[]{ new SHA384(EncodingType.Base64), inputTextWithAdditionalData, new OffsetOptions(additionalDataLength, inputText.Length), testStringBase64EncodedSha384Hash },
+                new object[]{ new SHA384(EncodingType.Hexadecimal), inputText, new OffsetOptions(), TestStringSha384HashHexEncoded },
+                new object[]{ new SHA384(EncodingType.Hexadecimal), inputTextWithAdditionalData, new OffsetOptions(additionalDataLength, inputText.Length), TestStringSha384HashHexEncoded },
+                new object[]{ new SHA384(EncodingType.Base64), inputText, new OffsetOptions(), TestStringSha384HashBase64Encoded },
+                new object[]{ new SHA384(EncodingType.Base64), inputTextWithAdditionalData, new OffsetOptions(additionalDataLength, inputText.Length), TestStringSha384HashBase64Encoded },
 
-                new object[]{ new SHA512(EncodingType.Hexadecimal), inputText, new OffsetOptions(), testStringHexEncodedSha512Hash },
-                new object[]{ new SHA512(EncodingType.Hexadecimal), inputTextWithAdditionalData, new OffsetOptions(additionalDataLength, inputText.Length), testStringHexEncodedSha512Hash },
-                new object[]{ new SHA512(EncodingType.Base64), inputText, new OffsetOptions(), testStringBase64EncodedSha512Hash },
-                new object[]{ new SHA512(EncodingType.Base64), inputTextWithAdditionalData, new OffsetOptions(additionalDataLength, inputText.Length), testStringBase64EncodedSha512Hash },
+                new object[]{ new SHA512(EncodingType.Hexadecimal), inputText, new OffsetOptions(), TestStringSha512HashHexEncoded },
+                new object[]{ new SHA512(EncodingType.Hexadecimal), inputTextWithAdditionalData, new OffsetOptions(additionalDataLength, inputText.Length), TestStringSha512HashHexEncoded },
+                new object[]{ new SHA512(EncodingType.Base64), inputText, new OffsetOptions(), TestStringSha512HashBase64Encoded },
+                new object[]{ new SHA512(EncodingType.Base64), inputTextWithAdditionalData, new OffsetOptions(additionalDataLength, inputText.Length), TestStringSha512HashBase64Encoded },
             };
         }
 
@@ -429,48 +427,33 @@ namespace CryptographyHelpers.Tests.Hash
             var inputTextWithAdditionalData = $"{new string('a', additionalDataLength)}{inputText}{new string('z', additionalDataLength)}";
             var inputTextWithAdditionalDataBytes = inputTextWithAdditionalData.ToUTF8Bytes();
 
-            var expectedStringHexEncodedMd5Hash = "ACB5A0BB8B17EADA5ACD8CED350BB856";
-            var expectedStringBase64EncodedMd5Hash = "rLWgu4sX6tpazYztNQu4Vg==";
-
-            var expectedStringHexEncodedSha1Hash = "923E2FEF491AFD5A92097C0AAE64AC322FF8DBBC";
-            var expectedStringBase64EncodedSha1Hash = "kj4v70ka/VqSCXwKrmSsMi/427w=";
-
-            var expectedStringHexEncodedSha256Hash = "31F83B0A652333BB8CA3644D4EC8BAAB2CC7B5AB9BAC5FC72986E47B591F0705";
-            var expectedStringBase64EncodedSha256Hash = "Mfg7CmUjM7uMo2RNTsi6qyzHtaubrF/HKYbke1kfBwU=";
-
-            var expectedStringHexEncodedSha384Hash = "2E4C0C89E1E1B6D762477B3A0F61CE4D50F130166CFA4E12F811E7B778199C553AC83F90ED7F5868E1C5FE8DD6C55165";
-            var expectedStringBase64EncodedSha384Hash = "LkwMieHhttdiR3s6D2HOTVDxMBZs+k4S+BHnt3gZnFU6yD+Q7X9YaOHF/o3WxVFl";
-
-            var expectedStringHexEncodedSha512Hash = "C2DC10A16CB105F4D68CB180024ECB93DA298A2BB9DCDBD82A24F6676AA6F129A899BDB99467F4DDF958767696BEC5D0AC3D5C938B9DB798439EDA573F0985FF";
-            var expectedStringBase64EncodedSha512Hash = "wtwQoWyxBfTWjLGAAk7Lk9opiiu53NvYKiT2Z2qm8Smomb25lGf03flYdnaWvsXQrD1ck4udt5hDntpXPwmF/w==";
-
 
             return new List<object[]>()
             {
-                new object[]{ new MD5(EncodingType.Hexadecimal), inputTextBytes, new OffsetOptions(), expectedStringHexEncodedMd5Hash },
-                new object[]{ new MD5(EncodingType.Hexadecimal), inputTextWithAdditionalDataBytes, new OffsetOptions(additionalDataLength, inputTextBytes.Length), expectedStringHexEncodedMd5Hash },
-                new object[]{ new MD5(EncodingType.Base64), inputTextBytes, new OffsetOptions(), expectedStringBase64EncodedMd5Hash },
-                new object[]{ new MD5(EncodingType.Base64), inputTextWithAdditionalDataBytes, new OffsetOptions(additionalDataLength, inputTextBytes.Length), expectedStringBase64EncodedMd5Hash },
+                new object[]{ new MD5(EncodingType.Hexadecimal), inputTextBytes, new OffsetOptions(), TestStringMd5HashHexEncoded },
+                new object[]{ new MD5(EncodingType.Hexadecimal), inputTextWithAdditionalDataBytes, new OffsetOptions(additionalDataLength, inputTextBytes.Length), TestStringMd5HashHexEncoded },
+                new object[]{ new MD5(EncodingType.Base64), inputTextBytes, new OffsetOptions(), TestStringMd5HashBase64Encoded },
+                new object[]{ new MD5(EncodingType.Base64), inputTextWithAdditionalDataBytes, new OffsetOptions(additionalDataLength, inputTextBytes.Length), TestStringMd5HashBase64Encoded },
 
-                new object[]{ new SHA1(EncodingType.Hexadecimal), inputTextBytes, new OffsetOptions(), expectedStringHexEncodedSha1Hash },
-                new object[]{ new SHA1(EncodingType.Hexadecimal), inputTextWithAdditionalDataBytes, new OffsetOptions(additionalDataLength, inputTextBytes.Length), expectedStringHexEncodedSha1Hash },
-                new object[]{ new SHA1(EncodingType.Base64), inputTextBytes, new OffsetOptions(), expectedStringBase64EncodedSha1Hash },
-                new object[]{ new SHA1(EncodingType.Base64), inputTextWithAdditionalDataBytes, new OffsetOptions(additionalDataLength, inputTextBytes.Length), expectedStringBase64EncodedSha1Hash },
+                new object[]{ new SHA1(EncodingType.Hexadecimal), inputTextBytes, new OffsetOptions(), TestStringSha1HashHexEncoded },
+                new object[]{ new SHA1(EncodingType.Hexadecimal), inputTextWithAdditionalDataBytes, new OffsetOptions(additionalDataLength, inputTextBytes.Length), TestStringSha1HashHexEncoded },
+                new object[]{ new SHA1(EncodingType.Base64), inputTextBytes, new OffsetOptions(), TestStringSha1HashBase64Encoded },
+                new object[]{ new SHA1(EncodingType.Base64), inputTextWithAdditionalDataBytes, new OffsetOptions(additionalDataLength, inputTextBytes.Length), TestStringSha1HashBase64Encoded },
 
-                new object[]{ new SHA256(EncodingType.Hexadecimal), inputTextBytes, new OffsetOptions(), expectedStringHexEncodedSha256Hash },
-                new object[]{ new SHA256(EncodingType.Hexadecimal), inputTextWithAdditionalDataBytes, new OffsetOptions(additionalDataLength, inputTextBytes.Length), expectedStringHexEncodedSha256Hash },
-                new object[]{ new SHA256(EncodingType.Base64), inputTextBytes, new OffsetOptions(), expectedStringBase64EncodedSha256Hash },
-                new object[]{ new SHA256(EncodingType.Base64), inputTextWithAdditionalDataBytes, new OffsetOptions(additionalDataLength, inputTextBytes.Length), expectedStringBase64EncodedSha256Hash },
+                new object[]{ new SHA256(EncodingType.Hexadecimal), inputTextBytes, new OffsetOptions(), TestStringSha256HashHexEncoded },
+                new object[]{ new SHA256(EncodingType.Hexadecimal), inputTextWithAdditionalDataBytes, new OffsetOptions(additionalDataLength, inputTextBytes.Length), TestStringSha256HashHexEncoded },
+                new object[]{ new SHA256(EncodingType.Base64), inputTextBytes, new OffsetOptions(), TestStringSha256HashBase64Encoded },
+                new object[]{ new SHA256(EncodingType.Base64), inputTextWithAdditionalDataBytes, new OffsetOptions(additionalDataLength, inputTextBytes.Length), TestStringSha256HashBase64Encoded },
 
-                new object[]{ new SHA384(EncodingType.Hexadecimal), inputTextBytes, new OffsetOptions(), expectedStringHexEncodedSha384Hash },
-                new object[]{ new SHA384(EncodingType.Hexadecimal), inputTextWithAdditionalDataBytes, new OffsetOptions(additionalDataLength, inputTextBytes.Length), expectedStringHexEncodedSha384Hash },
-                new object[]{ new SHA384(EncodingType.Base64), inputTextBytes, new OffsetOptions(), expectedStringBase64EncodedSha384Hash },
-                new object[]{ new SHA384(EncodingType.Base64), inputTextWithAdditionalDataBytes, new OffsetOptions(additionalDataLength, inputTextBytes.Length), expectedStringBase64EncodedSha384Hash },
+                new object[]{ new SHA384(EncodingType.Hexadecimal), inputTextBytes, new OffsetOptions(), TestStringSha384HashHexEncoded },
+                new object[]{ new SHA384(EncodingType.Hexadecimal), inputTextWithAdditionalDataBytes, new OffsetOptions(additionalDataLength, inputTextBytes.Length), TestStringSha384HashHexEncoded },
+                new object[]{ new SHA384(EncodingType.Base64), inputTextBytes, new OffsetOptions(), TestStringSha384HashBase64Encoded },
+                new object[]{ new SHA384(EncodingType.Base64), inputTextWithAdditionalDataBytes, new OffsetOptions(additionalDataLength, inputTextBytes.Length), TestStringSha384HashBase64Encoded },
 
-                new object[]{ new SHA512(EncodingType.Hexadecimal), inputTextBytes, new OffsetOptions(), expectedStringHexEncodedSha512Hash },
-                new object[]{ new SHA512(EncodingType.Hexadecimal), inputTextWithAdditionalDataBytes, new OffsetOptions(additionalDataLength, inputTextBytes.Length), expectedStringHexEncodedSha512Hash },
-                new object[]{ new SHA512(EncodingType.Base64), inputTextBytes, new OffsetOptions(), expectedStringBase64EncodedSha512Hash },
-                new object[]{ new SHA512(EncodingType.Base64), inputTextWithAdditionalDataBytes, new OffsetOptions(additionalDataLength, inputTextBytes.Length), expectedStringBase64EncodedSha512Hash },
+                new object[]{ new SHA512(EncodingType.Hexadecimal), inputTextBytes, new OffsetOptions(), TestStringSha512HashHexEncoded },
+                new object[]{ new SHA512(EncodingType.Hexadecimal), inputTextWithAdditionalDataBytes, new OffsetOptions(additionalDataLength, inputTextBytes.Length), TestStringSha512HashHexEncoded },
+                new object[]{ new SHA512(EncodingType.Base64), inputTextBytes, new OffsetOptions(), TestStringSha512HashBase64Encoded },
+                new object[]{ new SHA512(EncodingType.Base64), inputTextWithAdditionalDataBytes, new OffsetOptions(additionalDataLength, inputTextBytes.Length), TestStringSha512HashBase64Encoded },
             };
         }
 
