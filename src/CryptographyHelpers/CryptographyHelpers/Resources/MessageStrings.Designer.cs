@@ -268,6 +268,15 @@ namespace CryptographyHelpers.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Input data and verification HMAC does not match..
+        /// </summary>
+        internal static string HMAC_DoesNotMatch {
+            get {
+                return ResourceManager.GetString("HMAC.DoesNotMatch", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Input bytes to compute/verify HMAC required..
         /// </summary>
         internal static string HMAC_InputBytesRequired {
@@ -295,11 +304,29 @@ namespace CryptographyHelpers.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Verification HMAC encoded string required..
+        ///   Looks up a localized string similar to Input data and verification HMAC does match..
         /// </summary>
-        internal static string HMAC_VerificationEncodedHMACStringRequired {
+        internal static string HMAC_Match {
             get {
-                return ResourceManager.GetString("HMAC.VerificationEncodedHMACStringRequired", resourceCulture);
+                return ResourceManager.GetString("HMAC.Match", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Verification HMAC bytes required..
+        /// </summary>
+        internal static string HMAC_VerificationHMACBytesRequired {
+            get {
+                return ResourceManager.GetString("HMAC.VerificationHMACBytesRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Verification HMAC string required..
+        /// </summary>
+        internal static string HMAC_VerificationHMACStringRequired {
+            get {
+                return ResourceManager.GetString("HMAC.VerificationHMACStringRequired", resourceCulture);
             }
         }
         

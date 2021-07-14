@@ -14,90 +14,50 @@ namespace CryptographyHelpers.HMAC
     public class HMACBase : IHMAC
     {
         public event OnProgressHandler OnComputeFileHMACProgress;
-        private readonly int _bufferSizeInKBForFileHashing = 4 * Constants.BytesPerKilobyte;
+
         private readonly System.Security.Cryptography.HMAC _hmacAlgorithm;
-        private readonly EncodingType _encodingType = EncodingType.Hexadecimal;
         private readonly HashAlgorithmType _hashAlgorithmType;
+        private readonly EncodingType _encodingType = EncodingType.Hexadecimal;
+        private readonly IEncoder _encoder;
+        private readonly int _bufferSizeInKBForFileHashing = 4 * Constants.BytesPerKilobyte;
         private readonly InternalServiceLocator _serviceLocator = InternalServiceLocator.Instance;
 
 
-        public HMACBase(HashAlgorithmType hashAlgorithmType, byte[] key, EncodingType? encodingType = null, int? bufferSizeInKBForFileHashing = null)
+        public HMACBase(HashAlgorithmType hashAlgorithmType, byte[] key = null, EncodingType? encodingType = null, int? bufferSizeInKBForFileHashing = null)
         {
             _hashAlgorithmType = hashAlgorithmType;
             _hmacAlgorithm = System.Security.Cryptography.HMAC.Create($"HMAC{_hashAlgorithmType}");
             _hmacAlgorithm.Key = key ?? CryptographyUtils.GenerateRandomBytes(HashUtils.HashAlgorithmOutputBytesSize[_hashAlgorithmType]);
             _encodingType = encodingType ?? _encodingType;
+            _encoder = _encodingType switch
+            {
+                EncodingType.Hexadecimal => _serviceLocator.GetService<IHexadecimal>(),
+                EncodingType.Base64 => _serviceLocator.GetService<IBase64>(),
+                _ => throw new InvalidOperationException($@"Unexpected enum value ""{_encodingType}"" of type {typeof(EncodingType)}."),
+            };
             _bufferSizeInKBForFileHashing = bufferSizeInKBForFileHashing ?? _bufferSizeInKBForFileHashing;
         }
 
-        public HMACBase(HashAlgorithmType hashAlgorithmType, string encodedKey, EncodingType? encodingType = null, int? bufferSizeInKBForFileHashing = null)
+        public HMACBase(HashAlgorithmType hashAlgorithmType, string encodedKey = null, EncodingType? encodingType = null, int? bufferSizeInKBForFileHashing = null)
         {
             _encodingType = encodingType ?? _encodingType;
+            _encoder = _encodingType switch
+            {
+                EncodingType.Hexadecimal => _serviceLocator.GetService<IHexadecimal>(),
+                EncodingType.Base64 => _serviceLocator.GetService<IBase64>(),
+                _ => throw new InvalidOperationException($@"Unexpected enum value ""{_encodingType}"" of type {typeof(EncodingType)}."),
+            };
             _hashAlgorithmType = hashAlgorithmType;
             _hmacAlgorithm = System.Security.Cryptography.HMAC.Create($"HMAC{_hashAlgorithmType}");
             var key = string.IsNullOrWhiteSpace(encodedKey)
                 ? CryptographyUtils.GenerateRandomBytes(HashUtils.HashAlgorithmOutputBytesSize[_hashAlgorithmType])
-                : _encodingType == EncodingType.Hexadecimal
-                    ? _serviceLocator.GetService<IHexadecimal>().DecodeString(encodedKey)
-                    : _serviceLocator.GetService<IBase64>().DecodeString(encodedKey);
+                : _encoder.DecodeString(encodedKey);
             _hmacAlgorithm.Key = key;
             _bufferSizeInKBForFileHashing = bufferSizeInKBForFileHashing ?? _bufferSizeInKBForFileHashing;
         }
 
-        public HMACResult ComputeHMAC(string stringToComputeHMAC) =>
-            ComputeHMAC(stringToComputeHMAC, key: null, keyAndOutputEncodingType: _encodingType, new OffsetOptions());
 
-        public HMACResult ComputeHMAC(string stringToComputeHMAC, string key) =>
-            ComputeHMAC(stringToComputeHMAC, key, keyAndOutputEncodingType: _encodingType, new OffsetOptions());
-
-        public HMACResult ComputeHMAC(string stringToComputeHMAC, string key, EncodingType keyAndOutputEncodingType) =>
-            ComputeHMAC(stringToComputeHMAC, key, keyAndOutputEncodingType, new OffsetOptions());
-
-        public HMACResult ComputeHMAC(string stringToComputeHMAC, string key, EncodingType keyAndOutputEncodingType, OffsetOptions offsetOptions)
-        {
-            if (string.IsNullOrWhiteSpace(stringToComputeHMAC))
-            {
-                return new HMACResult()
-                {
-                    Success = false,
-                    Message = MessageStrings.HMAC_InputTextRequired,
-                };
-            }
-
-            var stringToComputeHMACBytes = stringToComputeHMAC.ToUTF8Bytes();
-            byte[] keyBytes = null;
-
-            try
-            {
-                if (!string.IsNullOrWhiteSpace(key))
-                {
-                    keyBytes = keyAndOutputEncodingType == EncodingType.Hexadecimal
-                        ? _serviceLocator.GetService<IHexadecimal>().DecodeString(key)
-                        : _serviceLocator.GetService<IBase64>().DecodeString(key);
-                }
-
-                return ComputeHMAC(stringToComputeHMACBytes, keyBytes, keyAndOutputEncodingType, offsetOptions);
-            }
-            catch (Exception ex)
-            {
-                return new HMACResult()
-                {
-                    Success = false,
-                    Message = ex.ToString(),
-                };
-            }
-        }
-
-        public HMACResult ComputeHMAC(byte[] bytesToComputeHMAC) =>
-            ComputeHMAC(bytesToComputeHMAC, key: null, outputEncodingType: _encodingType, new OffsetOptions());
-
-        public HMACResult ComputeHMAC(byte[] bytesToComputeHMAC, byte[] key) =>
-            ComputeHMAC(bytesToComputeHMAC, key, outputEncodingType: _encodingType, new OffsetOptions());
-
-        public HMACResult ComputeHMAC(byte[] bytesToComputeHMAC, byte[] key, EncodingType outputEncodingType) =>
-            ComputeHMAC(bytesToComputeHMAC, key, outputEncodingType, new OffsetOptions());
-
-        public HMACResult ComputeHMAC(byte[] bytesToComputeHMAC, byte[] key, EncodingType outputEncodingType, OffsetOptions offsetOptions)
+        public HMACResult ComputeHMAC(byte[] bytesToComputeHMAC, OffsetOptions? offsetOptions = null)
         {
             if (bytesToComputeHMAC is null || bytesToComputeHMAC.Length == 0)
             {
@@ -110,56 +70,22 @@ namespace CryptographyHelpers.HMAC
 
             try
             {
-                var count = offsetOptions.Count == 0 ? bytesToComputeHMAC.Length : offsetOptions.Count;
-                var hashBytes = _hmacAlgorithm.ComputeHash(bytesToComputeHMAC, offsetOptions.Offset, count);
+                var offset = offsetOptions.HasValue ? offsetOptions.Value.Offset : 0;
+                var totalBytesToRead = offsetOptions.HasValue
+                    ? offsetOptions.Value.Count == 0 ? bytesToComputeHMAC.Length : offsetOptions.Value.Count
+                    : bytesToComputeHMAC.Length;
+                var hashBytes = _hmacAlgorithm.ComputeHash(bytesToComputeHMAC, offset, totalBytesToRead);
 
                 return new HMACResult()
                 {
                     Success = true,
                     Message = MessageStrings.HMAC_ComputeSuccess,
                     HashAlgorithmType = _hashAlgorithmType,
-                    Key = key,
+                    Key = _hmacAlgorithm.Key,
                     HashBytes = hashBytes,
-                    HashString = outputEncodingType == EncodingType.Hexadecimal
-                        ? _serviceLocator.GetService<IHexadecimal>().EncodeToString(hashBytes)
-                        : _serviceLocator.GetService<IBase64>().EncodeToString(hashBytes),
-                    HashStringEncodingType = outputEncodingType,
+                    HashString = _encoder.EncodeToString(hashBytes),
+                    HashStringEncodingType = _encodingType,
                 };
-            }
-            catch (Exception ex)
-            {
-                return new HMACResult()
-                {
-                    Success = false,
-                    Message = ex.ToString()
-                };
-            }
-        }
-
-
-        public HMACResult ComputeFileHMAC(string filePathToComputeHMAC) =>
-            ComputeFileHMAC(filePathToComputeHMAC, key: null, outputEncodingType: _encodingType, new LongOffsetOptions());
-
-        public HMACResult ComputeFileHMAC(string filePathToComputeHMAC, string key) =>
-            ComputeFileHMAC(filePathToComputeHMAC, key, keyAndOutputEncodingType: _encodingType, new LongOffsetOptions());
-
-        public HMACResult ComputeFileHMAC(string filePathToComputeHMAC, string key, EncodingType outputEncodingType) =>
-            ComputeFileHMAC(filePathToComputeHMAC, key, outputEncodingType, new LongOffsetOptions());
-
-        public HMACResult ComputeFileHMAC(string filePathToComputeHMAC, string key, EncodingType keyAndOutputEncodingType, LongOffsetOptions offsetOptions)
-        {
-            byte[] keyBytes = null;
-
-            try
-            {
-                if (!string.IsNullOrWhiteSpace(key))
-                {
-                    keyBytes = keyAndOutputEncodingType == EncodingType.Hexadecimal
-                        ? _serviceLocator.GetService<IHexadecimal>().DecodeString(key)
-                        : _serviceLocator.GetService<IBase64>().DecodeString(key);
-                }
-
-                return ComputeFileHMAC(filePathToComputeHMAC, keyBytes, keyAndOutputEncodingType, offsetOptions);
             }
             catch (Exception ex)
             {
@@ -171,13 +97,39 @@ namespace CryptographyHelpers.HMAC
             }
         }
 
-        public HMACResult ComputeFileHMAC(string filePathToComputeHMAC, byte[] key) =>
-            ComputeFileHMAC(filePathToComputeHMAC, key, outputEncodingType: _encodingType, new LongOffsetOptions());
+        public HMACResult ComputeTextHMAC(string textToComputeHMAC, OffsetOptions? offsetOptions = null)
+        {
+            if (string.IsNullOrWhiteSpace(textToComputeHMAC))
+            {
+                return new HMACResult()
+                {
+                    Success = false,
+                    Message = MessageStrings.HMAC_InputTextRequired,
+                };
+            }
 
-        public HMACResult ComputeFileHMAC(string filePathToComputeHMAC, byte[] key, EncodingType outputEncodingType) =>
-            ComputeFileHMAC(filePathToComputeHMAC, key, outputEncodingType, new LongOffsetOptions());
+            try
+            {
+                var offset = offsetOptions.HasValue ? offsetOptions.Value.Offset : 0;
+                var totalCharsToRead = offsetOptions.HasValue
+                    ? offsetOptions.Value.Count == 0 ? textToComputeHMAC.Length : offsetOptions.Value.Count
+                    : textToComputeHMAC.Length;
+                var textToComputeHashPayload = textToComputeHMAC.Substring(offset, totalCharsToRead);
+                var textToComputeHashPayloadBytes = textToComputeHashPayload.ToUTF8Bytes();
 
-        public HMACResult ComputeFileHMAC(string filePathToComputeHMAC, byte[] key, EncodingType outputEncodingType, LongOffsetOptions offsetOptions)
+                return ComputeHMAC(textToComputeHashPayloadBytes);
+            }
+            catch (Exception ex)
+            {
+                return new HMACResult()
+                {
+                    Success = false,
+                    Message = ex.ToString(),
+                };
+            }
+        }
+
+        public HMACResult ComputeFileHMAC(string filePathToComputeHMAC, LongOffsetOptions? offsetOptions = null)
         {
             if (!File.Exists(filePathToComputeHMAC))
             {
@@ -190,43 +142,44 @@ namespace CryptographyHelpers.HMAC
 
             try
             {
-                if (key == null || key.Length == 0)
+                using (var fileStream = new FileStream(filePathToComputeHMAC, FileMode.Open, FileAccess.Read, FileShare.None))
                 {
-                    key = CryptographyUtils.GenerateRandomBytes(HashUtils.HashAlgorithmOutputBytesSize[_hashAlgorithmType]);
-                }
+                    var offset = offsetOptions.HasValue ? offsetOptions.Value.Offset : 0L;
+                    var totalBytesToRead = offsetOptions.HasValue
+                        ? offsetOptions.Value.Count == 0L ? fileStream.Length : offsetOptions.Value.Count
+                        : fileStream.Length;
+                    fileStream.Position = offset;
+                    var buffer = new byte[_bufferSizeInKBForFileHashing];
+                    var totalBytesNotRead = totalBytesToRead;
+                    var totalBytesRead = 0L;
+                    var percentageDone = 0;
 
-                using var fileStream = new FileStream(filePathToComputeHMAC, FileMode.Open, FileAccess.Read, FileShare.None);
-                var count = offsetOptions.Count == 0 ? fileStream.Length : offsetOptions.Count;
-                fileStream.Position = offsetOptions.Offset;
-                var buffer = new byte[_bufferSizeInKBForFileHashing];
-                var bytesToRead = (count - offsetOptions.Offset);
-                _hmacAlgorithm.Key = key;
-                var percentageDone = 0;
-
-                while (bytesToRead > 0)
-                {
-                    var bytesRead = fileStream.Read(buffer, 0, (int)Math.Min(buffer.Length, bytesToRead));
-
-                    if (bytesRead > 0)
+                    while (totalBytesNotRead > 0)
                     {
-                        bytesToRead -= bytesRead;
+                        var bytesRead = fileStream.Read(buffer, 0, (int)Math.Min(buffer.Length, totalBytesNotRead));
 
-                        if (bytesToRead > 0)
+                        if (bytesRead > 0L)
                         {
-                            _hmacAlgorithm.TransformBlock(buffer, 0, bytesRead, buffer, 0);
-                        }
-                        else
-                        {
-                            _hmacAlgorithm.TransformFinalBlock(buffer, 0, bytesRead);
-                        }
+                            if (totalBytesRead > 0)
+                            {
+                                _hmacAlgorithm.TransformBlock(buffer, 0, bytesRead, buffer, 0);
+                            }
+                            else
+                            {
+                                _hmacAlgorithm.TransformFinalBlock(buffer, 0, bytesRead);
+                            }
 
-                        var tmpPercentageDone = (int)(fileStream.Position * 100 / count);
+                            totalBytesRead += bytesRead;
+                            totalBytesNotRead -= bytesRead;
 
-                        if (tmpPercentageDone != percentageDone)
-                        {
-                            percentageDone = tmpPercentageDone;
+                            var tmpPercentageDone = (int)(fileStream.Position * 100 / totalBytesToRead);
 
-                            OnComputeFileHMACProgress?.Invoke(percentageDone, (percentageDone != 100 ? $"Computing HMAC ({percentageDone}%)..." : $"HMAC computed ({percentageDone}%)."));
+                            if (tmpPercentageDone != percentageDone)
+                            {
+                                percentageDone = tmpPercentageDone;
+
+                                OnComputeFileHMACProgress?.Invoke(percentageDone, (percentageDone != 100 ? $"Computing HMAC ({percentageDone}%)..." : $"HMAC computed ({percentageDone}%)."));
+                            }
                         }
                     }
                 }
@@ -236,72 +189,11 @@ namespace CryptographyHelpers.HMAC
                     Success = true,
                     Message = MessageStrings.HMAC_ComputeSuccess,
                     HashAlgorithmType = _hashAlgorithmType,
-                    Key = key,
+                    Key = _hmacAlgorithm.Key,
                     HashBytes = _hmacAlgorithm.Hash,
-                    HashString = outputEncodingType == EncodingType.Hexadecimal
-                        ? _serviceLocator.GetService<IHexadecimal>().EncodeToString(_hmacAlgorithm.Hash)
-                        : _serviceLocator.GetService<IBase64>().EncodeToString(_hmacAlgorithm.Hash),
-                    HashStringEncodingType = outputEncodingType,
+                    HashString = _encoder.EncodeToString(_hmacAlgorithm.Hash),
+                    HashStringEncodingType = _encodingType,
                 };
-            }
-            catch (Exception ex)
-            {
-                return new HMACResult()
-                {
-                    Success = false,
-                    Message = ex.ToString()
-                };
-            }
-        }
-
-
-        public HMACResult VerifyHMAC(string stringToVerifyHMAC, string key, string verificationHMACString) =>
-            VerifyHMAC(stringToVerifyHMAC, key, verificationHMACString, keyAndVerificationHMACStringEncodingType: _encodingType, new OffsetOptions());
-
-        public HMACResult VerifyHMAC(string stringToVerifyHMAC, string key, string verificationHMACString, EncodingType keyAndVerificationHMACStringEncodingType) =>
-            VerifyHMAC(stringToVerifyHMAC, key, verificationHMACString, keyAndVerificationHMACStringEncodingType, new OffsetOptions());
-
-        public HMACResult VerifyHMAC(string stringToVerifyHMAC, string key, string verificationHMACString, EncodingType keyAndVerificationHMACStringEncodingType, OffsetOptions offsetOptions)
-        {
-            if (string.IsNullOrWhiteSpace(stringToVerifyHMAC))
-            {
-                return new HMACResult()
-                {
-                    Success = false,
-                    Message = MessageStrings.HMAC_InputTextRequired,
-                };
-            }
-
-            if (string.IsNullOrWhiteSpace(key))
-            {
-                return new HMACResult()
-                {
-                    Success = false,
-                    Message = MessageStrings.HMAC_InputEncodedKeyStringRequired,
-                };
-            }
-
-            if (string.IsNullOrWhiteSpace(verificationHMACString))
-            {
-                return new HMACResult()
-                {
-                    Success = false,
-                    Message = MessageStrings.HMAC_VerificationEncodedHMACStringRequired,
-                };
-            }
-
-            var stringToVerifyHMACBytes = stringToVerifyHMAC.ToUTF8Bytes();
-
-            try
-            {
-                var keyBytes = keyAndVerificationHMACStringEncodingType == EncodingType.Hexadecimal
-                    ? _serviceLocator.GetService<IHexadecimal>().DecodeString(key)
-                    : _serviceLocator.GetService<IBase64>().DecodeString(key);
-                var verificationHMACBytes = keyAndVerificationHMACStringEncodingType == EncodingType.Hexadecimal
-                    ? _serviceLocator.GetService<IHexadecimal>().DecodeString(verificationHMACString)
-                    : _serviceLocator.GetService<IBase64>().DecodeString(verificationHMACString);
-
-                return VerifyHMAC(stringToVerifyHMACBytes, keyBytes, verificationHMACBytes, keyAndVerificationHMACStringEncodingType, offsetOptions);
             }
             catch (Exception ex)
             {
@@ -313,64 +205,115 @@ namespace CryptographyHelpers.HMAC
             }
         }
 
-        public HMACResult VerifyHMAC(byte[] bytesToVerifyHMAC, byte[] key, byte[] verificationHMACBytes) =>
-            VerifyHMAC(bytesToVerifyHMAC, key, verificationHMACBytes, _encodingType, new OffsetOptions());
-
-        public HMACResult VerifyHMAC(byte[] bytesToVerifyHMAC, byte[] key, byte[] verificationHMACBytes, EncodingType outputEncodingType) =>
-            VerifyHMAC(bytesToVerifyHMAC, key, verificationHMACBytes, outputEncodingType, new OffsetOptions());
-
-        public HMACResult VerifyHMAC(byte[] bytesToVerifyHMAC, byte[] key, byte[] verificationHMACBytes, EncodingType outputEncodingType, OffsetOptions offsetOptions)
+        public HMACResult VerifyHMAC(byte[] bytesToVerifyHMAC, byte[] verificationHMACBytes, OffsetOptions? offsetOptions = null)
         {
-            var HMACResult = ComputeHMAC(bytesToVerifyHMAC, key, outputEncodingType, offsetOptions);
+            if (verificationHMACBytes is null || verificationHMACBytes.Length == 0)
+            {
+                return new HMACResult()
+                {
+                    Success = false,
+                    Message = MessageStrings.HMAC_VerificationHMACBytesRequired,
+                };
+            }
+
+            var HMACResult = ComputeHMAC(bytesToVerifyHMAC, offsetOptions);
 
             if (HMACResult.Success)
             {
                 var hashesMatch = HMACResult.HashBytes.SequenceEqual(verificationHMACBytes);
 
                 HMACResult.Success = hashesMatch;
-                HMACResult.Message = $"{(hashesMatch ? MessageStrings.Hash_Match : MessageStrings.Hash_DoesNotMatch)}";
+                HMACResult.Message = $"{(hashesMatch ? MessageStrings.HMAC_Match : MessageStrings.HMAC_DoesNotMatch)}";
             }
 
             return HMACResult;
         }
 
-
-        public HMACResult VerifyFileHMAC(string filePathToVerifyHMAC, string key, string verificationHMACString, EncodingType keyAndVerificationHMACStringEncodingType, LongOffsetOptions offsetOptions)
+        public HMACResult VerifyTextHMAC(string textToVerifyHMAC, string encodedVerificationHMACString, OffsetOptions? offsetOptions = null)
         {
+            if (string.IsNullOrWhiteSpace(textToVerifyHMAC))
+            {
+                return new HMACResult()
+                {
+                    Success = false,
+                    Message = MessageStrings.HMAC_InputTextRequired,
+                };
+            }
+
             try
             {
-                var keyBytes = keyAndVerificationHMACStringEncodingType == EncodingType.Hexadecimal
-                    ? _serviceLocator.GetService<IHexadecimal>().DecodeString(key)
-                    : _serviceLocator.GetService<IBase64>().DecodeString(key);
-                var verificationHMACBytes = keyAndVerificationHMACStringEncodingType == EncodingType.Hexadecimal
-                    ? _serviceLocator.GetService<IHexadecimal>().DecodeString(verificationHMACString)
-                    : _serviceLocator.GetService<IBase64>().DecodeString(verificationHMACString);
+                var offset = offsetOptions.HasValue ? offsetOptions.Value.Offset : 0;
+                var totalCharsToRead = offsetOptions.HasValue
+                    ? offsetOptions.Value.Count == 0 ? textToVerifyHMAC.Length : offsetOptions.Value.Count
+                    : textToVerifyHMAC.Length;
+                var textToVerifyHMACPayload = textToVerifyHMAC.Substring(offset, totalCharsToRead);
+                var verificationHMACBytes = _encoder.DecodeString(encodedVerificationHMACString);
+                var textToVerifyHMACBytes = textToVerifyHMACPayload.ToUTF8Bytes();
 
-                return VerifyFileHMAC(filePathToVerifyHMAC, keyBytes, verificationHMACBytes, keyAndVerificationHMACStringEncodingType, offsetOptions);
+                return VerifyHMAC(textToVerifyHMACBytes, verificationHMACBytes);
             }
             catch (Exception ex)
             {
                 return new HMACResult()
                 {
                     Success = false,
-                    Message = ex.ToString()
+                    Message = ex.ToString(),
                 };
             }
         }
 
-        public HMACResult VerifyFileHMAC(string filePathToVerifyHMAC, byte[] key, byte[] verificationHMACBytes, EncodingType outputEncodingType, LongOffsetOptions offsetOptions)
+        public HMACResult VerifyFileHMAC(string filePathToVerifyHMAC, byte[] verificationHMACBytes, LongOffsetOptions? offsetOptions = null)
         {
-            var hmacResult = ComputeFileHMAC(filePathToVerifyHMAC, key, outputEncodingType, offsetOptions);
+            if (verificationHMACBytes is null || verificationHMACBytes.Length == 0)
+            {
+                return new HMACResult()
+                {
+                    Success = false,
+                    Message = MessageStrings.HMAC_VerificationHMACBytesRequired,
+                };
+            }
+
+            var hmacResult = ComputeFileHMAC(filePathToVerifyHMAC, offsetOptions);
 
             if (hmacResult.Success)
             {
                 var hashesMatch = hmacResult.HashBytes.SequenceEqual(verificationHMACBytes);
 
                 hmacResult.Success = hashesMatch;
-                hmacResult.Message = $"{(hashesMatch ? MessageStrings.Hash_Match : MessageStrings.Hash_DoesNotMatch)}";
+                hmacResult.Message = $"{(hashesMatch ? MessageStrings.HMAC_Match : MessageStrings.HMAC_DoesNotMatch)}";
             }
 
             return hmacResult;
         }
+
+        public HMACResult VerifyFileHMAC(string filePathToVerifyHMAC, string encodedVerificationHMACString, LongOffsetOptions offsetOptions)
+        {
+            if (string.IsNullOrWhiteSpace(encodedVerificationHMACString))
+            {
+                return new HMACResult()
+                {
+                    Success = false,
+                    Message = MessageStrings.HMAC_VerificationHMACStringRequired,
+                };
+            }
+
+            try
+            {
+                var verificationHMACBytes = _encoder.DecodeString(encodedVerificationHMACString);
+
+                return VerifyFileHMAC(filePathToVerifyHMAC, verificationHMACBytes, offsetOptions);
+            }
+            catch (Exception ex)
+            {
+                return new HMACResult()
+                {
+                    Success = false,
+                    Message = ex.ToString(),
+                };
+            }
+        }
+
+        public void Dispose() =>
+            _hmacAlgorithm?.Dispose();
     }
 }

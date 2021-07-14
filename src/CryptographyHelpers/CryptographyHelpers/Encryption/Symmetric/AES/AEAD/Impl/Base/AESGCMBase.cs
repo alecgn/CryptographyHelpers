@@ -7,7 +7,7 @@ using System.Security.Cryptography;
 
 namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
 {
-    public class AESGCMCore : IAESGCM
+    public class AESGCMBase : IAESGCM
     {
         private readonly AesGcm _aesGcm;
         private readonly byte[] _key;
@@ -16,7 +16,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
         private readonly InternalServiceLocator _serviceLocator = InternalServiceLocator.Instance;
 
 
-        public AESGCMCore(byte[] key, EncodingType? encodingType = null)
+        public AESGCMBase(byte[] key, EncodingType? encodingType = null)
         {
             _key = key;
             _aesGcm = new AesGcm(_key);
@@ -32,7 +32,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
             };
         }
 
-        public AESGCMCore(string encodedKey, EncodingType? encodingType = null)
+        public AESGCMBase(string encodedKey, EncodingType? encodingType = null)
         {
             _encodingType = encodingType ?? _encodingType;
             //_encoder = _encodingType == EncodingType.Base64
@@ -52,7 +52,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
         /// This constructor call creates a random key with specified size.
         /// </summary>
         /// <param name="keySizeToGenerateRandomKey"></param>
-        public AESGCMCore(AESKeySizes keySizeToGenerateRandomKey, EncodingType? encodingType = null)
+        public AESGCMBase(AESKeySizes keySizeToGenerateRandomKey, EncodingType? encodingType = null)
         {
             _key = keySizeToGenerateRandomKey switch
             {

@@ -3,7 +3,7 @@ using System.Security.Authentication;
 
 namespace CryptographyHelpers.Hash
 {
-    public class SHA512 : HashCore, ISHA512
+    public class SHA512 : HashBase, ISHA512
     {
         private const HashAlgorithmType HashAlgorithm = HashAlgorithmType.Sha512;
 

@@ -14,6 +14,7 @@ namespace CryptographyHelpers.Tests.Hash
     [TestClass]
     public class HashTests
     {
+        private const string WhiteSpaceString = " ";
         private const string PlainTestString = "This is a test string!";
         private const string TestStringMd5HashHexEncoded = "ACB5A0BB8B17EADA5ACD8CED350BB856";
         private const string TestStringMd5HashBase64Encoded = "rLWgu4sX6tpazYztNQu4Vg==";
@@ -26,16 +27,13 @@ namespace CryptographyHelpers.Tests.Hash
         private const string TestStringSha512HashHexEncoded = "C2DC10A16CB105F4D68CB180024ECB93DA298A2BB9DCDBD82A24F6676AA6F129A899BDB99467F4DDF958767696BEC5D0AC3D5C938B9DB798439EDA573F0985FF";
         private const string TestStringSha512HashBase64Encoded = "wtwQoWyxBfTWjLGAAk7Lk9opiiu53NvYKiT2Z2qm8Smomb25lGf03flYdnaWvsXQrD1ck4udt5hDntpXPwmF/w==";
 
-
-        private const string WhiteSpaceString = " ";
-
         private static readonly IBase64 _base64Encoder = InternalServiceLocator.Instance.GetService<IBase64>();
         private static readonly IHexadecimal _hexadecimalEncoder = InternalServiceLocator.Instance.GetService<IHexadecimal>();
 
-        
+
         [TestMethod]
         [DynamicData(nameof(GetHashAlgorithmAndInvalidInputData), DynamicDataSourceType.Method)]
-        public void ShouldReturnSuccessFalse_InComputeHash_WhenProvidedInvalidInputData(HashCore hashAlgorithm, byte[] invalidInputData)
+        public void ShouldReturnSuccessFalse_InComputeHash_WhenProvidedInvalidInputData(HashBase hashAlgorithm, byte[] invalidInputData)
         {
             HashResult hashResult;
             var expectedHashResult = new HashResult()
@@ -54,7 +52,7 @@ namespace CryptographyHelpers.Tests.Hash
 
         [TestMethod]
         [DynamicData(nameof(GetHashAlgorithmAndInvalidInputText), DynamicDataSourceType.Method)]
-        public void ShouldReturnSuccessFalse_InComputeTextHash_WhenProvidedInvalidInputText(HashCore hashAlgorithm, string invalidInputText)
+        public void ShouldReturnSuccessFalse_InComputeTextHash_WhenProvidedInvalidInputText(HashBase hashAlgorithm, string invalidInputText)
         {
             HashResult hashResult;
             var expectedHashResult = new HashResult()
@@ -73,7 +71,7 @@ namespace CryptographyHelpers.Tests.Hash
 
         [TestMethod]
         [DynamicData(nameof(GetHashAlgorithmAndInvalidInputFilePath), DynamicDataSourceType.Method)]
-        public void ShouldReturnSuccessFalse_InComputeFileHash_WhenProvidedInvalidInputFilePath(HashCore hashAlgorithm, string invalidInputFilePath)
+        public void ShouldReturnSuccessFalse_InComputeFileHash_WhenProvidedInvalidInputFilePath(HashBase hashAlgorithm, string invalidInputFilePath)
         {
             HashResult hashResult;
             var expectedHashResult = new HashResult()
@@ -92,7 +90,7 @@ namespace CryptographyHelpers.Tests.Hash
 
         [TestMethod]
         [DynamicData(nameof(GetHashAlgorithmAndInvalidInputData), DynamicDataSourceType.Method)]
-        public void ShouldReturnSuccessFalse_InVerifyHash_WhenProvidedInvalidInputVerificationHash(HashCore hashAlgorithm, byte[] invalidInputVerificationHash)
+        public void ShouldReturnSuccessFalse_InVerifyHash_WhenProvidedInvalidInputVerificationHash(HashBase hashAlgorithm, byte[] invalidInputVerificationHash)
         {
             HashResult hashResult;
             var expectedHashResult = new HashResult()
@@ -111,7 +109,7 @@ namespace CryptographyHelpers.Tests.Hash
 
         [TestMethod]
         [DynamicData(nameof(GetHashAlgorithmAndInvalidInputText), DynamicDataSourceType.Method)]
-        public void ShouldReturnSuccessFalse_InVerifyTextHash_WhenProvidedInvalidInputText(HashCore hashAlgorithm, string invalidInputText)
+        public void ShouldReturnSuccessFalse_InVerifyTextHash_WhenProvidedInvalidInputText(HashBase hashAlgorithm, string invalidInputText)
         {
             HashResult hashResult;
             var expectedHashResult = new HashResult()
@@ -130,7 +128,7 @@ namespace CryptographyHelpers.Tests.Hash
 
         [TestMethod]
         [DynamicData(nameof(GetHashAlgorithmAndInvalidEncodedInputVerificationHashString), DynamicDataSourceType.Method)]
-        public void ShouldReturnSuccessFalse_InVerifyTextHash_WhenProvidedInvalidEncodedInputVerificationHashString(HashCore hashAlgorithm, string invalidEncodedInputVerificationHashString)
+        public void ShouldReturnSuccessFalse_InVerifyTextHash_WhenProvidedInvalidEncodedInputVerificationHashString(HashBase hashAlgorithm, string invalidEncodedInputVerificationHashString)
         {
             HashResult hashResult;
 
@@ -144,7 +142,7 @@ namespace CryptographyHelpers.Tests.Hash
 
         [TestMethod]
         [DynamicData(nameof(GetHashAlgorithmAndInvalidInputData), DynamicDataSourceType.Method)]
-        public void ShouldReturnSuccessFalse_InVerifyFileHash_WhenProvidedInvalidInputVerificationHash(HashCore hashAlgorithm, byte[] invalidInputVerificationHash)
+        public void ShouldReturnSuccessFalse_InVerifyFileHash_WhenProvidedInvalidInputVerificationHash(HashBase hashAlgorithm, byte[] invalidInputVerificationHash)
         {
             HashResult hashResult;
             var expectedHashResult = new HashResult()
@@ -163,7 +161,7 @@ namespace CryptographyHelpers.Tests.Hash
 
         [TestMethod]
         [DynamicData(nameof(GetHashAlgorithmAndInvalidEncodedInputVerificationHashString), DynamicDataSourceType.Method)]
-        public void ShouldReturnSuccessFalse_InVerifyFileHash_WhenProvidedInvalidEncodedInputVerificationHashString(HashCore hashAlgorithm, string invalidEncodedInputVerificationHashString)
+        public void ShouldReturnSuccessFalse_InVerifyFileHash_WhenProvidedInvalidEncodedInputVerificationHashString(HashBase hashAlgorithm, string invalidEncodedInputVerificationHashString)
         {
             HashResult hashResult;
 
@@ -177,7 +175,7 @@ namespace CryptographyHelpers.Tests.Hash
 
         [TestMethod]
         [DynamicData(nameof(GetHashAlgorithmInputDataOffsetOptionsAndExpectedHashString), DynamicDataSourceType.Method)]
-        public void ShouldComputeHashSuccesfully_InComputeHash_WithAndWithoutOffsetOptions(HashCore hashAlgorithm, byte[] inputData, OffsetOptions offsetOptions, string expectedHashString)
+        public void ShouldComputeHashSuccesfully_InComputeHash_WithAndWithoutOffsetOptions(HashBase hashAlgorithm, byte[] inputData, OffsetOptions offsetOptions, string expectedHashString)
         {
             HashResult computeHashResult;
 
@@ -192,7 +190,7 @@ namespace CryptographyHelpers.Tests.Hash
 
         [TestMethod]
         [DynamicData(nameof(GetHashAlgorithmInputTextOffsetOptionsAndVerificationHashString), DynamicDataSourceType.Method)]
-        public void ShouldComputeHashFromTextSuccesfully_InComputeTextHash_WithAndWithoutOffsetOptions(HashCore hashAlgorithm, string inputText, OffsetOptions offsetOptions, string expectedHashString)
+        public void ShouldComputeHashFromTextSuccesfully_InComputeTextHash_WithAndWithoutOffsetOptions(HashBase hashAlgorithm, string inputText, OffsetOptions offsetOptions, string expectedHashString)
         {
             HashResult computeHashResult;
 
@@ -207,7 +205,7 @@ namespace CryptographyHelpers.Tests.Hash
 
         [TestMethod]
         [DynamicData(nameof(GetHashAlgorithmFilePathOffsetOptionsAndExpectedHashString), DynamicDataSourceType.Method)]
-        public void ShouldComputeHashFromFileSuccesfully_InComputeFileHash_WithAndWithoutOffsetOptions(HashCore hashAlgorithm, string filePath, LongOffsetOptions offsetOptions, string expectedHashString)
+        public void ShouldComputeHashFromFileSuccesfully_InComputeFileHash_WithAndWithoutOffsetOptions(HashBase hashAlgorithm, string filePath, LongOffsetOptions offsetOptions, string expectedHashString)
         {
             HashResult computeHashResult;
 
@@ -222,7 +220,7 @@ namespace CryptographyHelpers.Tests.Hash
 
         [TestMethod]
         [DynamicData(nameof(GetHashAlgorithmInputDataOffsetOptionsAndExpectedVerificationHash), DynamicDataSourceType.Method)]
-        public void ShouldVerifyHashSuccesfully_InVerifyHash_WithAndWithoutOffsetOptions(HashCore hashAlgorithm, byte[] inputData, OffsetOptions offsetOptions, byte[] verificationHash)
+        public void ShouldVerifyHashSuccesfully_InVerifyHash_WithAndWithoutOffsetOptions(HashBase hashAlgorithm, byte[] inputData, OffsetOptions offsetOptions, byte[] verificationHash)
         {
             HashResult verificationHashResult;
 
@@ -237,7 +235,7 @@ namespace CryptographyHelpers.Tests.Hash
 
         [TestMethod]
         [DynamicData(nameof(GetHashAlgorithmInputTextOffsetOptionsAndVerificationHashString), DynamicDataSourceType.Method)]
-        public void ShouldVerifyHashFromTextSuccesfully_InVerifyTextHash_WithAndWithoutOffsetOptions(HashCore hashAlgorithm, string inputText, OffsetOptions offsetOptions, string verificationHashString)
+        public void ShouldVerifyHashFromTextSuccesfully_InVerifyTextHash_WithAndWithoutOffsetOptions(HashBase hashAlgorithm, string inputText, OffsetOptions offsetOptions, string verificationHashString)
         {
             HashResult verificationHashResult;
 
@@ -253,7 +251,7 @@ namespace CryptographyHelpers.Tests.Hash
 
         [TestMethod]
         [DynamicData(nameof(GetHashAlgorithmFilePathOffsetOptionsAndExpectedHashString), DynamicDataSourceType.Method)]
-        public void ShouldVerifyHashFromFileSuccesfully_InVerifyFileHash_WithAndWithoutOffsetOptions(HashCore hashAlgorithm, string filePath, LongOffsetOptions offsetOptions, string verificationHashString)
+        public void ShouldVerifyHashFromFileSuccesfully_InVerifyFileHash_WithAndWithoutOffsetOptions(HashBase hashAlgorithm, string filePath, LongOffsetOptions offsetOptions, string verificationHashString)
         {
             HashResult verificationHashResult;
 
@@ -347,8 +345,8 @@ namespace CryptographyHelpers.Tests.Hash
         private static IEnumerable<object> GetHashAlgorithmAndInvalidEncodedInputVerificationHashString()
         {
             var randomBytes = CryptographyUtils.GenerateRandomBytes(10);
-            var invalidHexadecimalEncodedString = _hexadecimalEncoder.EncodeToString(randomBytes).Substring(1);
-            var invalidBase64EncodedString = _base64Encoder.EncodeToString(randomBytes).Substring(1);
+            var invalidHexadecimalEncodedString = _hexadecimalEncoder.EncodeToString(randomBytes)[1..];
+            var invalidBase64EncodedString = _base64Encoder.EncodeToString(randomBytes)[1..];
 
             return new List<object[]>()
             {
@@ -467,47 +465,32 @@ namespace CryptographyHelpers.Tests.Hash
             var textWithAdditionalData = $"{new string('a', additionalDataLength)}{PlainTestString}{new string('z', additionalDataLength)}";
             File.WriteAllText(tempFilePathWithAdditionalData, textWithAdditionalData);
 
-            var expectedStringHexEncodedMd5Hash = "ACB5A0BB8B17EADA5ACD8CED350BB856";
-            var expectedStringBase64EncodedMd5Hash = "rLWgu4sX6tpazYztNQu4Vg==";
-
-            var expectedStringHexEncodedSha1Hash = "923E2FEF491AFD5A92097C0AAE64AC322FF8DBBC";
-            var expectedStringBase64EncodedSha1Hash = "kj4v70ka/VqSCXwKrmSsMi/427w=";
-
-            var expectedStringHexEncodedSha256Hash = "31F83B0A652333BB8CA3644D4EC8BAAB2CC7B5AB9BAC5FC72986E47B591F0705";
-            var expectedStringBase64EncodedSha256Hash = "Mfg7CmUjM7uMo2RNTsi6qyzHtaubrF/HKYbke1kfBwU=";
-
-            var expectedStringHexEncodedSha384Hash = "2E4C0C89E1E1B6D762477B3A0F61CE4D50F130166CFA4E12F811E7B778199C553AC83F90ED7F5868E1C5FE8DD6C55165";
-            var expectedStringBase64EncodedSha384Hash = "LkwMieHhttdiR3s6D2HOTVDxMBZs+k4S+BHnt3gZnFU6yD+Q7X9YaOHF/o3WxVFl";
-
-            var expectedStringHexEncodedSha512Hash = "C2DC10A16CB105F4D68CB180024ECB93DA298A2BB9DCDBD82A24F6676AA6F129A899BDB99467F4DDF958767696BEC5D0AC3D5C938B9DB798439EDA573F0985FF";
-            var expectedStringBase64EncodedSha512Hash = "wtwQoWyxBfTWjLGAAk7Lk9opiiu53NvYKiT2Z2qm8Smomb25lGf03flYdnaWvsXQrD1ck4udt5hDntpXPwmF/w==";
-
             return new List<object[]>()
             {
-                new object[]{ new MD5(EncodingType.Hexadecimal), tempFilePath, new LongOffsetOptions(), expectedStringHexEncodedMd5Hash },
-                new object[]{ new MD5(EncodingType.Hexadecimal), tempFilePathWithAdditionalData, new LongOffsetOptions(additionalDataLength, PlainTestString.Length), expectedStringHexEncodedMd5Hash },
-                new object[]{ new MD5(EncodingType.Base64), tempFilePath, new LongOffsetOptions(), expectedStringBase64EncodedMd5Hash },
-                new object[]{ new MD5(EncodingType.Base64), tempFilePathWithAdditionalData, new LongOffsetOptions(additionalDataLength, PlainTestString.Length), expectedStringBase64EncodedMd5Hash },
+                new object[]{ new MD5(EncodingType.Hexadecimal), tempFilePath, new LongOffsetOptions(), TestStringMd5HashHexEncoded },
+                new object[]{ new MD5(EncodingType.Hexadecimal), tempFilePathWithAdditionalData, new LongOffsetOptions(additionalDataLength, PlainTestString.Length), TestStringMd5HashHexEncoded },
+                new object[]{ new MD5(EncodingType.Base64), tempFilePath, new LongOffsetOptions(), TestStringMd5HashBase64Encoded },
+                new object[]{ new MD5(EncodingType.Base64), tempFilePathWithAdditionalData, new LongOffsetOptions(additionalDataLength, PlainTestString.Length), TestStringMd5HashBase64Encoded },
 
-                new object[]{ new SHA1(EncodingType.Hexadecimal), tempFilePath, new LongOffsetOptions(), expectedStringHexEncodedSha1Hash },
-                new object[]{ new SHA1(EncodingType.Hexadecimal), tempFilePathWithAdditionalData, new LongOffsetOptions(additionalDataLength, PlainTestString.Length), expectedStringHexEncodedSha1Hash },
-                new object[]{ new SHA1(EncodingType.Base64), tempFilePath, new LongOffsetOptions(), expectedStringBase64EncodedSha1Hash },
-                new object[]{ new SHA1(EncodingType.Base64), tempFilePathWithAdditionalData, new LongOffsetOptions(additionalDataLength, PlainTestString.Length), expectedStringBase64EncodedSha1Hash },
+                new object[]{ new SHA1(EncodingType.Hexadecimal), tempFilePath, new LongOffsetOptions(), TestStringSha1HashHexEncoded },
+                new object[]{ new SHA1(EncodingType.Hexadecimal), tempFilePathWithAdditionalData, new LongOffsetOptions(additionalDataLength, PlainTestString.Length), TestStringSha1HashHexEncoded },
+                new object[]{ new SHA1(EncodingType.Base64), tempFilePath, new LongOffsetOptions(), TestStringSha1HashBase64Encoded },
+                new object[]{ new SHA1(EncodingType.Base64), tempFilePathWithAdditionalData, new LongOffsetOptions(additionalDataLength, PlainTestString.Length), TestStringSha1HashBase64Encoded },
 
-                new object[]{ new SHA256(EncodingType.Hexadecimal), tempFilePath, new LongOffsetOptions(), expectedStringHexEncodedSha256Hash },
-                new object[]{ new SHA256(EncodingType.Hexadecimal), tempFilePathWithAdditionalData, new LongOffsetOptions(additionalDataLength, PlainTestString.Length), expectedStringHexEncodedSha256Hash },
-                new object[]{ new SHA256(EncodingType.Base64), tempFilePath, new LongOffsetOptions(), expectedStringBase64EncodedSha256Hash },
-                new object[]{ new SHA256(EncodingType.Base64), tempFilePathWithAdditionalData, new LongOffsetOptions(additionalDataLength, PlainTestString.Length), expectedStringBase64EncodedSha256Hash },
+                new object[]{ new SHA256(EncodingType.Hexadecimal), tempFilePath, new LongOffsetOptions(), TestStringSha256HashHexEncoded },
+                new object[]{ new SHA256(EncodingType.Hexadecimal), tempFilePathWithAdditionalData, new LongOffsetOptions(additionalDataLength, PlainTestString.Length), TestStringSha256HashHexEncoded },
+                new object[]{ new SHA256(EncodingType.Base64), tempFilePath, new LongOffsetOptions(), TestStringSha256HashBase64Encoded },
+                new object[]{ new SHA256(EncodingType.Base64), tempFilePathWithAdditionalData, new LongOffsetOptions(additionalDataLength, PlainTestString.Length), TestStringSha256HashBase64Encoded },
 
-                new object[]{ new SHA384(EncodingType.Hexadecimal), tempFilePath, new LongOffsetOptions(), expectedStringHexEncodedSha384Hash },
-                new object[]{ new SHA384(EncodingType.Hexadecimal), tempFilePathWithAdditionalData, new LongOffsetOptions(additionalDataLength, PlainTestString.Length), expectedStringHexEncodedSha384Hash },
-                new object[]{ new SHA384(EncodingType.Base64), tempFilePath, new LongOffsetOptions(), expectedStringBase64EncodedSha384Hash },
-                new object[]{ new SHA384(EncodingType.Base64), tempFilePathWithAdditionalData, new LongOffsetOptions(additionalDataLength, PlainTestString.Length), expectedStringBase64EncodedSha384Hash },
+                new object[]{ new SHA384(EncodingType.Hexadecimal), tempFilePath, new LongOffsetOptions(), TestStringSha384HashHexEncoded },
+                new object[]{ new SHA384(EncodingType.Hexadecimal), tempFilePathWithAdditionalData, new LongOffsetOptions(additionalDataLength, PlainTestString.Length), TestStringSha384HashHexEncoded },
+                new object[]{ new SHA384(EncodingType.Base64), tempFilePath, new LongOffsetOptions(), TestStringSha384HashBase64Encoded },
+                new object[]{ new SHA384(EncodingType.Base64), tempFilePathWithAdditionalData, new LongOffsetOptions(additionalDataLength, PlainTestString.Length), TestStringSha384HashBase64Encoded },
 
-                new object[]{ new SHA512(EncodingType.Hexadecimal), tempFilePath, new LongOffsetOptions(), expectedStringHexEncodedSha512Hash },
-                new object[]{ new SHA512(EncodingType.Hexadecimal), tempFilePathWithAdditionalData, new LongOffsetOptions(additionalDataLength, PlainTestString.Length), expectedStringHexEncodedSha512Hash },
-                new object[]{ new SHA512(EncodingType.Base64), tempFilePath, new LongOffsetOptions(), expectedStringBase64EncodedSha512Hash },
-                new object[]{ new SHA512(EncodingType.Base64), tempFilePathWithAdditionalData, new LongOffsetOptions(additionalDataLength, PlainTestString.Length), expectedStringBase64EncodedSha512Hash },
+                new object[]{ new SHA512(EncodingType.Hexadecimal), tempFilePath, new LongOffsetOptions(), TestStringSha512HashHexEncoded },
+                new object[]{ new SHA512(EncodingType.Hexadecimal), tempFilePathWithAdditionalData, new LongOffsetOptions(additionalDataLength, PlainTestString.Length), TestStringSha512HashHexEncoded },
+                new object[]{ new SHA512(EncodingType.Base64), tempFilePath, new LongOffsetOptions(), TestStringSha512HashBase64Encoded },
+                new object[]{ new SHA512(EncodingType.Base64), tempFilePathWithAdditionalData, new LongOffsetOptions(additionalDataLength, PlainTestString.Length), TestStringSha512HashBase64Encoded },
             };
         }
 
@@ -519,30 +502,20 @@ namespace CryptographyHelpers.Tests.Hash
             var inputTextWithAdditionalData = $"{new string('a', additionalDataLength)}{inputText}{new string('z', additionalDataLength)}";
             var inputTextWithAdditionalDataBytes = inputTextWithAdditionalData.ToUTF8Bytes();
 
-            var md5VerificationHashStringHexEncoded = "ACB5A0BB8B17EADA5ACD8CED350BB856";
-            var md5VerificationHashFromHexEncodedString = md5VerificationHashStringHexEncoded.ToBytesFromHexadecimalString();
-            var md5VerificationHashStringBase64Encoded = "rLWgu4sX6tpazYztNQu4Vg==";
-            var md5VerificationHashFromBase64EncodedString = md5VerificationHashStringBase64Encoded.ToBytesFromBase64String();
+            var md5VerificationHashFromHexEncodedString = TestStringMd5HashHexEncoded.ToBytesFromHexadecimalString();
+            var md5VerificationHashFromBase64EncodedString = TestStringMd5HashBase64Encoded.ToBytesFromBase64String();
 
-            var sha1VerificationHashStringHexEncoded = "923E2FEF491AFD5A92097C0AAE64AC322FF8DBBC";
-            var sha1VerificationHashFromHexEncodedString = sha1VerificationHashStringHexEncoded.ToBytesFromHexadecimalString();
-            var sha1VerificationHashStringBase64Encoded = "kj4v70ka/VqSCXwKrmSsMi/427w=";
-            var sha1VerificationHashFromBase64EncodedString = sha1VerificationHashStringBase64Encoded.ToBytesFromBase64String();
+            var sha1VerificationHashFromHexEncodedString = TestStringSha1HashHexEncoded.ToBytesFromHexadecimalString();
+            var sha1VerificationHashFromBase64EncodedString = TestStringSha1HashBase64Encoded.ToBytesFromBase64String();
 
-            var sha256VerificationHashStringHexEncoded = "31F83B0A652333BB8CA3644D4EC8BAAB2CC7B5AB9BAC5FC72986E47B591F0705";
-            var sha256VerificationHashFromHexEncodedString = sha256VerificationHashStringHexEncoded.ToBytesFromHexadecimalString();
-            var sha256VerificationHashStringBase64Encoded = "Mfg7CmUjM7uMo2RNTsi6qyzHtaubrF/HKYbke1kfBwU=";
-            var sha256VerificationHashFromBase64EncodedString = sha256VerificationHashStringBase64Encoded.ToBytesFromBase64String();
+            var sha256VerificationHashFromHexEncodedString = TestStringSha256HashHexEncoded.ToBytesFromHexadecimalString();
+            var sha256VerificationHashFromBase64EncodedString = TestStringSha256HashBase64Encoded.ToBytesFromBase64String();
 
-            var sha384VerificationHashStringHexEncoded = "2E4C0C89E1E1B6D762477B3A0F61CE4D50F130166CFA4E12F811E7B778199C553AC83F90ED7F5868E1C5FE8DD6C55165";
-            var sha384VerificationHashFromHexEncodedString = sha384VerificationHashStringHexEncoded.ToBytesFromHexadecimalString();
-            var sha384VerificationHashStringBase64Encoded = "LkwMieHhttdiR3s6D2HOTVDxMBZs+k4S+BHnt3gZnFU6yD+Q7X9YaOHF/o3WxVFl";
-            var sha384VerificationHashFromBase64EncodedString = sha384VerificationHashStringBase64Encoded.ToBytesFromBase64String();
+            var sha384VerificationHashFromHexEncodedString = TestStringSha384HashHexEncoded.ToBytesFromHexadecimalString();
+            var sha384VerificationHashFromBase64EncodedString = TestStringSha384HashBase64Encoded.ToBytesFromBase64String();
 
-            var sha512VerificationHashStringHexEncoded = "C2DC10A16CB105F4D68CB180024ECB93DA298A2BB9DCDBD82A24F6676AA6F129A899BDB99467F4DDF958767696BEC5D0AC3D5C938B9DB798439EDA573F0985FF";
-            var sha512VerificationHashFromHexEncodedString = sha512VerificationHashStringHexEncoded.ToBytesFromHexadecimalString();
-            var sha512VerificationHashStringBase64Encoded = "wtwQoWyxBfTWjLGAAk7Lk9opiiu53NvYKiT2Z2qm8Smomb25lGf03flYdnaWvsXQrD1ck4udt5hDntpXPwmF/w==";
-            var sha512VerificationHashFromBase64EncodedString = sha512VerificationHashStringBase64Encoded.ToBytesFromBase64String();
+            var sha512VerificationHashFromHexEncodedString = TestStringSha512HashHexEncoded.ToBytesFromHexadecimalString();
+            var sha512VerificationHashFromBase64EncodedString = TestStringSha512HashBase64Encoded.ToBytesFromBase64String();
 
 
             return new List<object[]>()

@@ -10,7 +10,7 @@ using System.Security.Cryptography;
 
 namespace CryptographyHelpers.Hash
 {
-    public class HashCore : IHash
+    public class HashBase : IHash
     {
         public event OnProgressHandler OnComputeFileHashProgress;
 
@@ -22,7 +22,7 @@ namespace CryptographyHelpers.Hash
         private readonly InternalServiceLocator _serviceLocator = InternalServiceLocator.Instance;
 
 
-        public HashCore(HashAlgorithmType hashAlgorithmType, EncodingType? encodingType = null, int? bufferSizeInKBForFileHashing = null)
+        public HashBase(HashAlgorithmType hashAlgorithmType, EncodingType? encodingType = null, int? bufferSizeInKBForFileHashing = null)
         {
             _hashAlgorithmType = hashAlgorithmType;
             _hashAlgorithm = HashAlgorithm.Create(_hashAlgorithmType.ToString());
@@ -108,20 +108,20 @@ namespace CryptographyHelpers.Hash
             }
         }
 
-        public HashResult ComputeFileHash(string fileToComputeHash, LongOffsetOptions? offsetOptions = null)
+        public HashResult ComputeFileHash(string filePathToComputeHash, LongOffsetOptions? offsetOptions = null)
         {
-            if (!File.Exists(fileToComputeHash))
+            if (!File.Exists(filePathToComputeHash))
             {
                 return new HashResult()
                 {
                     Success = false,
-                    Message = $@"{MessageStrings.File_PathNotFound} ""{fileToComputeHash}"".",
+                    Message = $@"{MessageStrings.File_PathNotFound} ""{filePathToComputeHash}"".",
                 };
             }
 
             try
             {
-                using (var fileStream = new FileStream(fileToComputeHash, FileMode.Open, FileAccess.Read, FileShare.None))
+                using (var fileStream = new FileStream(filePathToComputeHash, FileMode.Open, FileAccess.Read, FileShare.None))
                 {
                     var offset = offsetOptions.HasValue ? offsetOptions.Value.Offset : 0L;
                     var totalBytesToRead = offsetOptions.HasValue
@@ -240,7 +240,7 @@ namespace CryptographyHelpers.Hash
             }
         }
 
-        public HashResult VerifyFileHash(string fileToVerifyHash, byte[] verificationHashBytes, LongOffsetOptions? offsetOptions = null)
+        public HashResult VerifyFileHash(string filePathToVerifyHash, byte[] verificationHashBytes, LongOffsetOptions? offsetOptions = null)
         {
             if (verificationHashBytes is null || verificationHashBytes.Length == 0)
             {
@@ -251,7 +251,7 @@ namespace CryptographyHelpers.Hash
                 };
             }
 
-            var hashResult = ComputeFileHash(fileToVerifyHash, offsetOptions);
+            var hashResult = ComputeFileHash(filePathToVerifyHash, offsetOptions);
 
             if (hashResult.Success)
             {
@@ -264,7 +264,7 @@ namespace CryptographyHelpers.Hash
             return hashResult;
         }
 
-        public HashResult VerifyFileHash(string fileToVerifyHash, string encodedVerificationHashString, LongOffsetOptions? offsetOptions = null)
+        public HashResult VerifyFileHash(string filePathToVerifyHash, string encodedVerificationHashString, LongOffsetOptions? offsetOptions = null)
         {
             if (string.IsNullOrWhiteSpace(encodedVerificationHashString))
             {
@@ -279,14 +279,14 @@ namespace CryptographyHelpers.Hash
             {
                 var verificationHashBytes = _encoder.DecodeString(encodedVerificationHashString);
 
-                return VerifyFileHash(fileToVerifyHash, verificationHashBytes, offsetOptions);
+                return VerifyFileHash(filePathToVerifyHash, verificationHashBytes, offsetOptions);
             }
             catch (Exception ex)
             {
                 return new HashResult()
                 {
                     Success = false,
-                    Message = ex.ToString()
+                    Message = ex.ToString(),
                 };
             }
         }

@@ -24,6 +24,10 @@
     <PackageProjectUrl>https://github.com/alecgn/CryptographyHelpers</PackageProjectUrl>
   </PropertyGroup>
 
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <NoWarn>1701;1702;NETSDK1138</NoWarn>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Bogus" Version="33.0.2" />
     <PackageReference Include="FluentAssertions" Version="5.10.3" />

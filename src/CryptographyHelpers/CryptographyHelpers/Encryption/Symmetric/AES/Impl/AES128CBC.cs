@@ -4,7 +4,7 @@ using System.Security.Cryptography;
 
 namespace CryptographyHelpers.Encryption.Symmetric.AES
 {
-    public class AES128CBC : AESCore, IAES128CBC
+    public class AES128CBC : AESBase, IAES128CBC
     {
         private const CipherMode Mode = CipherMode.CBC;
         private const PaddingMode Padding = PaddingMode.PKCS7;

@@ -3,7 +3,7 @@ using System;
 
 namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
 {
-    public class AES192GCM : AESGCMCore, IAES192GCM
+    public class AES192GCM : AESGCMBase, IAES192GCM
     {
         private const AESKeySizes AESKeySize = AESKeySizes.KeySize192Bits;
 

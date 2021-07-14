@@ -186,6 +186,9 @@
   <data name="HMAC.ComputeSuccess" xml:space="preserve">
     <value>HMAC computed succesfully.</value>
   </data>
+  <data name="HMAC.DoesNotMatch" xml:space="preserve">
+    <value>Input data and verification HMAC does not match.</value>
+  </data>
   <data name="HMAC.InputBytesRequired" xml:space="preserve">
     <value>Input bytes to compute/verify HMAC required.</value>
   </data>
@@ -195,8 +198,14 @@
   <data name="HMAC.InputTextRequired" xml:space="preserve">
     <value>Input text to compute/verify HMAC required.</value>
   </data>
-  <data name="HMAC.VerificationEncodedHMACStringRequired" xml:space="preserve">
-    <value>Verification HMAC encoded string required.</value>
+  <data name="HMAC.Match" xml:space="preserve">
+    <value>Input data and verification HMAC does match.</value>
+  </data>
+  <data name="HMAC.VerificationHMACBytesRequired" xml:space="preserve">
+    <value>Verification HMAC bytes required.</value>
+  </data>
+  <data name="HMAC.VerificationHMACStringRequired" xml:space="preserve">
+    <value>Verification HMAC string required.</value>
   </data>
   <data name="KeyDerivation.DerivationSuccess" xml:space="preserve">
     <value>Key derived succesfully.</value>

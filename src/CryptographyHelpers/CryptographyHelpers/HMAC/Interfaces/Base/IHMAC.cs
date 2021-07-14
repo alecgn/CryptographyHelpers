@@ -1,58 +1,24 @@
 ﻿using CryptographyHelpers.EventHandlers;
-using CryptographyHelpers.Text.Encoding;
+using System;
 
 namespace CryptographyHelpers.HMAC
 {
-    public interface IHMAC
+    public interface IHMAC : IDisposable
     {
         event OnProgressHandler OnComputeFileHMACProgress;
 
-        public HMACResult ComputeHMAC(string stringToComputeHMAC);
+        HMACResult ComputeHMAC(byte[] bytesToComputeHMAC, OffsetOptions? offsetOptions = null);
 
-        HMACResult ComputeHMAC(string stringToComputeHMAC, string key);
+        HMACResult ComputeTextHMAC(string textToComputeHMAC, OffsetOptions? offsetOptions = null);
 
-        HMACResult ComputeHMAC(string stringToComputeHMAC, string key, EncodingType keyAndOutputEncodingType);
+        HMACResult ComputeFileHMAC(string filePathToComputeHMAC, LongOffsetOptions? offsetOptions = null);
 
-        HMACResult ComputeHMAC(string stringToComputeHMAC, string key, EncodingType keyAndOutputEncodingType, OffsetOptions offsetOptions);
+        HMACResult VerifyHMAC(byte[] bytesToVerifyHMAC, byte[] verificationHMACBytes, OffsetOptions? offsetOptions = null);
 
-        HMACResult ComputeHMAC(byte[] bytesToComputeHMAC);
+        HMACResult VerifyTextHMAC(string textToVerifyHMAC, string encodedVerificationHMACString, OffsetOptions? offsetOptions = null);
 
-        HMACResult ComputeHMAC(byte[] bytesToComputeHMAC, byte[] key);
+        HMACResult VerifyFileHMAC(string filePathToVerifyHMAC, byte[] verificationHMACBytes, LongOffsetOptions? offsetOptions = null);
 
-        HMACResult ComputeHMAC(byte[] bytesToComputeHMAC, byte[] key, EncodingType outputEncodingType);
-
-        HMACResult ComputeHMAC(byte[] bytesToComputeHMAC, byte[] key, EncodingType outputEncodingType, OffsetOptions offsetOptions);
-
-
-        HMACResult ComputeFileHMAC(string filePathToComputeHMAC);
-
-        HMACResult ComputeFileHMAC(string filePathToComputeHMAC, string key);
-
-        HMACResult ComputeFileHMAC(string filePathToComputeHMAC, string key, EncodingType outputEncodingType);
-
-        HMACResult ComputeFileHMAC(string filePathToComputeHMAC, string key, EncodingType keyAndOutputEncodingType, LongOffsetOptions offsetOptions);
-
-        HMACResult ComputeFileHMAC(string filePathToComputeHMAC, byte[] key);
-
-        HMACResult ComputeFileHMAC(string filePathToComputeHMAC, byte[] key, EncodingType outputEncodingType);
-
-        HMACResult ComputeFileHMAC(string filePathToComputeHMAC, byte[] key, EncodingType outputEncodingType, LongOffsetOptions offsetOptions);
-
-
-        HMACResult VerifyHMAC(string stringToVerifyHMAC, string key, string verificationHMACString);
-
-        HMACResult VerifyHMAC(string stringToVerifyHMAC, string key, string verificationHMACString, EncodingType keyAndVerificationHMACStringEncodingType);
-
-
-        HMACResult VerifyHMAC(string stringToVerifyHMAC, string key, string verificationHMACString, EncodingType keyAndVerificationHMACStringEncodingType, OffsetOptions offsetOptions);
-
-        HMACResult VerifyHMAC(byte[] bytesToVerifyHMAC, byte[] key, byte[] verificationHMACBytes);
-
-        HMACResult VerifyHMAC(byte[] bytesToVerifyHMAC, byte[] key, byte[] verificationHMACBytes, EncodingType outputEncodingType, OffsetOptions offsetOptions);
-
-
-        HMACResult VerifyFileHMAC(string filePathToVerifyHMAC, string key, string verificationHMACString, EncodingType keyAndVerificationHMACStringEncodingType, LongOffsetOptions offsetOptions);
-
-        HMACResult VerifyFileHMAC(string filePathToVerifyHMAC, byte[] key, byte[] verificationHMACBytes, EncodingType outputEncodingType, LongOffsetOptions offsetOptions);
+        HMACResult VerifyFileHMAC(string filePathToVerifyHMAC, string encodedVerificationHMACString, LongOffsetOptions offsetOptions);
     }
 }

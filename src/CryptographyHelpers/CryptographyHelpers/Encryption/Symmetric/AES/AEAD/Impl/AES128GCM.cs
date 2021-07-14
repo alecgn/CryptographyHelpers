@@ -3,7 +3,7 @@ using System;
 
 namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
 {
-    public class AES128GCM : AESGCMCore, IAES128GCM
+    public class AES128GCM : AESGCMBase, IAES128GCM
     {
         private const AESKeySizes AESKeySize = AESKeySizes.KeySize128Bits;
 

@@ -14,8 +14,9 @@ using System.Security.Cryptography;
 namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
 {
     [TestClass]
-    public class AESCoreTests
+    public class AESBaseTests
     {
+        private const string WhiteSpaceString = " ";
         private const string PlainTestString = "This is a test string!";
         private static readonly IBase64 _base64Encoder = InternalServiceLocator.Instance.GetService<IBase64>();
         private static readonly IHexadecimal _hexadecimalEncoder = InternalServiceLocator.Instance.GetService<IHexadecimal>();
@@ -25,7 +26,7 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
         [DynamicData(nameof(GetInvalidKeysAndIVs), DynamicDataSourceType.Method)]
         public void ShouldThrowException_InConstructor1_WhenProvidedInvalidKeyOrIV(byte[] invalidKey, byte[] invalidIV)
         {
-            Action act = () => { using var aes = new AESCore(invalidKey, invalidIV, CipherMode.CBC, PaddingMode.PKCS7); };
+            Action act = () => { using var aes = new AESBase(invalidKey, invalidIV, CipherMode.CBC, PaddingMode.PKCS7); };
 
             act.Should().Throw<Exception>();
         }
@@ -34,14 +35,14 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
         [DynamicData(nameof(GetInvalidEncodedKeysAndIVs), DynamicDataSourceType.Method)]
         public void ShouldThrowException_InConstructor2_WhenProvidedInvalidEncodedKeyOrIV(string invalidEncodedKey, string invalidEncodedIV, EncodingType encodingType)
         {
-            Action act = () => { using var aes = new AESCore(invalidEncodedKey, invalidEncodedIV, CipherMode.CBC, PaddingMode.PKCS7, encodingType); };
+            Action act = () => { using var aes = new AESBase(invalidEncodedKey, invalidEncodedIV, CipherMode.CBC, PaddingMode.PKCS7, encodingType); };
 
             act.Should().Throw<Exception>();
         }
 
         [TestMethod]
         [DynamicData(nameof(GetAESAndInvalidInputData), DynamicDataSourceType.Method)]
-        public void ShouldReturnSuccessFalse_InEncrypt_WhenProvidedInvalidInputData(AESCore aes, byte[] invalidInputData)
+        public void ShouldReturnSuccessFalse_InEncrypt_WhenProvidedInvalidInputData(AESBase aes, byte[] invalidInputData)
         {
             AESEncryptionResult aesEncryptionResult;
 
@@ -56,7 +57,7 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
 
         [TestMethod]
         [DynamicData(nameof(GetAESAndInvalidInputText), DynamicDataSourceType.Method)]
-        public void ShouldReturnSuccessFalse_InEncryptText_WhenProvidedInvalidInputText(AESCore aes, string invalidInputText)
+        public void ShouldReturnSuccessFalse_InEncryptText_WhenProvidedInvalidInputText(AESBase aes, string invalidInputText)
         {
             AESTextEncryptionResult aesTextEncryptionResult;
 
@@ -71,7 +72,7 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
 
         [TestMethod]
         [DynamicData(nameof(GetAESAndInvalidFilePath), DynamicDataSourceType.Method)]
-        public void ShouldReturnSuccessFalse_InEncryptFile_WhenProvidedInvalidInputSourceFilePath(AESCore aes, string invalidSourceFilePath)
+        public void ShouldReturnSuccessFalse_InEncryptFile_WhenProvidedInvalidInputSourceFilePath(AESBase aes, string invalidSourceFilePath)
         {
             AESFileEncryptionResult aesFileEncryptionResult;
 
@@ -86,7 +87,7 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
 
         [TestMethod]
         [DynamicData(nameof(GetAES), DynamicDataSourceType.Method)]
-        public void ShouldReturnSuccessFalse_InEncryptFile_WhenProvidedEqualsInputSourceAndEncryptedFilePath(AESCore aes)
+        public void ShouldReturnSuccessFalse_InEncryptFile_WhenProvidedEqualsInputSourceAndEncryptedFilePath(AESBase aes)
         {
             AESFileEncryptionResult aesFileEncryptionResult;
             var filePath = Path.GetTempFileName();
@@ -102,7 +103,7 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
 
         [TestMethod]
         [DynamicData(nameof(GetAESAndInvalidInputData), DynamicDataSourceType.Method)]
-        public void ShouldReturnSuccessFalse_InDecrypt_WhenProvidedInvalidInputData(AESCore aes, byte[] invalidInputData)
+        public void ShouldReturnSuccessFalse_InDecrypt_WhenProvidedInvalidInputData(AESBase aes, byte[] invalidInputData)
         {
             AESDecryptionResult aesDecryptionResult;
 
@@ -117,7 +118,7 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
 
         [TestMethod]
         [DynamicData(nameof(GetAESAndInvalidInputText), DynamicDataSourceType.Method)]
-        public void ShouldReturnSuccessFalse_InDecryptText_WhenProvidedInvalidInputText(AESCore aes, string invalidInputText)
+        public void ShouldReturnSuccessFalse_InDecryptText_WhenProvidedInvalidInputText(AESBase aes, string invalidInputText)
         {
             AESTextDecryptionResult aesTextDecryptionResult;
 
@@ -132,7 +133,7 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
 
         [TestMethod]
         [DynamicData(nameof(GetAESAndInvalidFilePath), DynamicDataSourceType.Method)]
-        public void ShouldReturnSuccessFalse_InDecryptFile_WhenProvidedInvalidInputEncryptedFilePath(AESCore aes, string invalidEncryptedFilePath)
+        public void ShouldReturnSuccessFalse_InDecryptFile_WhenProvidedInvalidInputEncryptedFilePath(AESBase aes, string invalidEncryptedFilePath)
         {
             AESFileDecryptionResult aesFileDecryptionResult;
 
@@ -147,7 +148,7 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
 
         [TestMethod]
         [DynamicData(nameof(GetAES), DynamicDataSourceType.Method)]
-        public void ShouldReturnSuccessFalse_InDecryptFile_WhenProvidedEqualsInputEncryptedAndDecryptedFilePath(AESCore aes)
+        public void ShouldReturnSuccessFalse_InDecryptFile_WhenProvidedEqualsInputEncryptedAndDecryptedFilePath(AESBase aes)
         {
             AESFileDecryptionResult aesFileDecryptionResult;
             var filePath = Path.GetTempFileName();
@@ -163,7 +164,7 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
 
         [TestMethod]
         [DynamicData(nameof(GetAESInputDataOffsetOptionsAndExpecteDecryptedData), DynamicDataSourceType.Method)]
-        public void ShouldEncryptAndDecryptDataSucessfully_WithAndWithoutOffsetOptions_InEncrypt_And_WithoutOffsetOptions_InDecrypt(AESCore aes, byte[] inputData, OffsetOptions offsetOptions, byte[] expectedDecryptedData)
+        public void ShouldEncryptAndDecryptDataSucessfully_WithAndWithoutOffsetOptions_InEncrypt_And_WithoutOffsetOptions_InDecrypt(AESBase aes, byte[] inputData, OffsetOptions offsetOptions, byte[] expectedDecryptedData)
         {
             AESEncryptionResult aesEncryptionResult;
             AESDecryptionResult aesDecryptionResult;
@@ -190,7 +191,7 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
 
         [TestMethod]
         [DynamicData(nameof(GetAES), DynamicDataSourceType.Method)]
-        public void ShouldEncryptAndDecryptDataSucessfully_WithOffsetOptions_InDecrypt_And_WithoutOffsetOptions_InEncrypt(AESCore aes)
+        public void ShouldEncryptAndDecryptDataSucessfully_WithOffsetOptions_InDecrypt_And_WithoutOffsetOptions_InEncrypt(AESBase aes)
         {
             AESEncryptionResult aesEncryptionResult;
             AESDecryptionResult aesDecryptionResult;
@@ -227,7 +228,7 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
 
         [TestMethod]
         [DynamicData(nameof(GetAESInputPlainTextOffsetOptionsAndExpectedDecryptedText), DynamicDataSourceType.Method)]
-        public void ShouldEncryptAndDecryptTextSucessfully_WithAndWithoutOffsetOption_InEncryptText_And_WithoutOffsetOptions_InDecryptText(AESCore aes, string inputPainText, OffsetOptions offsetOptions, string expectedDecryptedText)
+        public void ShouldEncryptAndDecryptTextSucessfully_WithAndWithoutOffsetOption_InEncryptText_And_WithoutOffsetOptions_InDecryptText(AESBase aes, string inputPainText, OffsetOptions offsetOptions, string expectedDecryptedText)
         {
             AESTextEncryptionResult aesTextEncryptionResult;
             AESTextDecryptionResult aesTextDecryptionResult;
@@ -254,7 +255,7 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
 
         [TestMethod]
         [DynamicData(nameof(GetAES), DynamicDataSourceType.Method)]
-        public void ShouldEncryptAndDecryptTextSucessfully_WithOffsetOptions_InDecryptText_And_WithoutOffsetOptions_InEncryptText(AESCore aes)
+        public void ShouldEncryptAndDecryptTextSucessfully_WithOffsetOptions_InDecryptText_And_WithoutOffsetOptions_InEncryptText(AESBase aes)
         {
             AESTextEncryptionResult aesTextEncryptionResult;
             AESTextDecryptionResult aesTextDecryptionResult;
@@ -288,7 +289,7 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
 
         [TestMethod]
         [DynamicData(nameof(GetAES), DynamicDataSourceType.Method)]
-        public void ShouldEncryptAndDecryptFileSucessfully(AESCore aes)
+        public void ShouldEncryptAndDecryptFileSucessfully(AESBase aes)
         {
             AESFileEncryptionResult aesFileEncryptionResult;
             AESFileDecryptionResult aesFileDecryptionResult;
@@ -315,8 +316,8 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
                         Assert.Fail(aesFileDecryptionResult.Message);
                     }
 
-                    monitoredAes.Should().Raise(nameof(AESCore.OnEncryptFileProgress));
-                    monitoredAes.Should().Raise(nameof(AESCore.OnDecryptFileProgress));
+                    monitoredAes.Should().Raise(nameof(AESBase.OnEncryptFileProgress));
+                    monitoredAes.Should().Raise(nameof(AESBase.OnDecryptFileProgress));
                     aesFileDecryptionResult.Success.Should().BeTrue();
                     ReadFileText(decryptedTestFilePath).Should().Be(PlainTestString);
                 }
@@ -325,7 +326,7 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
 
         [TestMethod]
         [DynamicData(nameof(GetAES), DynamicDataSourceType.Method)]
-        public void ShouldEncryptAndDecryptFileSucessfully_WithAndWithoutLongOffsetOptions_InEncryptFile_And_WithoutOffsetOptions_InDecryptFile(AESCore aes)
+        public void ShouldEncryptAndDecryptFileSucessfully_WithAndWithoutLongOffsetOptions_InEncryptFile_And_WithoutOffsetOptions_InDecryptFile(AESBase aes)
         {
             AESFileEncryptionResult aesFileEncryptionResult;
             AESFileDecryptionResult aesFileDecryptionResult;
@@ -361,8 +362,8 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
                         Assert.Fail(aesFileDecryptionResult.Message);
                     }
 
-                    monitoredAes.Should().Raise(nameof(AESCore.OnEncryptFileProgress));
-                    monitoredAes.Should().Raise(nameof(AESCore.OnDecryptFileProgress));
+                    monitoredAes.Should().Raise(nameof(AESBase.OnEncryptFileProgress));
+                    monitoredAes.Should().Raise(nameof(AESBase.OnDecryptFileProgress));
                     aesFileDecryptionResult.Success.Should().BeTrue();
                     var decryptedText = ReadFileText(decryptedTestFilePath);
                     decryptedText.Should().Be(PlainTestString);
@@ -372,7 +373,7 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
 
         [TestMethod]
         [DynamicData(nameof(GetAES), DynamicDataSourceType.Method)]
-        public void ShouldEncryptAndDecryptFileSucessfully_WithLongOffsetOptions_InDecryptFile(AESCore aes)
+        public void ShouldEncryptAndDecryptFileSucessfully_WithLongOffsetOptions_InDecryptFile(AESBase aes)
         {
             AESFileEncryptionResult aesFileEncryptionResult;
             AESFileDecryptionResult aesFileDecryptionResult;
@@ -411,8 +412,8 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
                         Assert.Fail(aesFileDecryptionResult.Message);
                     }
 
-                    monitoredAes.Should().Raise(nameof(AESCore.OnEncryptFileProgress));
-                    monitoredAes.Should().Raise(nameof(AESCore.OnDecryptFileProgress));
+                    monitoredAes.Should().Raise(nameof(AESBase.OnEncryptFileProgress));
+                    monitoredAes.Should().Raise(nameof(AESBase.OnDecryptFileProgress));
                     aesFileDecryptionResult.Success.Should().BeTrue();
                     var decryptedText = ReadFileText(decryptedTestFilePath);
                     decryptedText.Should().Be(PlainTestString);
@@ -474,83 +475,83 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
             {
                 new object[]{ null, null, EncodingType.Base64 },
                 new object[]{ null, null, EncodingType.Hexadecimal },
-                new object[]{ null, "", EncodingType.Base64 },
-                new object[]{ null, "", EncodingType.Hexadecimal },
-                new object[]{ null, "   ", EncodingType.Base64 },
-                new object[]{ null, "   ", EncodingType.Hexadecimal },
+                new object[]{ null, string.Empty, EncodingType.Base64 },
+                new object[]{ null, string.Empty, EncodingType.Hexadecimal },
+                new object[]{ null, WhiteSpaceString, EncodingType.Base64 },
+                new object[]{ null, WhiteSpaceString, EncodingType.Hexadecimal },
                 new object[]{ null, _base64Encoder.EncodeToString(invalidSizedIV), EncodingType.Base64 },
                 new object[]{ null, invalidBase64TestString, EncodingType.Base64 },
                 new object[]{ null, _hexadecimalEncoder.EncodeToString(invalidSizedIV), EncodingType.Hexadecimal },
                 new object[]{ null, invalidHexadecimalTestString, EncodingType.Hexadecimal },
 
-                new object[]{ "", null, EncodingType.Base64 },
-                new object[]{ "", null, EncodingType.Hexadecimal },
-                new object[]{ "", "", EncodingType.Base64 },
-                new object[]{ "", "", EncodingType.Hexadecimal },
-                new object[]{ "", "   ", EncodingType.Base64 },
-                new object[]{ "", "   ", EncodingType.Hexadecimal },
-                new object[]{ "", _base64Encoder.EncodeToString(invalidSizedIV), EncodingType.Base64 },
-                new object[]{ "", invalidBase64TestString, EncodingType.Base64 },
-                new object[]{ "", _hexadecimalEncoder.EncodeToString(invalidSizedIV), EncodingType.Hexadecimal },
-                new object[]{ "", invalidHexadecimalTestString, EncodingType.Hexadecimal },
+                new object[]{ string.Empty, null, EncodingType.Base64 },
+                new object[]{ string.Empty, null, EncodingType.Hexadecimal },
+                new object[]{ string.Empty, string.Empty, EncodingType.Base64 },
+                new object[]{ string.Empty, string.Empty, EncodingType.Hexadecimal },
+                new object[]{ string.Empty, WhiteSpaceString, EncodingType.Base64 },
+                new object[]{ string.Empty, WhiteSpaceString, EncodingType.Hexadecimal },
+                new object[]{ string.Empty, _base64Encoder.EncodeToString(invalidSizedIV), EncodingType.Base64 },
+                new object[]{ string.Empty, invalidBase64TestString, EncodingType.Base64 },
+                new object[]{ string.Empty, _hexadecimalEncoder.EncodeToString(invalidSizedIV), EncodingType.Hexadecimal },
+                new object[]{ string.Empty, invalidHexadecimalTestString, EncodingType.Hexadecimal },
 
-                new object[]{ "   ", null, EncodingType.Base64 },
-                new object[]{ "   ", null, EncodingType.Hexadecimal },
-                new object[]{ "   ", "", EncodingType.Base64 },
-                new object[]{ "   ", "", EncodingType.Hexadecimal },
-                new object[]{ "   ", "   ", EncodingType.Base64 },
-                new object[]{ "   ", "   ", EncodingType.Hexadecimal },
-                new object[]{ "   ", _base64Encoder.EncodeToString(invalidSizedIV), EncodingType.Base64 },
-                new object[]{ "   ", invalidBase64TestString, EncodingType.Base64 },
-                new object[]{ "   ", _hexadecimalEncoder.EncodeToString(invalidSizedIV), EncodingType.Hexadecimal },
-                new object[]{ "   ", invalidHexadecimalTestString, EncodingType.Hexadecimal },
+                new object[]{ WhiteSpaceString, null, EncodingType.Base64 },
+                new object[]{ WhiteSpaceString, null, EncodingType.Hexadecimal },
+                new object[]{ WhiteSpaceString, string.Empty, EncodingType.Base64 },
+                new object[]{ WhiteSpaceString, string.Empty, EncodingType.Hexadecimal },
+                new object[]{ WhiteSpaceString, WhiteSpaceString, EncodingType.Base64 },
+                new object[]{ WhiteSpaceString, WhiteSpaceString, EncodingType.Hexadecimal },
+                new object[]{ WhiteSpaceString, _base64Encoder.EncodeToString(invalidSizedIV), EncodingType.Base64 },
+                new object[]{ WhiteSpaceString, invalidBase64TestString, EncodingType.Base64 },
+                new object[]{ WhiteSpaceString, _hexadecimalEncoder.EncodeToString(invalidSizedIV), EncodingType.Hexadecimal },
+                new object[]{ WhiteSpaceString, invalidHexadecimalTestString, EncodingType.Hexadecimal },
 
                 new object[]{ invalidBase64TestString, invalidBase64TestString, EncodingType.Base64 },
                 new object[]{ invalidBase64TestString, null, EncodingType.Base64 },
-                new object[]{ invalidBase64TestString, "", EncodingType.Base64 },
-                new object[]{ invalidBase64TestString, "   ", EncodingType.Base64 },
+                new object[]{ invalidBase64TestString, string.Empty, EncodingType.Base64 },
+                new object[]{ invalidBase64TestString, WhiteSpaceString, EncodingType.Base64 },
                 new object[]{ invalidBase64TestString, _base64Encoder.EncodeToString(invalidSizedIV), EncodingType.Base64 },
 
                 new object[]{ invalidHexadecimalTestString, invalidHexadecimalTestString, EncodingType.Hexadecimal },
-                new object[]{ invalidHexadecimalTestString, "", EncodingType.Hexadecimal },
-                new object[]{ invalidHexadecimalTestString, "   ", EncodingType.Hexadecimal },
+                new object[]{ invalidHexadecimalTestString, string.Empty, EncodingType.Hexadecimal },
+                new object[]{ invalidHexadecimalTestString, WhiteSpaceString, EncodingType.Hexadecimal },
                 new object[]{ invalidHexadecimalTestString, null, EncodingType.Hexadecimal },
                 new object[]{ invalidHexadecimalTestString, _hexadecimalEncoder.EncodeToString(invalidSizedIV), EncodingType.Hexadecimal },
 
                 new object[]{ _base64Encoder.EncodeToString(invalidSizedKey1), _base64Encoder.EncodeToString(invalidSizedIV), EncodingType.Base64 },
                 new object[]{ _base64Encoder.EncodeToString(invalidSizedKey1), invalidBase64TestString, EncodingType.Base64 },
                 new object[]{ _base64Encoder.EncodeToString(invalidSizedKey1), null, EncodingType.Base64 },
-                new object[]{ _base64Encoder.EncodeToString(invalidSizedKey1), "", EncodingType.Base64 },
-                new object[]{ _base64Encoder.EncodeToString(invalidSizedKey1), "   ", EncodingType.Base64 },
+                new object[]{ _base64Encoder.EncodeToString(invalidSizedKey1), string.Empty, EncodingType.Base64 },
+                new object[]{ _base64Encoder.EncodeToString(invalidSizedKey1), WhiteSpaceString, EncodingType.Base64 },
 
                 new object[]{ _hexadecimalEncoder.EncodeToString(invalidSizedKey1), _hexadecimalEncoder.EncodeToString(invalidSizedIV), EncodingType.Hexadecimal },
                 new object[]{ _hexadecimalEncoder.EncodeToString(invalidSizedKey1), invalidHexadecimalTestString, EncodingType.Hexadecimal },
-                new object[]{ _hexadecimalEncoder.EncodeToString(invalidSizedKey1), "", EncodingType.Hexadecimal },
-                new object[]{ _hexadecimalEncoder.EncodeToString(invalidSizedKey1), "   ", EncodingType.Hexadecimal },
+                new object[]{ _hexadecimalEncoder.EncodeToString(invalidSizedKey1), string.Empty, EncodingType.Hexadecimal },
+                new object[]{ _hexadecimalEncoder.EncodeToString(invalidSizedKey1), WhiteSpaceString, EncodingType.Hexadecimal },
                 new object[]{ _hexadecimalEncoder.EncodeToString(invalidSizedKey1), null, EncodingType.Hexadecimal },
 
                 new object[]{ _base64Encoder.EncodeToString(invalidSizedKey2), _base64Encoder.EncodeToString(invalidSizedIV), EncodingType.Base64 },
                 new object[]{ _base64Encoder.EncodeToString(invalidSizedKey2), invalidBase64TestString, EncodingType.Base64 },
                 new object[]{ _base64Encoder.EncodeToString(invalidSizedKey2), null, EncodingType.Base64 },
-                new object[]{ _base64Encoder.EncodeToString(invalidSizedKey2), "", EncodingType.Base64 },
-                new object[]{ _base64Encoder.EncodeToString(invalidSizedKey2), "   ", EncodingType.Base64 },
+                new object[]{ _base64Encoder.EncodeToString(invalidSizedKey2), string.Empty, EncodingType.Base64 },
+                new object[]{ _base64Encoder.EncodeToString(invalidSizedKey2), WhiteSpaceString, EncodingType.Base64 },
 
                 new object[]{ _hexadecimalEncoder.EncodeToString(invalidSizedKey2), _hexadecimalEncoder.EncodeToString(invalidSizedIV), EncodingType.Hexadecimal },
                 new object[]{ _hexadecimalEncoder.EncodeToString(invalidSizedKey2), invalidHexadecimalTestString, EncodingType.Hexadecimal },
-                new object[]{ _hexadecimalEncoder.EncodeToString(invalidSizedKey2), "", EncodingType.Hexadecimal },
-                new object[]{ _hexadecimalEncoder.EncodeToString(invalidSizedKey2), "   ", EncodingType.Hexadecimal },
+                new object[]{ _hexadecimalEncoder.EncodeToString(invalidSizedKey2), string.Empty, EncodingType.Hexadecimal },
+                new object[]{ _hexadecimalEncoder.EncodeToString(invalidSizedKey2), WhiteSpaceString, EncodingType.Hexadecimal },
                 new object[]{ _hexadecimalEncoder.EncodeToString(invalidSizedKey2), null, EncodingType.Hexadecimal },
 
                 new object[]{ _base64Encoder.EncodeToString(invalidSizedKey3), _base64Encoder.EncodeToString(invalidSizedIV), EncodingType.Base64 },
                 new object[]{ _base64Encoder.EncodeToString(invalidSizedKey3), invalidBase64TestString, EncodingType.Base64 },
                 new object[]{ _base64Encoder.EncodeToString(invalidSizedKey3), null, EncodingType.Base64 },
-                new object[]{ _base64Encoder.EncodeToString(invalidSizedKey3), "", EncodingType.Base64 },
-                new object[]{ _base64Encoder.EncodeToString(invalidSizedKey3), "   ", EncodingType.Base64 },
+                new object[]{ _base64Encoder.EncodeToString(invalidSizedKey3), string.Empty, EncodingType.Base64 },
+                new object[]{ _base64Encoder.EncodeToString(invalidSizedKey3), WhiteSpaceString, EncodingType.Base64 },
 
                 new object[]{ _hexadecimalEncoder.EncodeToString(invalidSizedKey3), _hexadecimalEncoder.EncodeToString(invalidSizedIV), EncodingType.Hexadecimal },
                 new object[]{ _hexadecimalEncoder.EncodeToString(invalidSizedKey3), invalidHexadecimalTestString, EncodingType.Hexadecimal },
-                new object[]{ _hexadecimalEncoder.EncodeToString(invalidSizedKey3), "", EncodingType.Hexadecimal },
-                new object[]{ _hexadecimalEncoder.EncodeToString(invalidSizedKey3), "   ", EncodingType.Hexadecimal },
+                new object[]{ _hexadecimalEncoder.EncodeToString(invalidSizedKey3), string.Empty, EncodingType.Hexadecimal },
+                new object[]{ _hexadecimalEncoder.EncodeToString(invalidSizedKey3), WhiteSpaceString, EncodingType.Hexadecimal },
                 new object[]{ _hexadecimalEncoder.EncodeToString(invalidSizedKey3), null, EncodingType.Hexadecimal },
             };
         }
@@ -558,30 +559,30 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
         private static IEnumerable<object[]> GetAESAndInvalidInputData() =>
             new List<object[]>()
             {
-                new object[]{ new AESCore(AESKeySizes.KeySize128Bits), null },
-                new object[]{ new AESCore(AESKeySizes.KeySize128Bits), Array.Empty<byte>() },
+                new object[]{ new AESBase(AESKeySizes.KeySize128Bits), null },
+                new object[]{ new AESBase(AESKeySizes.KeySize128Bits), Array.Empty<byte>() },
 
-                new object[]{ new AESCore(AESKeySizes.KeySize192Bits), null },
-                new object[]{ new AESCore(AESKeySizes.KeySize192Bits), Array.Empty<byte>() },
+                new object[]{ new AESBase(AESKeySizes.KeySize192Bits), null },
+                new object[]{ new AESBase(AESKeySizes.KeySize192Bits), Array.Empty<byte>() },
 
-                new object[]{ new AESCore(AESKeySizes.KeySize256Bits), null },
-                new object[]{ new AESCore(AESKeySizes.KeySize256Bits), Array.Empty<byte>() },
+                new object[]{ new AESBase(AESKeySizes.KeySize256Bits), null },
+                new object[]{ new AESBase(AESKeySizes.KeySize256Bits), Array.Empty<byte>() },
             };
 
         private static IEnumerable<object[]> GetAESAndInvalidInputText() =>
             new List<object[]>()
             {
-                new object[]{ new AESCore(AESKeySizes.KeySize128Bits), null },
-                new object[]{ new AESCore(AESKeySizes.KeySize128Bits), "" },
-                new object[]{ new AESCore(AESKeySizes.KeySize128Bits), "   " },
+                new object[]{ new AESBase(AESKeySizes.KeySize128Bits), null },
+                new object[]{ new AESBase(AESKeySizes.KeySize128Bits), string.Empty },
+                new object[]{ new AESBase(AESKeySizes.KeySize128Bits), WhiteSpaceString },
 
-                new object[]{ new AESCore(AESKeySizes.KeySize192Bits), null },
-                new object[]{ new AESCore(AESKeySizes.KeySize192Bits), "" },
-                new object[]{ new AESCore(AESKeySizes.KeySize192Bits), "   " },
+                new object[]{ new AESBase(AESKeySizes.KeySize192Bits), null },
+                new object[]{ new AESBase(AESKeySizes.KeySize192Bits), string.Empty },
+                new object[]{ new AESBase(AESKeySizes.KeySize192Bits), WhiteSpaceString },
 
-                new object[]{ new AESCore(AESKeySizes.KeySize256Bits), null },
-                new object[]{ new AESCore(AESKeySizes.KeySize256Bits), "" },
-                new object[]{ new AESCore(AESKeySizes.KeySize256Bits), "   " },
+                new object[]{ new AESBase(AESKeySizes.KeySize256Bits), null },
+                new object[]{ new AESBase(AESKeySizes.KeySize256Bits), string.Empty },
+                new object[]{ new AESBase(AESKeySizes.KeySize256Bits), WhiteSpaceString },
             };
 
         private static IEnumerable<object[]> GetAESAndInvalidFilePath()
@@ -590,26 +591,26 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
 
             return new List<object[]>()
             {
-                new object[]{ new AESCore(AESKeySizes.KeySize128Bits), null },
-                new object[]{ new AESCore(AESKeySizes.KeySize128Bits), string.Empty },
-                new object[]{ new AESCore(AESKeySizes.KeySize128Bits), invalidFilePath },
+                new object[]{ new AESBase(AESKeySizes.KeySize128Bits), null },
+                new object[]{ new AESBase(AESKeySizes.KeySize128Bits), string.Empty },
+                new object[]{ new AESBase(AESKeySizes.KeySize128Bits), invalidFilePath },
 
-                new object[]{ new AESCore(AESKeySizes.KeySize192Bits), null },
-                new object[]{ new AESCore(AESKeySizes.KeySize192Bits), string.Empty },
-                new object[]{ new AESCore(AESKeySizes.KeySize192Bits), invalidFilePath },
+                new object[]{ new AESBase(AESKeySizes.KeySize192Bits), null },
+                new object[]{ new AESBase(AESKeySizes.KeySize192Bits), string.Empty },
+                new object[]{ new AESBase(AESKeySizes.KeySize192Bits), invalidFilePath },
 
-                new object[]{ new AESCore(AESKeySizes.KeySize256Bits), null },
-                new object[]{ new AESCore(AESKeySizes.KeySize256Bits), string.Empty },
-                new object[]{ new AESCore(AESKeySizes.KeySize256Bits), invalidFilePath },
+                new object[]{ new AESBase(AESKeySizes.KeySize256Bits), null },
+                new object[]{ new AESBase(AESKeySizes.KeySize256Bits), string.Empty },
+                new object[]{ new AESBase(AESKeySizes.KeySize256Bits), invalidFilePath },
             };
         }
 
         private static IEnumerable<object[]> GetAES() =>
             new List<object[]>()
             {
-                new object[]{ new AESCore(AESKeySizes.KeySize128Bits) },
-                new object[]{ new AESCore(AESKeySizes.KeySize192Bits) },
-                new object[]{ new AESCore(AESKeySizes.KeySize256Bits) },
+                new object[]{ new AESBase(AESKeySizes.KeySize128Bits) },
+                new object[]{ new AESBase(AESKeySizes.KeySize192Bits) },
+                new object[]{ new AESBase(AESKeySizes.KeySize256Bits) },
             };
 
         private static IEnumerable<object[]> GetAESInputDataOffsetOptionsAndExpecteDecryptedData()
@@ -628,20 +629,20 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
 
             return new List<object[]>()
             {
-                new object[]{ new AESCore(AESKeySizes.KeySize128Bits), data, new OffsetOptions(), data },
-                new object[]{ new AESCore(AESKeySizes.KeySize128Bits), data, new OffsetOptions(0, truncatedToBeginData.Length), truncatedToBeginData },
-                new object[]{ new AESCore(AESKeySizes.KeySize128Bits), data, new OffsetOptions(truncatedToEndData.Length, truncatedToEndData.Length), truncatedToEndData },
-                new object[]{ new AESCore(AESKeySizes.KeySize128Bits), dataWithAdditionalData, new OffsetOptions(additionalDataAtBeginLength, data.Length), data },
+                new object[]{ new AESBase(AESKeySizes.KeySize128Bits), data, new OffsetOptions(), data },
+                new object[]{ new AESBase(AESKeySizes.KeySize128Bits), data, new OffsetOptions(0, truncatedToBeginData.Length), truncatedToBeginData },
+                new object[]{ new AESBase(AESKeySizes.KeySize128Bits), data, new OffsetOptions(truncatedToEndData.Length, truncatedToEndData.Length), truncatedToEndData },
+                new object[]{ new AESBase(AESKeySizes.KeySize128Bits), dataWithAdditionalData, new OffsetOptions(additionalDataAtBeginLength, data.Length), data },
 
-                new object[]{ new AESCore(AESKeySizes.KeySize192Bits), data, new OffsetOptions(), data },
-                new object[]{ new AESCore(AESKeySizes.KeySize192Bits), data, new OffsetOptions(0, truncatedToBeginData.Length), truncatedToBeginData },
-                new object[]{ new AESCore(AESKeySizes.KeySize192Bits), data, new OffsetOptions(truncatedToEndData.Length, truncatedToEndData.Length), truncatedToEndData },
-                new object[]{ new AESCore(AESKeySizes.KeySize192Bits), dataWithAdditionalData, new OffsetOptions(additionalDataAtBeginLength, data.Length), data },
+                new object[]{ new AESBase(AESKeySizes.KeySize192Bits), data, new OffsetOptions(), data },
+                new object[]{ new AESBase(AESKeySizes.KeySize192Bits), data, new OffsetOptions(0, truncatedToBeginData.Length), truncatedToBeginData },
+                new object[]{ new AESBase(AESKeySizes.KeySize192Bits), data, new OffsetOptions(truncatedToEndData.Length, truncatedToEndData.Length), truncatedToEndData },
+                new object[]{ new AESBase(AESKeySizes.KeySize192Bits), dataWithAdditionalData, new OffsetOptions(additionalDataAtBeginLength, data.Length), data },
 
-                new object[]{ new AESCore(AESKeySizes.KeySize256Bits), data, new OffsetOptions(), data },
-                new object[]{ new AESCore(AESKeySizes.KeySize256Bits), data, new OffsetOptions(0, truncatedToBeginData.Length), truncatedToBeginData },
-                new object[]{ new AESCore(AESKeySizes.KeySize256Bits), data, new OffsetOptions(truncatedToEndData.Length, truncatedToEndData.Length), truncatedToEndData },
-                new object[]{ new AESCore(AESKeySizes.KeySize256Bits), dataWithAdditionalData, new OffsetOptions(additionalDataAtBeginLength, data.Length), data },
+                new object[]{ new AESBase(AESKeySizes.KeySize256Bits), data, new OffsetOptions(), data },
+                new object[]{ new AESBase(AESKeySizes.KeySize256Bits), data, new OffsetOptions(0, truncatedToBeginData.Length), truncatedToBeginData },
+                new object[]{ new AESBase(AESKeySizes.KeySize256Bits), data, new OffsetOptions(truncatedToEndData.Length, truncatedToEndData.Length), truncatedToEndData },
+                new object[]{ new AESBase(AESKeySizes.KeySize256Bits), dataWithAdditionalData, new OffsetOptions(additionalDataAtBeginLength, data.Length), data },
             };
         }
 
@@ -659,20 +660,20 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES
 
             return new List<object[]>()
             {
-                new object[]{ new AESCore(AESKeySizes.KeySize128Bits), text, new OffsetOptions(), text },
-                new object[]{ new AESCore(AESKeySizes.KeySize128Bits), text, new OffsetOptions(0, truncatedToBeginText.Length), truncatedToBeginText },
-                new object[]{ new AESCore(AESKeySizes.KeySize128Bits), text, new OffsetOptions(truncatedToEndText.Length, truncatedToEndText.Length), truncatedToEndText },
-                new object[]{ new AESCore(AESKeySizes.KeySize128Bits), textWithAdditionalTexts, new OffsetOptions(additionalTextAtBeginLength, text.Length), text },
+                new object[]{ new AESBase(AESKeySizes.KeySize128Bits), text, new OffsetOptions(), text },
+                new object[]{ new AESBase(AESKeySizes.KeySize128Bits), text, new OffsetOptions(0, truncatedToBeginText.Length), truncatedToBeginText },
+                new object[]{ new AESBase(AESKeySizes.KeySize128Bits), text, new OffsetOptions(truncatedToEndText.Length, truncatedToEndText.Length), truncatedToEndText },
+                new object[]{ new AESBase(AESKeySizes.KeySize128Bits), textWithAdditionalTexts, new OffsetOptions(additionalTextAtBeginLength, text.Length), text },
 
-                new object[]{ new AESCore(AESKeySizes.KeySize192Bits), text, new OffsetOptions(), text },
-                new object[]{ new AESCore(AESKeySizes.KeySize192Bits), text, new OffsetOptions(0, truncatedToBeginText.Length), truncatedToBeginText },
-                new object[]{ new AESCore(AESKeySizes.KeySize192Bits), text, new OffsetOptions(truncatedToEndText.Length, truncatedToEndText.Length), truncatedToEndText },
-                new object[]{ new AESCore(AESKeySizes.KeySize192Bits), textWithAdditionalTexts, new OffsetOptions(additionalTextAtBeginLength, text.Length), text },
+                new object[]{ new AESBase(AESKeySizes.KeySize192Bits), text, new OffsetOptions(), text },
+                new object[]{ new AESBase(AESKeySizes.KeySize192Bits), text, new OffsetOptions(0, truncatedToBeginText.Length), truncatedToBeginText },
+                new object[]{ new AESBase(AESKeySizes.KeySize192Bits), text, new OffsetOptions(truncatedToEndText.Length, truncatedToEndText.Length), truncatedToEndText },
+                new object[]{ new AESBase(AESKeySizes.KeySize192Bits), textWithAdditionalTexts, new OffsetOptions(additionalTextAtBeginLength, text.Length), text },
 
-                new object[]{ new AESCore(AESKeySizes.KeySize256Bits), text, new OffsetOptions(), text },
-                new object[]{ new AESCore(AESKeySizes.KeySize256Bits), text, new OffsetOptions(0, truncatedToBeginText.Length), truncatedToBeginText },
-                new object[]{ new AESCore(AESKeySizes.KeySize256Bits), text, new OffsetOptions(truncatedToEndText.Length, truncatedToEndText.Length), truncatedToEndText },
-                new object[]{ new AESCore(AESKeySizes.KeySize256Bits), textWithAdditionalTexts, new OffsetOptions(additionalTextAtBeginLength, text.Length), text },
+                new object[]{ new AESBase(AESKeySizes.KeySize256Bits), text, new OffsetOptions(), text },
+                new object[]{ new AESBase(AESKeySizes.KeySize256Bits), text, new OffsetOptions(0, truncatedToBeginText.Length), truncatedToBeginText },
+                new object[]{ new AESBase(AESKeySizes.KeySize256Bits), text, new OffsetOptions(truncatedToEndText.Length, truncatedToEndText.Length), truncatedToEndText },
+                new object[]{ new AESBase(AESKeySizes.KeySize256Bits), textWithAdditionalTexts, new OffsetOptions(additionalTextAtBeginLength, text.Length), text },
             };
         }
 

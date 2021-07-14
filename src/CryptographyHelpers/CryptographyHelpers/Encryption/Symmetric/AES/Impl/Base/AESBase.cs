@@ -9,7 +9,7 @@ using System.Security.Cryptography;
 
 namespace CryptographyHelpers.Encryption.Symmetric.AES
 {
-    public class AESCore : IAES
+    public class AESBase : IAES
     {
         public event OnProgressHandler OnEncryptFileProgress;
         public event OnProgressHandler OnDecryptFileProgress;
@@ -23,7 +23,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
         private readonly InternalServiceLocator _serviceLocator = InternalServiceLocator.Instance;
 
 
-        public AESCore(byte[] key, byte[] IV, CipherMode? cipherMode = null, PaddingMode? paddingMode = null, EncodingType? encodingType = null, int? bufferSizeInKBForFileProcessing = null)
+        public AESBase(byte[] key, byte[] IV, CipherMode? cipherMode = null, PaddingMode? paddingMode = null, EncodingType? encodingType = null, int? bufferSizeInKBForFileProcessing = null)
         {
             _aes = Aes.Create();
             _aes.Key = key;
@@ -43,7 +43,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
             _bufferSizeInKBForFileProcessing = bufferSizeInKBForFileProcessing ?? _bufferSizeInKBForFileProcessing;
         }
 
-        public AESCore(string encodedKey, string encodedIV, CipherMode? cipherMode = null, PaddingMode? paddingMode = null, EncodingType? encodingType = null, int? bufferSizeInKBForFileProcessing = null)
+        public AESBase(string encodedKey, string encodedIV, CipherMode? cipherMode = null, PaddingMode? paddingMode = null, EncodingType? encodingType = null, int? bufferSizeInKBForFileProcessing = null)
         {
             _encodingType = encodingType ?? _encodingType;
             //_encoder = _encodingType == EncodingType.Base64
@@ -67,7 +67,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
         /// This constructor call creates a random key with specified size, a random IV and defines CipherMode as CBC and PaddingMode as PKCS7.
         /// </summary>
         /// <param name="keySizeToGenerateRandomKey"></param>
-        public AESCore(AESKeySizes keySizeToGenerateRandomKey, CipherMode? cipherMode = null, PaddingMode? paddingMode = null, EncodingType? encodingType = null, int? bufferSizeInKBForFileProcessing = null)
+        public AESBase(AESKeySizes keySizeToGenerateRandomKey, CipherMode? cipherMode = null, PaddingMode? paddingMode = null, EncodingType? encodingType = null, int? bufferSizeInKBForFileProcessing = null)
         {
             _aes = Aes.Create();
             _aes.Key = keySizeToGenerateRandomKey switch
