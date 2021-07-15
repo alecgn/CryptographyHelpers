@@ -1,4 +1,6 @@
-﻿using CryptographyHelpers.Utils;
+﻿using CryptographyHelpers.IoC;
+using CryptographyHelpers.Text.Encoding;
+using CryptographyHelpers.Utils;
 using System;
 using System.Security.Cryptography;
 
@@ -9,12 +11,22 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
         private const CipherMode Mode = CipherMode.CBC;
         private const PaddingMode Padding = PaddingMode.PKCS7;
         private const AESKeySizes AESKeySize = AESKeySizes.KeySize192Bits;
+        private const EncodingType DefaultEncodingType = EncodingType.Base64;
+        private static readonly InternalServiceLocator _serviceLocator = InternalServiceLocator.Instance;
 
 
-        public AES192CBC() : base(keySizeToGenerateRandomKey: AESKeySize) { }
+        public AES192CBC() : base(AESKeySize, Mode, Padding, DefaultEncodingType) { }
 
         public AES192CBC(byte[] key, byte[] IV)
-            : base(ValidateAESKey(key).Invoke(), ValidateAESIV(IV).Invoke(), Mode, Padding) { }
+            : base(ValidateAESKey(key).Invoke(), ValidateAESIV(IV).Invoke(), Mode, Padding, DefaultEncodingType) { }
+
+        public AES192CBC(string encodedKey, string encodedIV, EncodingType? encodingType = null)
+            : base(
+                  ValidateEncodedAESKey(encodedKey, encodingType ?? DefaultEncodingType).Invoke(),
+                  ValidateEncodedAESIV(encodedIV, encodingType ?? DefaultEncodingType).Invoke(),
+                  Mode,
+                  Padding,
+                  encodingType ?? DefaultEncodingType) { }
 
 
         private static Func<byte[]> ValidateAESKey(byte[] key)
@@ -29,10 +41,48 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
             return func;
         }
 
+        private static Func<byte[]> ValidateEncodedAESKey(string encodedKey, EncodingType encodingType)
+        {
+            byte[] func()
+            {
+                var key = encodingType switch
+                {
+                    EncodingType.Base64 => _serviceLocator.GetService<IBase64>().DecodeString(encodedKey),
+                    EncodingType.Hexadecimal => _serviceLocator.GetService<IHexadecimal>().DecodeString(encodedKey),
+                    _ => throw new InvalidOperationException($@"Unexpected enum value ""{encodingType}"" of type {typeof(EncodingType)}."),
+                };
+
+                CryptographyUtils.ValidateAESKey(key, AESKeySize);
+
+                return key;
+            }
+
+            return func;
+        }
+
         private static Func<byte[]> ValidateAESIV(byte[] IV)
         {
             byte[] func()
             {
+                CryptographyUtils.ValidateAESIV(IV);
+
+                return IV;
+            }
+
+            return func;
+        }
+
+        private static Func<byte[]> ValidateEncodedAESIV(string encodedIV, EncodingType encodingType)
+        {
+            byte[] func()
+            {
+                var IV = encodingType switch
+                {
+                    EncodingType.Base64 => _serviceLocator.GetService<IBase64>().DecodeString(encodedIV),
+                    EncodingType.Hexadecimal => _serviceLocator.GetService<IHexadecimal>().DecodeString(encodedIV),
+                    _ => throw new InvalidOperationException($@"Unexpected enum value ""{encodingType}"" of type {typeof(EncodingType)}."),
+                };
+
                 CryptographyUtils.ValidateAESIV(IV);
 
                 return IV;

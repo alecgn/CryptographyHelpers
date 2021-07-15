@@ -12,7 +12,7 @@ using System.IO;
 namespace CryptographyHelpers.Tests.Hash
 {
     [TestClass]
-    public class HashTests
+    public class HashBaseTests
     {
         private const string WhiteSpaceString = " ";
         private const string PlainTestString = "This is a test string!";
