@@ -1,25 +1,64 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFrameworks>netcoreapp3.0;netcoreapp3.1;net5.0</TargetFrameworks>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <Authors>Alessandro Cagliostro Goncalves Neves</Authors>
-    <Description>CryptographyHelpers is a .NET 5 class library for text and files symmetric (AES_128_CBC / AES_192_CBC / AES_256_CBC / AES_128_GCM / AES_192_GCM / AES_256_GCM) authenticated encryption/decryption, text/files hashing (MD5, SHA1, SHA256, SHA384, SHA512, HMAC-MD5, HMAC-SHA1, HMAC-SHA256, HMAC-SHA384, HMAC-SHA512, PBKDF2, BCrypt and Argon2id) and text encoding/decoding (Base64 and Hexadecimal).</Description>
-    <Copyright>Alessandro Cagliostro Goncalves Neves, 2021</Copyright>
+    <Authors>Alessandro Cagliostro Gonçalves Neves</Authors>
+    <Description>CryptographyHelpers is a multi-target class library (.NET Core 3.0 / .NET Core 3.1 / .NET 5) to provide simple and centralized cryptography algorithms usage like symmetric encryption/decryption (AES128CBC, AES192CBC, AES256CBC, AES128GCM, AES192GCM, AES256GCM), hash (MD5, SHA1, SHA256, SHA384, SHA512), HMAC (HMAC-MD5, HMAC-SHA1, HMAC-SHA256, HMAC-SHA384, HMAC-SHA512), Key Derivation Function (PBKDF2) and encoding/decoding (Base64 and Hexadecimal) of texts and files.</Description>
+    <Copyright>Alessandro Cagliostro Gonçalves Neves, 2021</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/alecgn/CryptographyHelpers</PackageProjectUrl>
     <PackageIcon>CryptographyHelpers.png</PackageIcon>
     <RepositoryUrl>https://github.com/alecgn/CryptographyHelpers</RepositoryUrl>
-    <PackageTags>encryption decryption cryptography aes aes128 aes192 aes256 aes128cbc aes192cbc aes256cbc aes128gcm aes192gcm aes256gcm aescbc aesgcm aescbc128 aescbc192 aescbc256 aesgcm128 aesgcm192 aesgcm256 cbc gcm hash md5 sha1 sha256 sha384 sha512 hmacmd5 hmac-md5 hmacsha1 hmac-sha1 hmacsha256 hmac-sha256 hmacsha384 hmac-sha384 hmacsha512 hmac-sha512 pbkdf2 bcrypt argon2 argon2id c# c-sharp security password authentication authenticated base64 hex hexadecimal encode decode</PackageTags>
-    <AssemblyVersion>1.0.0</AssemblyVersion>
-    <FileVersion>1.0.0</FileVersion>
+    <PackageTags>encryption decryption cryptography aes aes128 aes192 aes256 aes128cbc aes192cbc aes256cbc aes128gcm aes192gcm aes256gcm aescbc aesgcm aescbc128 aescbc192 aescbc256 aesgcm128 aesgcm192 aesgcm256 cbc gcm hash md5 sha1 sha256 sha384 sha512 hmacmd5 hmac-md5 hmacsha1 hmac-sha1 hmacsha256 hmac-sha256 hmacsha384 hmac-sha384 hmacsha512 hmac-sha512 pbkdf2 c# c-sharp security password authentication authenticated base64 hex hexadecimal encode decode</PackageTags>
+    <AssemblyVersion>1.0.1</AssemblyVersion>
+    <FileVersion>1.0.1</FileVersion>
+    <Version>1.0.1</Version>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|netcoreapp3.0|AnyCPU'">
+    <NoWarn>1701;1702;NETSDK1138</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="NuGetIcon\CryptographyHelpers.png">
+    <None Include="Resources\NuGetIcon\CryptographyHelpers.png">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Resources\MessageStrings.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>MessageStrings.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Resources\RegexStrings.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>RegexStrings.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Resources\MessageStrings.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>MessageStrings.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\RegexStrings.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>RegexStrings.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
+      <_Parameter1>CryptographyHelpers.Tests</_Parameter1>
+    </AssemblyAttribute>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Cryptography.KeyDerivation" Version="5.0.7" />
   </ItemGroup>
 
 </Project>

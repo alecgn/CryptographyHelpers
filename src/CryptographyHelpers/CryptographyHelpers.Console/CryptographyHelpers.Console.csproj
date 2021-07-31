@@ -3,10 +3,33 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net5.0</TargetFramework>
+    <AssemblyName>cryptohelper</AssemblyName>
+    <Version>1.0.1</Version>
+    <AssemblyVersion>1.0.1</AssemblyVersion>
+    <FileVersion>1.0.1</FileVersion>
+    <Authors>Alessandro Cagliostro Gonçalves Neves</Authors>
+    <Company>Alessandro Cagliostro Gonçalves Neves</Company>
+    <Product>CryptographyHelpers.Console</Product>
+    <PackageId>CryptographyHelpers.Console</PackageId>
+    <Description>CryptographyHelpers.Console is a console utility to consume CryptographyHelpers lib facilities.</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/alecgn/CryptographyHelpers</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/alecgn/CryptographyHelpers</RepositoryUrl>
+    <PackageTags>encryption decryption cryptography aes aes128 aes192 aes256 aes128cbc aes192cbc aes256cbc aes128gcm aes192gcm aes256gcm aescbc aesgcm aescbc128 aescbc192 aescbc256 aesgcm128 aesgcm192 aesgcm256 cbc gcm hash md5 sha1 sha256 sha384 sha512 hmacmd5 hmac-md5 hmacsha1 hmac-sha1 hmacsha256 hmac-sha256 hmacsha384 hmac-sha384 hmacsha512 hmac-sha512 pbkdf2 c# c-sharp security password authentication authenticated base64 hex hexadecimal encode decode</PackageTags>
+    <Copyright>Alessandro Cagliostro Gonçalves Neves, 2021</Copyright>
+    <PackageIcon>CryptographyHelpers.png</PackageIcon>
+    <PackageIconUrl />
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\CryptographyHelpers\CryptographyHelpers.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\CryptographyHelpers\Resources\NuGetIcon\CryptographyHelpers.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>

@@ -1,0 +1,37 @@
+name: build-test-and-deploy
+on: 
+    push:
+        branches:
+            - master
+jobs:
+  build-test-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    
+    - name: Setup .NET Core 3
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '3.0.x'
+    
+    - name: Setup .NET Core 3.1
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '3.1.x'
+    
+    - name: Setup .NET 5
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: '5.0.x'
+
+    - name: Build
+      run: dotnet build --configuration Release src/CryptographyHelpers/CryptographyHelpers/CryptographyHelpers.csproj
+
+    - name: Run tests
+      run: dotnet test src/CryptographyHelpers/CryptographyHelpers.Tests/CryptographyHelpers.Tests.csproj
+
+    - name: Publish to NuGet
+      uses: brandedoutcast/publish-nuget@v2
+      with:
+          PROJECT_FILE_PATH: src/CryptographyHelpers/CryptographyHelpers/CryptographyHelpers.csproj
+          NUGET_KEY: ${{secrets.NUGET_TOKEN}}
