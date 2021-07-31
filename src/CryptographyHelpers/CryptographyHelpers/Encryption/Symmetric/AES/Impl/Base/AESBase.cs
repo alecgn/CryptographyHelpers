@@ -36,8 +36,8 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
             //    : _serviceLocator.GetService<IHexadecimal>();
             _encoder = _encodingType switch
             {
-                EncodingType.Base64 => _serviceLocator.GetService<IBase64>(),
-                EncodingType.Hexadecimal => _serviceLocator.GetService<IHexadecimal>(),
+                EncodingType.Base64 => _serviceLocator.GetService<IBase64Encoder>(),
+                EncodingType.Hexadecimal => _serviceLocator.GetService<IHexadecimalEncoder>(),
                 _ => throw new InvalidOperationException($@"Unexpected enum value ""{_encodingType}"" of type {typeof(EncodingType)}."),
             };
             _bufferSizeInKBForFileProcessing = bufferSizeInKBForFileProcessing ?? _bufferSizeInKBForFileProcessing;
@@ -51,8 +51,8 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
             //    : _serviceLocator.GetService<IHexadecimal>();
             _encoder = _encodingType switch
             {
-                EncodingType.Base64 => _serviceLocator.GetService<IBase64>(),
-                EncodingType.Hexadecimal => _serviceLocator.GetService<IHexadecimal>(),
+                EncodingType.Base64 => _serviceLocator.GetService<IBase64Encoder>(),
+                EncodingType.Hexadecimal => _serviceLocator.GetService<IHexadecimalEncoder>(),
                 _ => throw new InvalidOperationException($@"Unexpected enum value ""{_encodingType}"" of type {typeof(EncodingType)}."),
             };
             _aes = Aes.Create();
@@ -86,15 +86,15 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
             //    : _serviceLocator.GetService<IHexadecimal>();
             _encoder = _encodingType switch
             {
-                EncodingType.Base64 => _serviceLocator.GetService<IBase64>(),
-                EncodingType.Hexadecimal => _serviceLocator.GetService<IHexadecimal>(),
+                EncodingType.Base64 => _serviceLocator.GetService<IBase64Encoder>(),
+                EncodingType.Hexadecimal => _serviceLocator.GetService<IHexadecimalEncoder>(),
                 _ => throw new InvalidOperationException($@"Unexpected enum value ""{_encodingType}"" of type {typeof(EncodingType)}."),
             };
             _bufferSizeInKBForFileProcessing = bufferSizeInKBForFileProcessing ?? _bufferSizeInKBForFileProcessing;
         }
 
 
-        public AESEncryptionResult Encrypt(byte[] data, OffsetOptions? offsetOptions = null)
+        public AESEncryptionResult Encrypt(byte[] data, OffsetOptions offsetOptions = null)
         {
             if (data is null || data.Length == 0)
             {
@@ -107,10 +107,10 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
 
             try
             {
-                var offset = offsetOptions.HasValue ? offsetOptions.Value.Offset : 0;
-                var totalBytesToRead = offsetOptions.HasValue
-                    ? offsetOptions.Value.Count == 0 ? data.Length : offsetOptions.Value.Count
-                    : data.Length;
+                var offset = offsetOptions is null ? 0 : offsetOptions.Offset;
+                var totalBytesToRead = offsetOptions is null
+                    ? data.Length
+                    : offsetOptions.Count == 0 ? data.Length : offsetOptions.Count;
                 var dataPayload = new byte[totalBytesToRead];
                 Array.Copy(data, offset, dataPayload, 0, totalBytesToRead);
                 byte[] encryptedData;
@@ -152,7 +152,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
             }
         }
 
-        public AESTextEncryptionResult EncryptText(string plainText, OffsetOptions? offsetOptions = null)
+        public AESTextEncryptionResult EncryptText(string plainText, OffsetOptions offsetOptions = null)
         {
             if (string.IsNullOrWhiteSpace(plainText))
             {
@@ -165,10 +165,10 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
 
             try
             {
-                var offset = offsetOptions.HasValue ? offsetOptions.Value.Offset : 0;
-                var totalCharsToRead = offsetOptions.HasValue
-                    ? offsetOptions.Value.Count == 0 ? plainText.Length : offsetOptions.Value.Count
-                    : plainText.Length;
+                var offset = offsetOptions is null ? 0 : offsetOptions.Offset;
+                var totalCharsToRead = offsetOptions is null
+                    ? plainText.Length
+                    : offsetOptions.Count == 0 ? plainText.Length : offsetOptions.Count;
                 var plainTextPayload = plainText.Substring(offset, totalCharsToRead);
                 var plainTextPayloadBytes = plainTextPayload.ToUTF8Bytes();
                 var encryptionResult = Encrypt(plainTextPayloadBytes);
@@ -209,7 +209,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
             }
         }
 
-        public AESFileEncryptionResult EncryptFile(string sourceFilePath, string encryptedFilePath, LongOffsetOptions? offsetOptions = null)
+        public AESFileEncryptionResult EncryptFile(string sourceFilePath, string encryptedFilePath, LongOffsetOptions offsetOptions = null)
         {
             if (!File.Exists(sourceFilePath))
             {
@@ -239,7 +239,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
                 {
                     using (var sourceFileStream = File.Open(sourceFilePath, FileMode.Open, FileAccess.Read, FileShare.Read))
                     {
-                        var offset = offsetOptions.HasValue ? offsetOptions.Value.Offset : 0L;
+                        var offset = offsetOptions is null ? 0L : offsetOptions.Offset;
                         sourceFileStream.Position = offset;
 
                         using (var encryptedFileStream = File.Open(encryptedFilePath, FileMode.Create, FileAccess.Write, FileShare.None))
@@ -247,9 +247,9 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
                             using (var cryptoStream = new CryptoStream(encryptedFileStream, encryptor, CryptoStreamMode.Write))
                             {
                                 var buffer = new byte[_bufferSizeInKBForFileProcessing];
-                                var totalBytesToRead = offsetOptions.HasValue
-                                    ? offsetOptions.Value.Count == 0L ? sourceFileStream.Length : offsetOptions.Value.Count
-                                    : sourceFileStream.Length;
+                                var totalBytesToRead = offsetOptions is null
+                                    ? sourceFileStream.Length
+                                    : offsetOptions.Count == 0L ? sourceFileStream.Length : offsetOptions.Count;
                                 var totalBytesNotRead = totalBytesToRead;
                                 var totalBytesRead = 0L;
                                 var percentageDone = 0;
@@ -303,7 +303,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
             }
         }
 
-        public AESDecryptionResult Decrypt(byte[] encryptedData, OffsetOptions? offsetOptions = null)
+        public AESDecryptionResult Decrypt(byte[] encryptedData, OffsetOptions offsetOptions = null)
         {
             if (encryptedData is null || encryptedData.Length == 0)
             {
@@ -316,10 +316,10 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
 
             try
             {
-                var offset = offsetOptions.HasValue ? offsetOptions.Value.Offset : 0;
-                var totalBytesToRead = offsetOptions.HasValue
-                    ? offsetOptions.Value.Count == 0 ? encryptedData.Length : offsetOptions.Value.Count
-                    : encryptedData.Length;
+                var offset = offsetOptions is null ? 0 : offsetOptions.Offset;
+                var totalBytesToRead = offsetOptions is null
+                    ? encryptedData.Length
+                    : offsetOptions.Count == 0 ? encryptedData.Length : offsetOptions.Count;
                 var payload = new byte[totalBytesToRead];
                 Array.Copy(encryptedData, offset, payload, 0, totalBytesToRead);
                 byte[] decryptedData;
@@ -361,7 +361,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
             }
         }
 
-        public AESTextDecryptionResult DecryptText(string encodedEncryptedText, OffsetOptions? offsetOptions = null)
+        public AESTextDecryptionResult DecryptText(string encodedEncryptedText, OffsetOptions offsetOptions = null)
         {
             if (string.IsNullOrWhiteSpace(encodedEncryptedText))
             {
@@ -374,10 +374,10 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
 
             try
             {
-                var offset = offsetOptions.HasValue ? offsetOptions.Value.Offset : 0;
-                var totalCharsToRead = offsetOptions.HasValue
-                    ? offsetOptions.Value.Count == 0 ? encodedEncryptedText.Length : offsetOptions.Value.Count
-                    : encodedEncryptedText.Length;
+                var offset = offsetOptions is null ? 0 : offsetOptions.Offset;
+                var totalCharsToRead = offsetOptions is null
+                    ? encodedEncryptedText.Length
+                    : offsetOptions.Count == 0 ? encodedEncryptedText.Length : offsetOptions.Count;
                 var encodedEncryptedTextPayload = encodedEncryptedText.Substring(offset, totalCharsToRead);
                 var encodedEncryptedTextPayloadBytes = _encoder.DecodeString(encodedEncryptedTextPayload);
                 var decryptionResult = Decrypt(encodedEncryptedTextPayloadBytes);
@@ -418,7 +418,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
             }
         }
 
-        public AESFileDecryptionResult DecryptFile(string encryptedFilePath, string decryptedFilePath, LongOffsetOptions? offsetOptions = null)
+        public AESFileDecryptionResult DecryptFile(string encryptedFilePath, string decryptedFilePath, LongOffsetOptions offsetOptions = null)
         {
             if (!File.Exists(encryptedFilePath))
             {
@@ -447,7 +447,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
                 {
                     using (var encryptedFileStream = File.Open(encryptedFilePath, FileMode.Open, FileAccess.Read, FileShare.Read))
                     {
-                        var offset = offsetOptions.HasValue ? offsetOptions.Value.Offset : 0L;
+                        var offset = offsetOptions is null ? 0L : offsetOptions.Offset;
                         encryptedFileStream.Position = offset;
 
                         using (var decryptor = _aes.CreateDecryptor(_aes.Key, _aes.IV))
@@ -455,9 +455,9 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
                             using (var cryptoStream = new CryptoStream(decryptedFileStream, decryptor, CryptoStreamMode.Write))
                             {
                                 var buffer = new byte[_bufferSizeInKBForFileProcessing];
-                                var totalBytesToRead = offsetOptions.HasValue
-                                    ? offsetOptions.Value.Count == 0L ? encryptedFileStream.Length : offsetOptions.Value.Count
-                                    : encryptedFileStream.Length;
+                                var totalBytesToRead = offsetOptions is null
+                                    ? encryptedFileStream.Length
+                                    : offsetOptions.Count == 0L ? encryptedFileStream.Length : offsetOptions.Count;
                                 var totalBytesNotRead = totalBytesToRead;
                                 long totalBytesRead = 0L;
                                 var percentageDone = 0;

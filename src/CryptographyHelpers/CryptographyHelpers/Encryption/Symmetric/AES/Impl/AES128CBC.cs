@@ -24,9 +24,10 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
             : base(
                   ValidateEncodedAESKey(encodedKey, encodingType ?? DefaultEncodingType).Invoke(),
                   ValidateEncodedAESIV(encodedIV, encodingType ?? DefaultEncodingType).Invoke(),
-                  Mode, 
-                  Padding, 
-                  encodingType ?? DefaultEncodingType) { }
+                  Mode,
+                  Padding,
+                  encodingType ?? DefaultEncodingType)
+        { }
 
 
         private static Func<byte[]> ValidateAESKey(byte[] key)
@@ -47,8 +48,8 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
             {
                 var key = encodingType switch
                 {
-                    EncodingType.Base64 => _serviceLocator.GetService<IBase64>().DecodeString(encodedKey),
-                    EncodingType.Hexadecimal => _serviceLocator.GetService<IHexadecimal>().DecodeString(encodedKey),
+                    EncodingType.Base64 => _serviceLocator.GetService<IBase64Encoder>().DecodeString(encodedKey),
+                    EncodingType.Hexadecimal => _serviceLocator.GetService<IHexadecimalEncoder>().DecodeString(encodedKey),
                     _ => throw new InvalidOperationException($@"Unexpected enum value ""{encodingType}"" of type {typeof(EncodingType)}."),
                 };
 
@@ -78,8 +79,8 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
             {
                 var IV = encodingType switch
                 {
-                    EncodingType.Base64 => _serviceLocator.GetService<IBase64>().DecodeString(encodedIV),
-                    EncodingType.Hexadecimal => _serviceLocator.GetService<IHexadecimal>().DecodeString(encodedIV),
+                    EncodingType.Base64 => _serviceLocator.GetService<IBase64Encoder>().DecodeString(encodedIV),
+                    EncodingType.Hexadecimal => _serviceLocator.GetService<IHexadecimalEncoder>().DecodeString(encodedIV),
                     _ => throw new InvalidOperationException($@"Unexpected enum value ""{encodingType}"" of type {typeof(EncodingType)}."),
                 };
 

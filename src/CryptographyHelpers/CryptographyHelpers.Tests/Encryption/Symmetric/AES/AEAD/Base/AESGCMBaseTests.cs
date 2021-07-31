@@ -19,8 +19,8 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES.AEAD
         private const string WhiteSpaceString = " ";
         private const string PlainTestString = "This is a test string!";
 
-        private static readonly IBase64 _base64Encoder = InternalServiceLocator.Instance.GetService<IBase64>();
-        private static readonly IHexadecimal _hexadecimalEncoder = InternalServiceLocator.Instance.GetService<IHexadecimal>();
+        private static readonly IBase64Encoder _base64Encoder = InternalServiceLocator.Instance.GetService<IBase64Encoder>();
+        private static readonly IHexadecimalEncoder _hexadecimalEncoder = InternalServiceLocator.Instance.GetService<IHexadecimalEncoder>();
 
 
         [TestMethod]

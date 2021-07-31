@@ -26,8 +26,8 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
             //    : _serviceLocator.GetService<IHexadecimal>();
             _encoder = _encodingType switch
             {
-                EncodingType.Base64 => _serviceLocator.GetService<IBase64>(),
-                EncodingType.Hexadecimal => _serviceLocator.GetService<IHexadecimal>(),
+                EncodingType.Base64 => _serviceLocator.GetService<IBase64Encoder>(),
+                EncodingType.Hexadecimal => _serviceLocator.GetService<IHexadecimalEncoder>(),
                 _ => throw new InvalidOperationException($@"Unexpected enum value ""{_encodingType}"" of type {typeof(EncodingType)}."),
             };
         }
@@ -40,8 +40,8 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
             //    : _serviceLocator.GetService<IHexadecimal>();
             _encoder = _encodingType switch
             {
-                EncodingType.Base64 => _serviceLocator.GetService<IBase64>(),
-                EncodingType.Hexadecimal => _serviceLocator.GetService<IHexadecimal>(),
+                EncodingType.Base64 => _serviceLocator.GetService<IBase64Encoder>(),
+                EncodingType.Hexadecimal => _serviceLocator.GetService<IHexadecimalEncoder>(),
                 _ => throw new InvalidOperationException($@"Unexpected enum value ""{_encodingType}"" of type {typeof(EncodingType)}."),
             };
             _key = _encoder.DecodeString(encodedKey);
@@ -68,14 +68,14 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
             //    : _serviceLocator.GetService<IHexadecimal>();
             _encoder = _encodingType switch
             {
-                EncodingType.Base64 => _serviceLocator.GetService<IBase64>(),
-                EncodingType.Hexadecimal => _serviceLocator.GetService<IHexadecimal>(),
+                EncodingType.Base64 => _serviceLocator.GetService<IBase64Encoder>(),
+                EncodingType.Hexadecimal => _serviceLocator.GetService<IHexadecimalEncoder>(),
                 _ => throw new InvalidOperationException($@"Unexpected enum value ""{_encodingType}"" of type {typeof(EncodingType)}."),
             };
         }
 
 
-        public AESGCMEncryptionResult Encrypt(byte[] data, OffsetOptions? offsetOptions = null, byte[] associatedData = null)
+        public AESGCMEncryptionResult Encrypt(byte[] data, OffsetOptions offsetOptions = null, byte[] associatedData = null)
         {
             if (data is null || data.Length == 0)
             {
@@ -88,10 +88,10 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
 
             try
             {
-                var offset = offsetOptions.HasValue ? offsetOptions.Value.Offset : 0;
-                var totalBytesToRead = offsetOptions.HasValue
-                    ? offsetOptions.Value.Count == 0 ? data.Length : offsetOptions.Value.Count
-                    : data.Length;
+                var offset = offsetOptions is null ? 0 : offsetOptions.Offset;
+                var totalBytesToRead = offsetOptions is null
+                    ? data.Length
+                    : offsetOptions.Count == 0 ? data.Length : offsetOptions.Count;
                 var dataPayload = new byte[totalBytesToRead];
                 Array.Copy(data, offset, dataPayload, 0, totalBytesToRead);
                 // Avoid nonce reuse (catastrophic security breach), randomly generate a new one in every method call
@@ -125,7 +125,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
             }
         }
 
-        public AESGCMTextEncryptionResult EncryptText(string plainText, OffsetOptions? offsetOptions = null, string associatedDataText = null)
+        public AESGCMTextEncryptionResult EncryptText(string plainText, OffsetOptions offsetOptions = null, string associatedDataText = null)
         {
             if (string.IsNullOrWhiteSpace(plainText))
             {
@@ -138,10 +138,10 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
 
             try
             {
-                var offset = offsetOptions.HasValue ? offsetOptions.Value.Offset : 0;
-                var totalCharsToRead = offsetOptions.HasValue
-                    ? offsetOptions.Value.Count == 0 ? plainText.Length : offsetOptions.Value.Count
-                    : plainText.Length;
+                var offset = offsetOptions is null ? 0 : offsetOptions.Offset;
+                var totalCharsToRead = offsetOptions is null
+                    ? plainText.Length
+                    : offsetOptions.Count == 0 ? plainText.Length : offsetOptions.Count;
                 var plainTextPayload = plainText.Substring(offset, totalCharsToRead);
                 var plainTextPayloadBytes = plainTextPayload.ToUTF8Bytes();
                 var associatedDataTextBytes = string.IsNullOrWhiteSpace(associatedDataText) ? null : associatedDataText.ToUTF8Bytes();
@@ -185,7 +185,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
             }
         }
 
-        public AESGCMDecryptionResult Decrypt(byte[] encryptedData, byte[] nonce, byte[] tag, OffsetOptions? offsetOptions = null, byte[] associatedData = null)
+        public AESGCMDecryptionResult Decrypt(byte[] encryptedData, byte[] nonce, byte[] tag, OffsetOptions offsetOptions = null, byte[] associatedData = null)
         {
             if (encryptedData == null || encryptedData.Length == 0)
             {
@@ -198,10 +198,10 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
 
             try
             {
-                var offset = offsetOptions.HasValue ? offsetOptions.Value.Offset : 0;
-                var totalBytesToRead = offsetOptions.HasValue
-                    ? offsetOptions.Value.Count == 0 ? encryptedData.Length : offsetOptions.Value.Count
-                    : encryptedData.Length;
+                var offset = offsetOptions is null ? 0 : offsetOptions.Offset;
+                var totalBytesToRead = offsetOptions is null
+                    ? encryptedData.Length
+                    : offsetOptions.Count == 0 ? encryptedData.Length : offsetOptions.Count;
                 var encryptedDataPayload = new byte[totalBytesToRead];
                 var decryptedData = new byte[totalBytesToRead];
                 Array.Copy(encryptedData, offset, encryptedDataPayload, 0, totalBytesToRead);
@@ -228,7 +228,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
             }
         }
 
-        public AESGCMTextDecryptionResult DecryptText(string encodedEncryptedText, string encodedNonce, string encodedTag, OffsetOptions? offsetOptions = null, string associatedDataText = null)
+        public AESGCMTextDecryptionResult DecryptText(string encodedEncryptedText, string encodedNonce, string encodedTag, OffsetOptions offsetOptions = null, string associatedDataText = null)
         {
             if (string.IsNullOrWhiteSpace(encodedEncryptedText))
             {
@@ -241,10 +241,10 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
 
             try
             {
-                var offset = offsetOptions.HasValue ? offsetOptions.Value.Offset : 0;
-                var totalCharsToRead = offsetOptions.HasValue
-                    ? offsetOptions.Value.Count == 0 ? encodedEncryptedText.Length : offsetOptions.Value.Count
-                    : encodedEncryptedText.Length;
+                var offset = offsetOptions is null ? 0 : offsetOptions.Offset;
+                var totalCharsToRead = offsetOptions is null
+                    ? encodedEncryptedText.Length
+                    : offsetOptions.Count == 0 ? encodedEncryptedText.Length : offsetOptions.Count;
                 var encodedEncryptedTextPayload = encodedEncryptedText.Substring(offset, totalCharsToRead);
                 var encryptedTextPayloadBytes = _encoder.DecodeString(encodedEncryptedTextPayload);
                 var associatedDataTextBytes = string.IsNullOrWhiteSpace(associatedDataText) ? null : associatedDataText.ToUTF8Bytes();

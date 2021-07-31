@@ -1,6 +1,6 @@
 ﻿namespace CryptographyHelpers.Text.Encoding
 {
-    public interface IHexadecimal : IEncoder
+    public interface IHexadecimalEncoder : IEncoder
     {
         string EncodeToString(string plainString, HexadecimalEncodingOptions hexadecimalOutputEncodingOptions);
 

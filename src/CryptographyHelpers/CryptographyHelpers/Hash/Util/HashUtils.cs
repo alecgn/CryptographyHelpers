@@ -1,12 +1,11 @@
-﻿using System.Collections.Concurrent;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Security.Authentication;
 
 namespace CryptographyHelpers.Hash
 {
     public static class HashUtils
     {
-        public static readonly IDictionary<HashAlgorithmType, int> HashAlgorithmOutputBitsSize = new ConcurrentDictionary<HashAlgorithmType, int>()
+        public static readonly IDictionary<HashAlgorithmType, int> HashAlgorithmOutputBitsSize = new Dictionary<HashAlgorithmType, int>()
         {
             [HashAlgorithmType.Md5] = 128,
             [HashAlgorithmType.Sha1] = 160,
@@ -15,7 +14,7 @@ namespace CryptographyHelpers.Hash
             [HashAlgorithmType.Sha512] = 512,
         };
 
-        public static readonly IDictionary<HashAlgorithmType, int> HashAlgorithmOutputBytesSize = new ConcurrentDictionary<HashAlgorithmType, int>()
+        public static readonly IDictionary<HashAlgorithmType, int> HashAlgorithmOutputBytesSize = new Dictionary<HashAlgorithmType, int>()
         {
             [HashAlgorithmType.Md5] = HashAlgorithmOutputBitsSize[HashAlgorithmType.Md5] / Constants.BitsPerByte,
             [HashAlgorithmType.Sha1] = HashAlgorithmOutputBitsSize[HashAlgorithmType.Sha1] / Constants.BitsPerByte,

@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace CryptographyHelpers.Text.Encoding
 {
-    public class Base64 : IBase64
+    public class Base64Encoder : IBase64Encoder
     {
         private const int Base64ChunkSize = 4;
         private static Regex _regexBase64String = null;

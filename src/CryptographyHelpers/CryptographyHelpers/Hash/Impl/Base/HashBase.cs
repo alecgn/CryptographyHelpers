@@ -29,15 +29,15 @@ namespace CryptographyHelpers.Hash
             _encodingType = encodingType ?? _encodingType;
             _encoder = _encodingType switch
             {
-                EncodingType.Hexadecimal => _serviceLocator.GetService<IHexadecimal>(),
-                EncodingType.Base64 => _serviceLocator.GetService<IBase64>(),
+                EncodingType.Hexadecimal => _serviceLocator.GetService<IHexadecimalEncoder>(),
+                EncodingType.Base64 => _serviceLocator.GetService<IBase64Encoder>(),
                 _ => throw new InvalidOperationException($@"Unexpected enum value ""{_encodingType}"" of type {typeof(EncodingType)}."),
             };
             _bufferSizeInKBForFileHashing = bufferSizeInKBForFileHashing ?? _bufferSizeInKBForFileHashing;
         }
 
 
-        public HashResult ComputeHash(byte[] bytesToComputeHash, OffsetOptions? offsetOptions = null)
+        public HashResult ComputeHash(byte[] bytesToComputeHash, OffsetOptions offsetOptions = null)
         {
             if (bytesToComputeHash is null || bytesToComputeHash.Length == 0)
             {
@@ -50,10 +50,10 @@ namespace CryptographyHelpers.Hash
 
             try
             {
-                var offset = offsetOptions.HasValue ? offsetOptions.Value.Offset : 0;
-                var totalBytesToRead = offsetOptions.HasValue
-                    ? offsetOptions.Value.Count == 0 ? bytesToComputeHash.Length : offsetOptions.Value.Count
-                    : bytesToComputeHash.Length;
+                var offset = offsetOptions is null ? 0 : offsetOptions.Offset;
+                var totalBytesToRead = offsetOptions is null
+                    ? bytesToComputeHash.Length
+                    : offsetOptions.Count == 0 ? bytesToComputeHash.Length : offsetOptions.Count;
                 var hashBytes = _hashAlgorithm.ComputeHash(bytesToComputeHash, offset, totalBytesToRead);
 
                 return new HashResult()
@@ -62,7 +62,7 @@ namespace CryptographyHelpers.Hash
                     Message = MessageStrings.Hash_ComputeSuccess,
                     HashAlgorithmType = _hashAlgorithmType,
                     HashBytes = hashBytes,
-                    HashStringEncodingType = _encodingType,
+                    EncodingType = _encodingType,
                     HashString = _encoder.EncodeToString(hashBytes),
                 };
             }
@@ -76,7 +76,7 @@ namespace CryptographyHelpers.Hash
             }
         }
 
-        public HashResult ComputeTextHash(string textToComputeHash, OffsetOptions? offsetOptions = null)
+        public HashResult ComputeTextHash(string textToComputeHash, OffsetOptions offsetOptions = null)
         {
             if (string.IsNullOrWhiteSpace(textToComputeHash))
             {
@@ -89,10 +89,10 @@ namespace CryptographyHelpers.Hash
 
             try
             {
-                var offset = offsetOptions.HasValue ? offsetOptions.Value.Offset : 0;
-                var totalCharsToRead = offsetOptions.HasValue
-                    ? offsetOptions.Value.Count == 0 ? textToComputeHash.Length : offsetOptions.Value.Count
-                    : textToComputeHash.Length;
+                var offset = offsetOptions is null ? 0 : offsetOptions.Offset;
+                var totalCharsToRead = offsetOptions is null
+                    ? textToComputeHash.Length
+                    : offsetOptions.Count == 0 ? textToComputeHash.Length : offsetOptions.Count;
                 var textToComputeHashPayload = textToComputeHash.Substring(offset, totalCharsToRead);
                 var textToComputeHashPayloadBytes = textToComputeHashPayload.ToUTF8Bytes();
 
@@ -108,7 +108,7 @@ namespace CryptographyHelpers.Hash
             }
         }
 
-        public HashResult ComputeFileHash(string filePathToComputeHash, LongOffsetOptions? offsetOptions = null)
+        public HashResult ComputeFileHash(string filePathToComputeHash, LongOffsetOptions offsetOptions = null)
         {
             if (!File.Exists(filePathToComputeHash))
             {
@@ -123,10 +123,10 @@ namespace CryptographyHelpers.Hash
             {
                 using (var fileStream = new FileStream(filePathToComputeHash, FileMode.Open, FileAccess.Read, FileShare.None))
                 {
-                    var offset = offsetOptions.HasValue ? offsetOptions.Value.Offset : 0L;
-                    var totalBytesToRead = offsetOptions.HasValue
-                        ? offsetOptions.Value.Count == 0L ? fileStream.Length : offsetOptions.Value.Count
-                        : fileStream.Length;
+                    var offset = offsetOptions is null ? 0L : offsetOptions.Offset;
+                    var totalBytesToRead = offsetOptions is null
+                        ? fileStream.Length
+                        : offsetOptions.Count == 0L ? fileStream.Length : offsetOptions.Count;
                     fileStream.Position = offset;
                     var buffer = new byte[_bufferSizeInKBForFileHashing];
                     var totalBytesNotRead = totalBytesToRead;
@@ -169,7 +169,7 @@ namespace CryptographyHelpers.Hash
                     Message = MessageStrings.Hash_ComputeSuccess,
                     HashAlgorithmType = _hashAlgorithmType,
                     HashBytes = _hashAlgorithm.Hash,
-                    HashStringEncodingType = _encodingType,
+                    EncodingType = _encodingType,
                     HashString = _encoder.EncodeToString(_hashAlgorithm.Hash),
                 };
             }
@@ -183,7 +183,7 @@ namespace CryptographyHelpers.Hash
             }
         }
 
-        public HashResult VerifyHash(byte[] bytesToVerifyHash, byte[] verificationHashBytes, OffsetOptions? offsetOptions = null)
+        public HashResult VerifyHash(byte[] bytesToVerifyHash, byte[] verificationHashBytes, OffsetOptions offsetOptions = null)
         {
             if (verificationHashBytes is null || verificationHashBytes.Length == 0)
             {
@@ -207,7 +207,7 @@ namespace CryptographyHelpers.Hash
             return hashResult;
         }
 
-        public HashResult VerifyTextHash(string textToVerifyHash, string encodedVerificationHashString, OffsetOptions? offsetOptions = null)
+        public HashResult VerifyTextHash(string textToVerifyHash, string encodedVerificationHashString, OffsetOptions offsetOptions = null)
         {
             if (string.IsNullOrWhiteSpace(textToVerifyHash))
             {
@@ -220,10 +220,10 @@ namespace CryptographyHelpers.Hash
 
             try
             {
-                var offset = offsetOptions.HasValue ? offsetOptions.Value.Offset : 0;
-                var totalCharsToRead = offsetOptions.HasValue
-                    ? offsetOptions.Value.Count == 0 ? textToVerifyHash.Length : offsetOptions.Value.Count
-                    : textToVerifyHash.Length;
+                var offset = offsetOptions is null ? 0 : offsetOptions.Offset;
+                var totalCharsToRead = offsetOptions is null
+                    ? textToVerifyHash.Length
+                    : offsetOptions.Count == 0 ? textToVerifyHash.Length : offsetOptions.Count;
                 var textToVerifyHashPayload = textToVerifyHash.Substring(offset, totalCharsToRead);
                 var verificationHashBytes = _encoder.DecodeString(encodedVerificationHashString);
                 var textToVerifyHashBytes = textToVerifyHashPayload.ToUTF8Bytes();
@@ -240,7 +240,7 @@ namespace CryptographyHelpers.Hash
             }
         }
 
-        public HashResult VerifyFileHash(string filePathToVerifyHash, byte[] verificationHashBytes, LongOffsetOptions? offsetOptions = null)
+        public HashResult VerifyFileHash(string filePathToVerifyHash, byte[] verificationHashBytes, LongOffsetOptions offsetOptions = null)
         {
             if (verificationHashBytes is null || verificationHashBytes.Length == 0)
             {
@@ -264,7 +264,7 @@ namespace CryptographyHelpers.Hash
             return hashResult;
         }
 
-        public HashResult VerifyFileHash(string filePathToVerifyHash, string encodedVerificationHashString, LongOffsetOptions? offsetOptions = null)
+        public HashResult VerifyFileHash(string filePathToVerifyHash, string encodedVerificationHashString, LongOffsetOptions offsetOptions = null)
         {
             if (string.IsNullOrWhiteSpace(encodedVerificationHashString))
             {

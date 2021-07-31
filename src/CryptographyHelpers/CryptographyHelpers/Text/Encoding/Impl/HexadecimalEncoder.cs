@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace CryptographyHelpers.Text.Encoding
 {
-    public class Hexadecimal : IHexadecimal
+    public class HexadecimalEncoder : IHexadecimalEncoder
     {
         private const int HexadecimalChunkSize = 2;
         private const int HexadecimalBase = 16;

@@ -5,7 +5,7 @@ namespace CryptographyHelpers.Text.Encoding
 {
     public static class EncodingExtensions
     {
-        private static IHexadecimal _hexadecimalEncoder = InternalServiceLocator.Instance.GetService<IHexadecimal>();
+        private static IHexadecimalEncoder _hexadecimalEncoder = InternalServiceLocator.Instance.GetService<IHexadecimalEncoder>();
 
 
         public static byte[] ToUTF8Bytes(this string @string) =>

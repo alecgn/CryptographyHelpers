@@ -41,7 +41,7 @@ namespace CryptographyHelpers.Utils
 
         public static void ValidateAESIV(byte[] IV)
         {
-            if (IV is null || IV.Length * Constants.BitsPerByte != Constants.AESIVBitSize)
+            if (IV is null || IV.Length * Constants.BitsPerByte != Constants.AESIVBitsSize)
             {
                 throw new ArgumentException(MessageStrings.Cryptography_InvalidAESIV, nameof(IV));
             }

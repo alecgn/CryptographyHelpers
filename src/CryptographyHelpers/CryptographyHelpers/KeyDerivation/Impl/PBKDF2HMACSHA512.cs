@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+﻿using CryptographyHelpers.Text.Encoding;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
 
 namespace CryptographyHelpers.KeyDerivation
 {
@@ -9,7 +10,11 @@ namespace CryptographyHelpers.KeyDerivation
         /// </summary>
         private const int Iterations = 120_000;
         private const KeyDerivationPrf PseudoRandomFunction = KeyDerivationPrf.HMACSHA512;
+        private const EncodingType DefaultEncodingType = EncodingType.Hexadecimal;
 
-        public PBKDF2HMACSHA512() : base(PseudoRandomFunction, Iterations) { }
+        public PBKDF2HMACSHA512() : base(PseudoRandomFunction, Iterations, salt: null, DefaultEncodingType) { }
+
+        public PBKDF2HMACSHA512(byte[] salt, EncodingType? encodingType = null)
+            : base(PseudoRandomFunction, Iterations, salt, encodingType ?? DefaultEncodingType) { }
     }
 }

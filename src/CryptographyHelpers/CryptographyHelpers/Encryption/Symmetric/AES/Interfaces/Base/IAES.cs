@@ -9,12 +9,12 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES
         public event OnProgressHandler OnDecryptFileProgress;
 
 
-        AESEncryptionResult Encrypt(byte[] data, OffsetOptions? offsetOptions = null);
+        AESEncryptionResult Encrypt(byte[] data, OffsetOptions offsetOptions = null);
 
-        AESFileEncryptionResult EncryptFile(string sourceFilePath, string encryptedFilePath, LongOffsetOptions? offsetOptions = null);
+        AESFileEncryptionResult EncryptFile(string sourceFilePath, string encryptedFilePath, LongOffsetOptions offsetOptions = null);
 
-        AESDecryptionResult Decrypt(byte[] encryptedData, OffsetOptions? offsetOptions = null);
+        AESDecryptionResult Decrypt(byte[] encryptedData, OffsetOptions offsetOptions = null);
 
-        AESFileDecryptionResult DecryptFile(string encryptedFilePath, string decryptedFilePath, LongOffsetOptions? offsetOptions = null);
+        AESFileDecryptionResult DecryptFile(string encryptedFilePath, string decryptedFilePath, LongOffsetOptions offsetOptions = null);
     }
 }

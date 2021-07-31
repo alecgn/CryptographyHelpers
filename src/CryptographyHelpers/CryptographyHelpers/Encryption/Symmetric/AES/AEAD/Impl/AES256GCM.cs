@@ -38,8 +38,8 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
             {
                 var key = encodingType switch
                 {
-                    EncodingType.Base64 => _serviceLocator.GetService<IBase64>().DecodeString(encodedKey),
-                    EncodingType.Hexadecimal => _serviceLocator.GetService<IHexadecimal>().DecodeString(encodedKey),
+                    EncodingType.Base64 => _serviceLocator.GetService<IBase64Encoder>().DecodeString(encodedKey),
+                    EncodingType.Hexadecimal => _serviceLocator.GetService<IHexadecimalEncoder>().DecodeString(encodedKey),
                     _ => throw new InvalidOperationException($@"Unexpected enum value ""{encodingType}"" of type {typeof(EncodingType)}."),
                 };
 

@@ -6,6 +6,8 @@
 
         internal const int BytesPerKilobyte = 1024;
 
-        internal const int AESIVBitSize = 128;
+        internal const int AESBlockBitsSize = 128;
+
+        internal const int AESIVBitsSize = AESBlockBitsSize;
     }
 }

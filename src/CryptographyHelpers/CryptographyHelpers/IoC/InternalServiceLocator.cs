@@ -54,8 +54,8 @@ namespace CryptographyHelpers.IoC
 
         private void BuildServiceTypesMap()
         {
-            _servicesType.Add(typeof(IBase64), typeof(Base64));
-            _servicesType.Add(typeof(IHexadecimal), typeof(Hexadecimal));
+            _servicesType.Add(typeof(IBase64Encoder), typeof(Base64Encoder));
+            _servicesType.Add(typeof(IHexadecimalEncoder), typeof(HexadecimalEncoder));
         }
     }
 }

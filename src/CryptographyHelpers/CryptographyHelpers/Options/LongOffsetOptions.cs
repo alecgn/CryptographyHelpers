@@ -1,6 +1,6 @@
 ﻿namespace CryptographyHelpers
 {
-    public struct LongOffsetOptions
+    public class LongOffsetOptions
     {
         public LongOffsetOptions(long offset = 0L, long count = 0L)
         {

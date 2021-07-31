@@ -1,6 +1,6 @@
 ﻿namespace CryptographyHelpers
 {
-    public struct OffsetOptions
+    public class OffsetOptions
     {
         public OffsetOptions(int offset = 0, int count = 0)
         {
