@@ -1,6 +1,6 @@
 ﻿namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
 {
-    public enum AESGCMAlgorithm
+    public enum AESAEADAlgorithm
     {
         AES128GCM,
         AES192GCM,

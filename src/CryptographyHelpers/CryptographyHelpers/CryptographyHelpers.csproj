@@ -10,7 +10,7 @@
     <PackageProjectUrl>https://github.com/alecgn/CryptographyHelpers</PackageProjectUrl>
     <PackageIcon>CryptographyHelpers.png</PackageIcon>
     <RepositoryUrl>https://github.com/alecgn/CryptographyHelpers</RepositoryUrl>
-    <PackageTags>encryption decryption cryptography aes aes128 aes192 aes256 aes128cbc aes192cbc aes256cbc aes128gcm aes192gcm aes256gcm aescbc aesgcm aescbc128 aescbc192 aescbc256 aesgcm128 aesgcm192 aesgcm256 cbc gcm hash md5 sha1 sha256 sha384 sha512 hmacmd5 hmac-md5 hmacsha1 hmac-sha1 hmacsha256 hmac-sha256 hmacsha384 hmac-sha384 hmacsha512 hmac-sha512 pbkdf2 c# c-sharp security password authentication authenticated base64 hex hexadecimal encode decode</PackageTags>
+    <PackageTags>encryption decryption cryptography aes aes128 aes192 aes256 cbc aescbc aes128cbc aes192cbc aes256cbc aescbc128 aescbc192 aescbc256 aes128gcm aes192gcm aes256gcm gcm aesgcm aesgcm128 aesgcm192 aesgcm256 hash md5 sha1 sha256 sha384 sha512 hmac hmacmd5 hmac-md5 hmacsha1 hmac-sha1 hmacsha256 hmac-sha256 hmacsha384 hmac-sha384 hmacsha512 hmac-sha512 key-derivation pbkdf2 c# c-sharp security password authentication authenticated base64 hex hexadecimal encode decode</PackageTags>
     <AssemblyVersion>1.0.1</AssemblyVersion>
     <FileVersion>1.0.1</FileVersion>
     <Version>1.0.1</Version>

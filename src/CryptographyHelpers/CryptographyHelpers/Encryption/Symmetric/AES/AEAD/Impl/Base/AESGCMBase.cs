@@ -21,57 +21,27 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
             _key = key;
             _aesGcm = new AesGcm(_key);
             _encodingType = encodingType ?? _encodingType;
-            //_encoder = _encodingType == EncodingType.Base64
-            //    ? _serviceLocator.GetService<IBase64>()
-            //    : _serviceLocator.GetService<IHexadecimal>();
-            _encoder = _encodingType switch
-            {
-                EncodingType.Base64 => _serviceLocator.GetService<IBase64Encoder>(),
-                EncodingType.Hexadecimal => _serviceLocator.GetService<IHexadecimalEncoder>(),
-                _ => throw new InvalidOperationException($@"Unexpected enum value ""{_encodingType}"" of type {typeof(EncodingType)}."),
-            };
+            _encoder = GetEncoder(_encodingType);
         }
 
         public AESGCMBase(string encodedKey, EncodingType? encodingType = null)
         {
             _encodingType = encodingType ?? _encodingType;
-            //_encoder = _encodingType == EncodingType.Base64
-            //    ? _serviceLocator.GetService<IBase64>()
-            //    : _serviceLocator.GetService<IHexadecimal>();
-            _encoder = _encodingType switch
-            {
-                EncodingType.Base64 => _serviceLocator.GetService<IBase64Encoder>(),
-                EncodingType.Hexadecimal => _serviceLocator.GetService<IHexadecimalEncoder>(),
-                _ => throw new InvalidOperationException($@"Unexpected enum value ""{_encodingType}"" of type {typeof(EncodingType)}."),
-            };
+            _encoder = GetEncoder(_encodingType);
             _key = _encoder.DecodeString(encodedKey);
             _aesGcm = new AesGcm(_key);
         }
 
         /// <summary>
-        /// This constructor call creates a random key with specified size.
+        /// This constructor creates a random key with specified size.
         /// </summary>
         /// <param name="keySizeToGenerateRandomKey"></param>
         public AESGCMBase(AESKeySizes keySizeToGenerateRandomKey, EncodingType? encodingType = null)
         {
-            _key = keySizeToGenerateRandomKey switch
-            {
-                AESKeySizes.KeySize128Bits => CryptographyUtils.GenerateRandom128BitsKey(),
-                AESKeySizes.KeySize192Bits => CryptographyUtils.GenerateRandom192BitsKey(),
-                AESKeySizes.KeySize256Bits => CryptographyUtils.GenerateRandom256BitsKey(),
-                _ => throw new ArgumentException($@"Unexpected enum value ""{keySizeToGenerateRandomKey}"" for {nameof(keySizeToGenerateRandomKey)} parameter of type {typeof(AESKeySizes)}.", nameof(keySizeToGenerateRandomKey)),
-            };
+            _key = GenerateRandomKey(keySizeToGenerateRandomKey);
             _aesGcm = new AesGcm(_key);
             _encodingType = encodingType ?? _encodingType;
-            //_encoder = _encodingType == EncodingType.Base64
-            //    ? _serviceLocator.GetService<IBase64>()
-            //    : _serviceLocator.GetService<IHexadecimal>();
-            _encoder = _encodingType switch
-            {
-                EncodingType.Base64 => _serviceLocator.GetService<IBase64Encoder>(),
-                EncodingType.Hexadecimal => _serviceLocator.GetService<IHexadecimalEncoder>(),
-                _ => throw new InvalidOperationException($@"Unexpected enum value ""{_encodingType}"" of type {typeof(EncodingType)}."),
-            };
+            _encoder = GetEncoder(_encodingType);
         }
 
 
@@ -145,7 +115,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
                 var plainTextPayload = plainText.Substring(offset, totalCharsToRead);
                 var plainTextPayloadBytes = plainTextPayload.ToUTF8Bytes();
                 var associatedDataTextBytes = string.IsNullOrWhiteSpace(associatedDataText) ? null : associatedDataText.ToUTF8Bytes();
-                var encryptionResult = Encrypt(plainTextPayloadBytes, null, associatedDataTextBytes);
+                var encryptionResult = Encrypt(plainTextPayloadBytes, offsetOptions: null, associatedDataTextBytes);
 
                 if (encryptionResult.Success)
                 {
@@ -163,7 +133,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
                         Tag = encryptionResult.Tag,
                         EncodedTag = _encoder.EncodeToString(encryptionResult.Tag),
                         AssociatedData = encryptionResult.AssociatedData,
-                        AssociatedDataText = encryptionResult.AssociatedData?.ToUTF8String(),
+                        AssociatedDataText = associatedDataText,
                     };
                 }
                 else
@@ -187,7 +157,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
 
         public AESGCMDecryptionResult Decrypt(byte[] encryptedData, byte[] nonce, byte[] tag, OffsetOptions offsetOptions = null, byte[] associatedData = null)
         {
-            if (encryptedData == null || encryptedData.Length == 0)
+            if (encryptedData is null || encryptedData.Length == 0)
             {
                 return new AESGCMDecryptionResult()
                 {
@@ -292,5 +262,24 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
 
         public void Dispose() =>
             _aesGcm?.Dispose();
+
+        private IEncoder GetEncoder(EncodingType encodingType) =>
+            encodingType switch
+            {
+                EncodingType.Base64 => _serviceLocator.GetService<IBase64Encoder>(),
+                EncodingType.Hexadecimal => _serviceLocator.GetService<IHexadecimalEncoder>(),
+                _ => throw new InvalidOperationException($@"Unexpected enum value ""{encodingType}"" of type ""{nameof(EncodingType)}""."),
+            };
+
+        private byte[] GenerateRandomKey(AESKeySizes keySizeToGenerateRandomKey) =>
+            keySizeToGenerateRandomKey switch
+            {
+                AESKeySizes.KeySize128Bits => CryptographyUtils.GenerateRandom128BitsKey(),
+                AESKeySizes.KeySize192Bits => CryptographyUtils.GenerateRandom192BitsKey(),
+                AESKeySizes.KeySize256Bits => CryptographyUtils.GenerateRandom256BitsKey(),
+                _ => throw new ArgumentException(
+                    $@"Unexpected enum value ""{keySizeToGenerateRandomKey}"" for ""{nameof(keySizeToGenerateRandomKey)}"" parameter of type ""{nameof(AESKeySizes)}"".",
+                    nameof(keySizeToGenerateRandomKey)),
+            };
     }
 }
