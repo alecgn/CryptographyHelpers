@@ -10,6 +10,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 
 namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES.AEAD
 {
@@ -18,7 +19,6 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES.AEAD
     {
         private const string WhiteSpaceString = " ";
         private const string PlainTestString = "This is a test string!";
-
         private static readonly IBase64Encoder _base64Encoder = InternalServiceLocator.Instance.GetService<IBase64Encoder>();
         private static readonly IHexadecimalEncoder _hexadecimalEncoder = InternalServiceLocator.Instance.GetService<IHexadecimalEncoder>();
 
@@ -87,15 +87,32 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES.AEAD
         }
 
         [TestMethod]
-        [DynamicData(nameof(GetAESAndInvalidNoncesAndTags), DynamicDataSourceType.Method)]
-        public void ShouldReturnFalse_InDecrypt_WhenProvidedInvalidNonceOrTag(AESGCMBase aesGcm, byte[] invalidNonce, byte[] invalidTag)
+        [DynamicData(nameof(GetAESAndInvalidNonces), DynamicDataSourceType.Method)]
+        public void ShouldReturnFalse_InDecrypt_WhenProvidedInvalidNonce(AESGCMBase aesGcm, byte[] invalidNonce)
         {
             AESGCMDecryptionResult aesGcmDecryptionResult;
             var randomBytes = CryptographyUtils.GenerateRandomBytes(PlainTestString.Length);
+            var tag = CryptographyUtils.GenerateRandomBytes(AesGcm.TagByteSizes.MaxSize);
 
             using (aesGcm)
             {
-                aesGcmDecryptionResult = aesGcm.Decrypt(randomBytes, invalidNonce, invalidTag);
+                aesGcmDecryptionResult = aesGcm.Decrypt(randomBytes, invalidNonce, tag);
+            }
+
+            aesGcmDecryptionResult.Success.Should().BeFalse();
+        }
+
+        [TestMethod]
+        [DynamicData(nameof(GetAESAndInvalidTags), DynamicDataSourceType.Method)]
+        public void ShouldReturnFalse_InDecrypt_WhenProvidedInvalidTag(AESGCMBase aesGcm, byte[] invalidTag)
+        {
+            AESGCMDecryptionResult aesGcmDecryptionResult;
+            var randomBytes = CryptographyUtils.GenerateRandomBytes(PlainTestString.Length);
+            var nonce = CryptographyUtils.GenerateRandomBytes(AesGcm.NonceByteSizes.MaxSize);
+
+            using (aesGcm)
+            {
+                aesGcmDecryptionResult = aesGcm.Decrypt(randomBytes, nonce, invalidTag);
             }
 
             aesGcmDecryptionResult.Success.Should().BeFalse();
@@ -117,14 +134,36 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES.AEAD
         }
 
         [TestMethod]
-        [DynamicData(nameof(GetAESAndInvalidEncodedNoncesAndTags), DynamicDataSourceType.Method)]
-        public void ShouldReturnSuccessFalse_InDecryptText_WhenProvidedInvalidEncodedNonceOrTag(AESGCMBase aesGcm, string invalidEncodedNonce, string invalidEncodedTag)
+        [DynamicData(nameof(GetAESAndInvalidEncodedNonces), DynamicDataSourceType.Method)]
+        public void ShouldReturnSuccessFalse_InDecryptText_WhenProvidedInvalidEncodedNonce(AESGCMBase aesGcm, string invalidEncodedNonce)
         {
+            var tag = CryptographyUtils.GenerateRandomBytes(AesGcm.TagByteSizes.MaxSize);
+            var encodedTag = aesGcm.EncodingType == EncodingType.Base64
+                ? _base64Encoder.EncodeToString(tag)
+                : _hexadecimalEncoder.EncodeToString(tag);
             AESGCMDecryptionResult aesGcmTextDecryptionResult;
 
             using (aesGcm)
             {
-                aesGcmTextDecryptionResult = aesGcm.DecryptText(new Faker().Lorem.Sentence(), invalidEncodedNonce, invalidEncodedTag);
+                aesGcmTextDecryptionResult = aesGcm.DecryptText(new Faker().Lorem.Sentence(), invalidEncodedNonce, encodedTag);
+            }
+
+            aesGcmTextDecryptionResult.Success.Should().BeFalse();
+        }
+
+        [TestMethod]
+        [DynamicData(nameof(GetAESAndInvalidEncodedTags), DynamicDataSourceType.Method)]
+        public void ShouldReturnSuccessFalse_InDecryptText_WhenProvidedInvalidEncodedTag(AESGCMBase aesGcm, string invalidEncodedTag)
+        {
+            var nonce = CryptographyUtils.GenerateRandomBytes(AesGcm.NonceByteSizes.MaxSize);
+            var encodedNonce = aesGcm.EncodingType == EncodingType.Base64
+                ? _base64Encoder.EncodeToString(nonce)
+                : _hexadecimalEncoder.EncodeToString(nonce);
+            AESGCMDecryptionResult aesGcmTextDecryptionResult;
+
+            using (aesGcm)
+            {
+                aesGcmTextDecryptionResult = aesGcm.DecryptText(new Faker().Lorem.Sentence(), encodedNonce, invalidEncodedTag);
             }
 
             aesGcmTextDecryptionResult.Success.Should().BeFalse();
@@ -341,152 +380,135 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES.AEAD
                 new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), WhiteSpaceString },
             };
 
-        private static IEnumerable<object[]> GetAESAndInvalidNoncesAndTags()
+        private static IEnumerable<object[]> GetAESAndInvalidNonces()
         {
-            const int invalidNonceOrTagLength = 100;
-            var randomBytes = CryptographyUtils.GenerateRandomBytes(invalidNonceOrTagLength);
+            var invalidNonceSize = AesGcm.NonceByteSizes.MaxSize + 1;
+            var invalidRandomNonceBytes = CryptographyUtils.GenerateRandomBytes(invalidNonceSize);
 
             return new List<object[]>()
             {
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), null, null },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), null, Array.Empty<byte>() },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), null, randomBytes },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), Array.Empty<byte>(), null },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), Array.Empty<byte>(), Array.Empty<byte>() },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), Array.Empty<byte>(), randomBytes },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), randomBytes, null },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), randomBytes, Array.Empty<byte>() },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), randomBytes, randomBytes },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), null },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), Array.Empty<byte>() },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), invalidRandomNonceBytes },
 
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), null, null },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), null, Array.Empty<byte>() },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), null, randomBytes },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), Array.Empty<byte>(), null },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), Array.Empty<byte>(), Array.Empty<byte>() },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), Array.Empty<byte>(), randomBytes },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), randomBytes, null },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), randomBytes, Array.Empty<byte>() },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), randomBytes, randomBytes },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), null },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), Array.Empty<byte>() },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), invalidRandomNonceBytes },
 
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), null, null },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), null, Array.Empty<byte>() },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), null, randomBytes },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), Array.Empty<byte>(), null },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), Array.Empty<byte>(), Array.Empty<byte>() },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), Array.Empty<byte>(), randomBytes },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), randomBytes, null },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), randomBytes, Array.Empty<byte>() },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), randomBytes, randomBytes },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), null },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), Array.Empty<byte>() },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), invalidRandomNonceBytes },
             };
         }
 
-        private static IEnumerable<object[]> GetAESAndInvalidEncodedNoncesAndTags()
+        private static IEnumerable<object[]> GetAESAndInvalidTags()
         {
-            const int invalidNonceOrTagLength = 100;
-            var randomBytes = CryptographyUtils.GenerateRandomBytes(invalidNonceOrTagLength);
-            var invalidHexadecimalEncodedNonceOrTag = _hexadecimalEncoder.EncodeToString(randomBytes).Substring(1);
-            var invalidBase64EncodedNonceOrTag = _base64Encoder.EncodeToString(randomBytes).Substring(1);
+            var invalidTagSize = AesGcm.TagByteSizes.MaxSize + 1;
+            var invalidRandomTagBytes = CryptographyUtils.GenerateRandomBytes(invalidTagSize);
 
             return new List<object[]>()
             {
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Hexadecimal), null, null },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Hexadecimal), null, string.Empty },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Hexadecimal), null, WhiteSpaceString },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Hexadecimal), null, invalidHexadecimalEncodedNonceOrTag },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Hexadecimal), string.Empty, string.Empty },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Hexadecimal), string.Empty, null },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Hexadecimal), string.Empty, WhiteSpaceString },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Hexadecimal), string.Empty, invalidHexadecimalEncodedNonceOrTag },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Hexadecimal), WhiteSpaceString, WhiteSpaceString },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Hexadecimal), WhiteSpaceString, null },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Hexadecimal), WhiteSpaceString, string.Empty },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Hexadecimal), WhiteSpaceString, invalidHexadecimalEncodedNonceOrTag },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Hexadecimal), invalidHexadecimalEncodedNonceOrTag, invalidHexadecimalEncodedNonceOrTag },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Hexadecimal), invalidHexadecimalEncodedNonceOrTag, null },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Hexadecimal), invalidHexadecimalEncodedNonceOrTag, string.Empty },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Hexadecimal), invalidHexadecimalEncodedNonceOrTag, WhiteSpaceString },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Base64), null, null },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Base64), null, string.Empty },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Base64), null, WhiteSpaceString },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Base64), null, invalidBase64EncodedNonceOrTag },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Base64), string.Empty, string.Empty },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Base64), string.Empty, null },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Base64), string.Empty, WhiteSpaceString },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Base64), string.Empty, invalidBase64EncodedNonceOrTag },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Base64), WhiteSpaceString, WhiteSpaceString },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Base64), WhiteSpaceString, null },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Base64), WhiteSpaceString, string.Empty },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Base64), WhiteSpaceString, invalidBase64EncodedNonceOrTag },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Base64), invalidBase64EncodedNonceOrTag, invalidBase64EncodedNonceOrTag },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Base64), invalidBase64EncodedNonceOrTag, null },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Base64), invalidBase64EncodedNonceOrTag, string.Empty },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Base64), invalidBase64EncodedNonceOrTag, WhiteSpaceString },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), null },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), Array.Empty<byte>() },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), invalidRandomTagBytes },
 
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Hexadecimal), null, null },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Hexadecimal), null, string.Empty },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Hexadecimal), null, WhiteSpaceString },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Hexadecimal), null, invalidHexadecimalEncodedNonceOrTag },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Hexadecimal), string.Empty, string.Empty },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Hexadecimal), string.Empty, null },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Hexadecimal), string.Empty, WhiteSpaceString },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Hexadecimal), string.Empty, invalidHexadecimalEncodedNonceOrTag },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Hexadecimal), WhiteSpaceString, WhiteSpaceString },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Hexadecimal), WhiteSpaceString, null },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Hexadecimal), WhiteSpaceString, string.Empty },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Hexadecimal), WhiteSpaceString, invalidHexadecimalEncodedNonceOrTag },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Hexadecimal), invalidHexadecimalEncodedNonceOrTag, invalidHexadecimalEncodedNonceOrTag },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Hexadecimal), invalidHexadecimalEncodedNonceOrTag, null },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Hexadecimal), invalidHexadecimalEncodedNonceOrTag, string.Empty },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Hexadecimal), invalidHexadecimalEncodedNonceOrTag, WhiteSpaceString },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Base64), null, null },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Base64), null, string.Empty },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Base64), null, WhiteSpaceString },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Base64), null, invalidBase64EncodedNonceOrTag },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Base64), string.Empty, string.Empty },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Base64), string.Empty, null },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Base64), string.Empty, WhiteSpaceString },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Base64), string.Empty, invalidBase64EncodedNonceOrTag },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Base64), WhiteSpaceString, WhiteSpaceString },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Base64), WhiteSpaceString, null },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Base64), WhiteSpaceString, string.Empty },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Base64), WhiteSpaceString, invalidBase64EncodedNonceOrTag },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Base64), invalidBase64EncodedNonceOrTag, invalidBase64EncodedNonceOrTag },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Base64), invalidBase64EncodedNonceOrTag, null },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Base64), invalidBase64EncodedNonceOrTag, string.Empty },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Base64), invalidBase64EncodedNonceOrTag, WhiteSpaceString },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), null },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), Array.Empty<byte>() },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), invalidRandomTagBytes },
 
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Hexadecimal), null, null },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Hexadecimal), null, string.Empty },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Hexadecimal), null, WhiteSpaceString },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Hexadecimal), null, invalidHexadecimalEncodedNonceOrTag },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Hexadecimal), string.Empty, string.Empty },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Hexadecimal), string.Empty, null },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Hexadecimal), string.Empty, WhiteSpaceString },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Hexadecimal), string.Empty, invalidHexadecimalEncodedNonceOrTag },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Hexadecimal), WhiteSpaceString, WhiteSpaceString },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Hexadecimal), WhiteSpaceString, null },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Hexadecimal), WhiteSpaceString, string.Empty },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Hexadecimal), WhiteSpaceString, invalidHexadecimalEncodedNonceOrTag },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Hexadecimal), invalidHexadecimalEncodedNonceOrTag, invalidHexadecimalEncodedNonceOrTag },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Hexadecimal), invalidHexadecimalEncodedNonceOrTag, null },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Hexadecimal), invalidHexadecimalEncodedNonceOrTag, string.Empty },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Hexadecimal), invalidHexadecimalEncodedNonceOrTag, WhiteSpaceString },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Base64), null, null },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Base64), null, string.Empty },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Base64), null, WhiteSpaceString },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Base64), null, invalidBase64EncodedNonceOrTag },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Base64), string.Empty, string.Empty },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Base64), string.Empty, null },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Base64), string.Empty, WhiteSpaceString },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Base64), string.Empty, invalidBase64EncodedNonceOrTag },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Base64), WhiteSpaceString, WhiteSpaceString },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Base64), WhiteSpaceString, null },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Base64), WhiteSpaceString, string.Empty },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Base64), WhiteSpaceString, invalidBase64EncodedNonceOrTag },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Base64), invalidBase64EncodedNonceOrTag, invalidBase64EncodedNonceOrTag },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Base64), invalidBase64EncodedNonceOrTag, null },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Base64), invalidBase64EncodedNonceOrTag, string.Empty },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Base64), invalidBase64EncodedNonceOrTag, WhiteSpaceString },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), null },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), Array.Empty<byte>() },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), invalidRandomTagBytes },
+            };
+        }
+
+        private static IEnumerable<object[]> GetAESAndInvalidEncodedNonces()
+        {
+            var invalidRandomNonceBytes = CryptographyUtils.GenerateRandomBytes(AesGcm.NonceByteSizes.MaxSize + 1);
+            var invalidSizedHexadecimalEncodedNonce = _hexadecimalEncoder.EncodeToString(invalidRandomNonceBytes); // valid hexadecimal but invalid nonce size
+            var invalidHexadecimalEncodedNonce = _hexadecimalEncoder.EncodeToString(invalidRandomNonceBytes)[1..]; // invalid hexadecimal
+            var invalidSizedBase64EncodedNonce = _base64Encoder.EncodeToString(invalidRandomNonceBytes); // valid base64 but invalid nonce size
+            var invalidBase64EncodedNonce = _base64Encoder.EncodeToString(invalidRandomNonceBytes)[1..]; // invalid base64
+
+            return new List<object[]>()
+            {
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Hexadecimal), null },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Hexadecimal), string.Empty },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Hexadecimal), WhiteSpaceString },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Hexadecimal), invalidSizedHexadecimalEncodedNonce },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Hexadecimal), invalidHexadecimalEncodedNonce },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Base64), null },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Base64), string.Empty },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Base64), WhiteSpaceString },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Base64), invalidSizedBase64EncodedNonce },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Base64), invalidBase64EncodedNonce },
+
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Hexadecimal), null },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Hexadecimal), string.Empty },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Hexadecimal), WhiteSpaceString },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Hexadecimal), invalidSizedHexadecimalEncodedNonce },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Hexadecimal), invalidHexadecimalEncodedNonce },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Base64), null },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Base64), string.Empty },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Base64), WhiteSpaceString },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Base64), invalidSizedBase64EncodedNonce },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Base64), invalidBase64EncodedNonce },
+
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Hexadecimal), null },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Hexadecimal), string.Empty },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Hexadecimal), WhiteSpaceString },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Hexadecimal), invalidSizedHexadecimalEncodedNonce },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Hexadecimal), invalidHexadecimalEncodedNonce },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Base64), null },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Base64), string.Empty },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Base64), WhiteSpaceString },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Base64), invalidSizedBase64EncodedNonce },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Base64), invalidBase64EncodedNonce },
+            };
+        }
+
+        private static IEnumerable<object[]> GetAESAndInvalidEncodedTags()
+        {
+            var invalidRandomTagBytes = CryptographyUtils.GenerateRandomBytes(AesGcm.TagByteSizes.MaxSize + 1);
+            var invalidSizedHexadecimalEncodedTag = _hexadecimalEncoder.EncodeToString(invalidRandomTagBytes); // valid hexadecimal but invalid nonce size
+            var invalidHexadecimalEncodedTag = _hexadecimalEncoder.EncodeToString(invalidRandomTagBytes)[1..]; // invalid hexadecimal
+            var invalidSizedBase64EncodedTag = _base64Encoder.EncodeToString(invalidRandomTagBytes); // valid base64 but invalid nonce size
+            var invalidBase64EncodedTag = _base64Encoder.EncodeToString(invalidRandomTagBytes)[1..]; // invalid base64
+
+            return new List<object[]>()
+            {
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Hexadecimal), null },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Hexadecimal), string.Empty },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Hexadecimal), WhiteSpaceString },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Hexadecimal), invalidSizedHexadecimalEncodedTag },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Hexadecimal), invalidHexadecimalEncodedTag },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Base64), null },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Base64), string.Empty },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Base64), WhiteSpaceString },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Base64), invalidSizedBase64EncodedTag },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits, EncodingType.Base64), invalidBase64EncodedTag },
+
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Hexadecimal), null },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Hexadecimal), string.Empty },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Hexadecimal), WhiteSpaceString },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Hexadecimal), invalidSizedHexadecimalEncodedTag },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Hexadecimal), invalidHexadecimalEncodedTag },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Base64), null },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Base64), string.Empty },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Base64), WhiteSpaceString },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Base64), invalidSizedBase64EncodedTag },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits, EncodingType.Base64), invalidBase64EncodedTag },
+
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Hexadecimal), null },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Hexadecimal), string.Empty },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Hexadecimal), WhiteSpaceString },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Hexadecimal), invalidSizedHexadecimalEncodedTag },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Hexadecimal), invalidHexadecimalEncodedTag },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Base64), null },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Base64), string.Empty },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Base64), WhiteSpaceString },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Base64), invalidSizedBase64EncodedTag },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits, EncodingType.Base64), invalidBase64EncodedTag },
             };
         }
 

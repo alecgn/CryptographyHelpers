@@ -15,6 +15,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
         private readonly IEncoder _encoder;
         private readonly InternalServiceLocator _serviceLocator = InternalServiceLocator.Instance;
 
+        public EncodingType EncodingType { get => _encodingType; }
 
         public AESGCMBase(byte[] key, EncodingType? encodingType = null)
         {
