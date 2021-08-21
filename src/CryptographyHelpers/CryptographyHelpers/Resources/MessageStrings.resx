@@ -141,6 +141,15 @@
   <data name="Decryption.InputTextRequired" xml:space="preserve">
     <value>Input text to decrypt required.</value>
   </data>
+  <data name="Decryption.InvalidEncodedEncryptedStringFormat" xml:space="preserve">
+    <value>Invalid encoded encripted text format. Expected string format: "&lt;ENCODED_ENCRYPTED_TEXT&gt;.&lt;ENCODED_NONCE&gt;.&lt;ENCODED_TAG&gt;".</value>
+  </data>
+  <data name="Decryption.NonceRequired" xml:space="preserve">
+    <value>Nonce required.</value>
+  </data>
+  <data name="Decryption.TagRequired" xml:space="preserve">
+    <value>Tag required.</value>
+  </data>
   <data name="Encoding.InputTextRequired" xml:space="preserve">
     <value>Input text to encode required.</value>
   </data>

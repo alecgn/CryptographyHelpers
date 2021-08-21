@@ -9,25 +9,24 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
 {
     public class AESGCMBase : IAESGCM
     {
+        private const int EncryptedTextWithInfo_PartsCount = 3;
         private readonly AesGcm _aesGcm;
         private readonly byte[] _key;
-        private readonly EncodingType _encodingType = EncodingType.Base64;
+        private readonly EncodingType _encodingType;
         private readonly IEncoder _encoder;
         private readonly InternalServiceLocator _serviceLocator = InternalServiceLocator.Instance;
 
-        public EncodingType EncodingType { get => _encodingType; }
-
-        public AESGCMBase(byte[] key, EncodingType? encodingType = null)
+        public AESGCMBase(byte[] key, EncodingType encodingType = EncodingType.Base64)
         {
             _key = key;
             _aesGcm = new AesGcm(_key);
-            _encodingType = encodingType ?? _encodingType;
+            _encodingType = encodingType;
             _encoder = GetEncoder(_encodingType);
         }
 
-        public AESGCMBase(string encodedKey, EncodingType? encodingType = null)
+        public AESGCMBase(string encodedKey, EncodingType encodingType = EncodingType.Base64)
         {
-            _encodingType = encodingType ?? _encodingType;
+            _encodingType = encodingType;
             _encoder = GetEncoder(_encodingType);
             _key = _encoder.DecodeString(encodedKey);
             _aesGcm = new AesGcm(_key);
@@ -37,16 +36,21 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
         /// This constructor creates a random key with specified size.
         /// </summary>
         /// <param name="keySizeToGenerateRandomKey"></param>
-        public AESGCMBase(AESKeySizes keySizeToGenerateRandomKey, EncodingType? encodingType = null)
+        public AESGCMBase(AESKeySizes keySizeToGenerateRandomKey, EncodingType encodingType = EncodingType.Base64)
         {
             _key = GenerateRandomKey(keySizeToGenerateRandomKey);
             _aesGcm = new AesGcm(_key);
-            _encodingType = encodingType ?? _encodingType;
+            _encodingType = encodingType;
             _encoder = GetEncoder(_encodingType);
         }
 
+        public EncodingType EncodingType { get => _encodingType; }
 
-        public AESGCMEncryptionResult Encrypt(byte[] data, OffsetOptions offsetOptions = null, byte[] associatedData = null)
+        public AESGCMEncryptionResult Encrypt(
+            byte[] data,
+            OffsetOptions offsetOptions = null,
+            byte[] associatedData = null,
+            bool addMetadataToOutputEncryptedData = false)
         {
             if (data is null || data.Length == 0)
             {
@@ -59,7 +63,8 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
 
             try
             {
-                byte[] encryptedData;
+                byte[] encryptedData = null;
+                byte[] encryptedDataWithMetadata = null;
                 // Avoid nonce reuse (catastrophic security breach), randomly generate a new one in every method call
                 var nonce = CryptographyUtils.GenerateRandomBytes(AesGcm.NonceByteSizes.MaxSize);
                 var tag = new byte[AesGcm.TagByteSizes.MaxSize];
@@ -78,12 +83,20 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
                     _aesGcm.Encrypt(nonce, dataPayload, encryptedData, tag, associatedData);
                 }
 
+                if (addMetadataToOutputEncryptedData)
+                {
+                    encryptedDataWithMetadata = new byte[(encryptedData.Length + nonce.Length + tag.Length)];
+                    Array.Copy(encryptedData, 0, encryptedDataWithMetadata, 0, encryptedData.Length);
+                    Array.Copy(nonce, 0, encryptedDataWithMetadata, encryptedData.Length, nonce.Length);
+                    Array.Copy(tag, 0, encryptedDataWithMetadata, encryptedData.Length + nonce.Length, tag.Length);
+                }
+
                 return new AESGCMEncryptionResult()
                 {
                     Success = true,
                     Message = MessageStrings.Encryption_DataEncryptionSuccess,
                     EncodingType = _encodingType,
-                    EncryptedData = encryptedData,
+                    EncryptedData = addMetadataToOutputEncryptedData ? encryptedDataWithMetadata : encryptedData,
                     Key = _key,
                     EncodedKey = _encoder.EncodeToString(_key),
                     Nonce = nonce,
@@ -91,6 +104,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
                     Tag = tag,
                     EncodedTag = _encoder.EncodeToString(tag),
                     AssociatedData = associatedData,
+                    AssociatedDataText = associatedData?.ToUTF8String(),
                 };
             }
             catch (Exception ex)
@@ -103,7 +117,11 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
             }
         }
 
-        public AESGCMTextEncryptionResult EncryptText(string plainText, OffsetOptions offsetOptions = null, string associatedDataText = null)
+        public AESGCMTextEncryptionResult EncryptText(
+            string plainText,
+            OffsetOptions offsetOptions = null,
+            string associatedDataText = null,
+            bool addMetadataToOutputEncryptedText = false)
         {
             if (string.IsNullOrWhiteSpace(plainText))
             {
@@ -134,19 +152,30 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
 
                 if (encryptionResult.Success)
                 {
+                    string encodedEncryptedText;
+
+                    if (addMetadataToOutputEncryptedText)
+                    {
+                        encodedEncryptedText = $"{_encoder.EncodeToString(encryptionResult.EncryptedData)}.{encryptionResult.EncodedNonce}.{encryptionResult.EncodedTag}";
+                    }
+                    else
+                    {
+                        encodedEncryptedText = _encoder.EncodeToString(encryptionResult.EncryptedData);
+                    }
+
                     return new AESGCMTextEncryptionResult()
                     {
                         Success = encryptionResult.Success,
                         Message = encryptionResult.Message,
                         EncodingType = encryptionResult.EncodingType,
-                        EncodedEncryptedText = _encoder.EncodeToString(encryptionResult.EncryptedData),
+                        EncodedEncryptedText = encodedEncryptedText,
                         EncryptedData = encryptionResult.EncryptedData,
                         Key = encryptionResult.Key,
                         EncodedKey = encryptionResult.EncodedKey,
                         Nonce = encryptionResult.Nonce,
                         EncodedNonce = encryptionResult.EncodedNonce,
                         Tag = encryptionResult.Tag,
-                        EncodedTag = _encoder.EncodeToString(encryptionResult.Tag),
+                        EncodedTag = encryptionResult.EncodedTag,
                         AssociatedData = encryptionResult.AssociatedData,
                         AssociatedDataText = associatedDataText,
                     };
@@ -170,7 +199,13 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
             }
         }
 
-        public AESGCMDecryptionResult Decrypt(byte[] encryptedData, byte[] nonce, byte[] tag, OffsetOptions offsetOptions = null, byte[] associatedData = null)
+        public AESGCMDecryptionResult Decrypt(
+            byte[] encryptedData,
+            OffsetOptions offsetOptions = null,
+            byte[] nonce = null,
+            byte[] tag = null,
+            byte[] associatedData = null,
+            bool hasMetadataInInputEncryptedData = false)
         {
             if (encryptedData is null || encryptedData.Length == 0)
             {
@@ -187,27 +222,56 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
 
                 if (offsetOptions is null)
                 {
-                    decryptedData = new byte[encryptedData.Length];
-                    _aesGcm.Decrypt(nonce, encryptedData, tag, decryptedData, associatedData);
+                    if (hasMetadataInInputEncryptedData)
+                    {
+                        var encryptedDataPayload = new byte[(encryptedData.Length - AesGcm.NonceByteSizes.MaxSize - AesGcm.TagByteSizes.MaxSize)];
+                        Array.Copy(encryptedData, 0, encryptedDataPayload, 0, encryptedDataPayload.Length);
+                        var nonceFromMetadata = new byte[AesGcm.NonceByteSizes.MaxSize];
+                        Array.Copy(encryptedData, encryptedDataPayload.Length, nonceFromMetadata, 0, nonceFromMetadata.Length);
+                        var tagFromMetadata = new byte[AesGcm.TagByteSizes.MaxSize];
+                        Array.Copy(encryptedData, encryptedDataPayload.Length + nonceFromMetadata.Length, tagFromMetadata, 0, tagFromMetadata.Length);
+
+                        decryptedData = new byte[encryptedDataPayload.Length];
+                        _aesGcm.Decrypt(nonceFromMetadata, encryptedDataPayload, tagFromMetadata, decryptedData, associatedData);
+                    }
+                    else
+                    {
+                        decryptedData = new byte[encryptedData.Length];
+                        _aesGcm.Decrypt(nonce, encryptedData, tag, decryptedData, associatedData);
+                    }
                 }
                 else
                 {
                     var totalBytesToRead = offsetOptions.Count == 0 ? encryptedData.Length : offsetOptions.Count;
                     var encryptedDataPayload = new byte[totalBytesToRead];
                     Array.Copy(encryptedData, offsetOptions.Offset, encryptedDataPayload, 0, totalBytesToRead);
-                    decryptedData = new byte[totalBytesToRead];
-                    _aesGcm.Decrypt(nonce, encryptedDataPayload, tag, decryptedData, associatedData);
+
+                    if (hasMetadataInInputEncryptedData)
+                    {
+                        var encryptedDataWithoutMetadata = 
+                    }
+                    else
+                    {
+                        
+                        decryptedData = new byte[totalBytesToRead];
+                        _aesGcm.Decrypt(nonce, encryptedDataPayload, tag, decryptedData, associatedData);
+                    }
                 }
 
                 return new AESGCMDecryptionResult()
                 {
                     Success = true,
                     Message = MessageStrings.Decryption_DataDecryptionSuccess,
+                    EncodingType = _encodingType,
                     DecryptedData = decryptedData,
                     Key = _key,
+                    EncodedKey = _encoder.EncodeToString(_key),
                     Nonce = nonce,
+                    EncodedNonce = _encoder.EncodeToString(nonce),
                     Tag = tag,
+                    EncodedTag = _encoder.EncodeToString(tag),
                     AssociatedData = associatedData,
+                    AssociatedDataText = associatedData?.ToUTF8String(),
                 };
             }
             catch (Exception ex)
@@ -220,7 +284,13 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
             }
         }
 
-        public AESGCMTextDecryptionResult DecryptText(string encodedEncryptedText, string encodedNonce, string encodedTag, OffsetOptions offsetOptions = null, string associatedDataText = null)
+        public AESGCMTextDecryptionResult DecryptText(
+            string encodedEncryptedText,
+            OffsetOptions offsetOptions = null,
+            string encodedNonce = null,
+            string encodedTag = null,
+            string associatedDataText = null,
+            bool hasMetadataInInputEncryptedText = false)
         {
             if (string.IsNullOrWhiteSpace(encodedEncryptedText))
             {
@@ -233,22 +303,107 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
 
             try
             {
-                AESGCMDecryptionResult decryptionResult;
-                var nonceBytes = _encoder.DecodeString(encodedNonce);
-                var tagBytes = _encoder.DecodeString(encodedTag);
+                AESGCMDecryptionResult decryptionResult = null;
+                //var nonceBytes = _encoder.DecodeString(hasInfoAppendedInInputEncryptedText ? infoParts[1] : encodedNonce);
+                //var tagBytes = _encoder.DecodeString(hasInfoAppendedInInputEncryptedText ? infoParts[2] : encodedTag);
                 var associatedDataTextBytes = string.IsNullOrWhiteSpace(associatedDataText) ? null : associatedDataText.ToUTF8Bytes();
 
                 if (offsetOptions is null)
                 {
-                    var encryptedTextdBytes = _encoder.DecodeString(encodedEncryptedText);
-                    decryptionResult = Decrypt(encryptedTextdBytes, nonceBytes, tagBytes, offsetOptions: null, associatedDataTextBytes);
+                    string[] infoParts = null;
+
+                    if (hasMetadataInInputEncryptedText)
+                    {
+                        infoParts = encodedEncryptedText.Split('.');
+
+                        if (infoParts is null || infoParts.Length != EncryptedTextWithInfo_PartsCount)
+                        {
+                            return new AESGCMTextDecryptionResult()
+                            {
+                                Success = false,
+                                Message = MessageStrings.Decryption_InvalidEncodedEncryptedStringFormat,
+                            };
+                        }
+
+                        var encryptedTextBytes = _encoder.DecodeString(infoParts[0]);
+                        var nonceBytes = _encoder.DecodeString(infoParts[1]);
+                        var tagBytes = _encoder.DecodeString(infoParts[2]);
+                        decryptionResult = Decrypt(encryptedTextBytes, nonceBytes, tagBytes, offsetOptions: null, associatedDataTextBytes);
+                    }
+                    else
+                    {
+                        if (string.IsNullOrWhiteSpace(encodedNonce))
+                        {
+                            return new AESGCMTextDecryptionResult()
+                            {
+                                Success = false,
+                                Message = MessageStrings.Decryption_NonceRequired,
+                            };
+                        }
+
+                        if (string.IsNullOrWhiteSpace(encodedTag))
+                        {
+                            return new AESGCMTextDecryptionResult()
+                            {
+                                Success = false,
+                                Message = MessageStrings.Decryption_TagRequired,
+                            };
+                        }
+
+                        var encryptedTextBytes = _encoder.DecodeString(encodedEncryptedText);
+                        var nonceBytes = _encoder.DecodeString(encodedNonce);
+                        var tagBytes = _encoder.DecodeString(encodedTag);
+                        decryptionResult = Decrypt(encryptedTextBytes, nonceBytes, tagBytes, offsetOptions: null, associatedDataTextBytes);
+                    }
                 }
                 else
                 {
                     var totalCharsToRead = offsetOptions.Count == 0 ? encodedEncryptedText.Length : offsetOptions.Count;
                     var encodedEncryptedTextPayload = encodedEncryptedText.Substring(offsetOptions.Offset, totalCharsToRead);
-                    var encryptedTextPayloadBytes = _encoder.DecodeString(encodedEncryptedTextPayload);
-                    decryptionResult = Decrypt(encryptedTextPayloadBytes, nonceBytes, tagBytes, null, associatedDataTextBytes);
+
+                    if (hasMetadataInInputEncryptedText)
+                    {
+                        var infoParts = encodedEncryptedTextPayload.Split('.');
+
+                        if (infoParts is null || infoParts.Length != EncryptedTextWithInfo_PartsCount)
+                        {
+                            return new AESGCMTextDecryptionResult()
+                            {
+                                Success = false,
+                                Message = MessageStrings.Decryption_InvalidEncodedEncryptedStringFormat,
+                            };
+                        }
+
+                        var encryptedTextBytes = _encoder.DecodeString(infoParts[0]);
+                        var nonceBytes = _encoder.DecodeString(infoParts[1]);
+                        var tagBytes = _encoder.DecodeString(infoParts[2]);
+                        decryptionResult = Decrypt(encryptedTextBytes, nonceBytes, tagBytes, null, associatedDataTextBytes);
+                    }
+                    else
+                    {
+                        if (string.IsNullOrWhiteSpace(encodedNonce))
+                        {
+                            return new AESGCMTextDecryptionResult()
+                            {
+                                Success = false,
+                                Message = MessageStrings.Decryption_NonceRequired,
+                            };
+                        }
+
+                        if (string.IsNullOrWhiteSpace(encodedTag))
+                        {
+                            return new AESGCMTextDecryptionResult()
+                            {
+                                Success = false,
+                                Message = MessageStrings.Decryption_TagRequired,
+                            };
+                        }
+
+                        var encryptedTextBytes = _encoder.DecodeString(encodedEncryptedTextPayload);
+                        var nonceBytes = _encoder.DecodeString(encodedNonce);
+                        var tagBytes = _encoder.DecodeString(encodedTag);
+                        decryptionResult = Decrypt(encryptedTextBytes, nonceBytes, tagBytes, null, associatedDataTextBytes);
+                    }
                 }
 
                 if (decryptionResult.Success)
@@ -265,7 +420,7 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
                         Nonce = decryptionResult.Nonce,
                         EncodedNonce = decryptionResult.EncodedNonce,
                         Tag = decryptionResult.Tag,
-                        EncodedTag = _encoder.EncodeToString(decryptionResult.Tag),
+                        EncodedTag = decryptionResult.EncodedTag,
                         AssociatedData = decryptionResult.AssociatedData,
                         AssociatedDataText = associatedDataText,
                     };

@@ -1,4 +1,5 @@
-﻿using CryptographyHelpers.Text.Encoding;
+﻿using CryptographyHelpers.KeyDerivation;
+using CryptographyHelpers.Text.Encoding;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -56,6 +57,9 @@ namespace CryptographyHelpers.IoC
         {
             _servicesType.Add(typeof(IBase64Encoder), typeof(Base64Encoder));
             _servicesType.Add(typeof(IHexadecimalEncoder), typeof(HexadecimalEncoder));
+            _servicesType.Add(typeof(IPBKDF2HMACSHA1), typeof(PBKDF2HMACSHA1));
+            _servicesType.Add(typeof(IPBKDF2HMACSHA256), typeof(PBKDF2HMACSHA256));
+            _servicesType.Add(typeof(IPBKDF2HMACSHA512), typeof(PBKDF2HMACSHA512));
         }
     }
 }

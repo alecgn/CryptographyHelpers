@@ -13,5 +13,6 @@ namespace CryptographyHelpers.Encryption.Symmetric.AES.AEAD
         public byte[] Tag { get; set; }
         public string EncodedTag { get; set; }
         public byte[] AssociatedData { get; set; }
+        public string AssociatedDataText { get; set; }
     }
 }

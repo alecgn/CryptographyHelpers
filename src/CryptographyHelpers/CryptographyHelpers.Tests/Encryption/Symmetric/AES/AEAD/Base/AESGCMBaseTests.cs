@@ -126,7 +126,7 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES.AEAD
 
             using (aesGcm)
             {
-                aesGcmTextDecryptionResult = aesGcm.DecryptText(invalidInputText, null, null);
+                aesGcmTextDecryptionResult = aesGcm.DecryptText(invalidInputText);
             }
 
             aesGcmTextDecryptionResult.Success.Should().BeFalse();
@@ -145,7 +145,11 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES.AEAD
 
             using (aesGcm)
             {
-                aesGcmTextDecryptionResult = aesGcm.DecryptText(new Faker().Lorem.Sentence(), invalidEncodedNonce, encodedTag);
+                aesGcmTextDecryptionResult = aesGcm.DecryptText(
+                    new Faker().Lorem.Sentence(),
+                    hasMetadataInInputEncryptedText: false,
+                    invalidEncodedNonce,
+                    encodedTag);
             }
 
             aesGcmTextDecryptionResult.Success.Should().BeFalse();
@@ -163,7 +167,11 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES.AEAD
 
             using (aesGcm)
             {
-                aesGcmTextDecryptionResult = aesGcm.DecryptText(new Faker().Lorem.Sentence(), encodedNonce, invalidEncodedTag);
+                aesGcmTextDecryptionResult = aesGcm.DecryptText(
+                    new Faker().Lorem.Sentence(),
+                    hasMetadataInInputEncryptedText: false,
+                    encodedNonce, 
+                    invalidEncodedTag);
             }
 
             aesGcmTextDecryptionResult.Success.Should().BeFalse();
@@ -239,15 +247,19 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES.AEAD
         }
 
         [TestMethod]
-        [DynamicData(nameof(GetAESInputPlainTextOffsetOptionsAssociatedDataTextAndExpecteDecryptedText), DynamicDataSourceType.Method)]
-        public void ShouldEncryptAndDecryptTextSucessfully_WithAndWithoutOffsetOptionsAndAssociatedDataText_InEncryptText_And_WithoutOffsetOptions_InDecryptText(AESGCMBase aesGcm, string inputPlainText, OffsetOptions offsetOptions, string associatedDataText, string expectedDecryptedText)
+        [DynamicData(nameof(GetAESInputPlainTextAppendInfoToOutputOffsetOptionsAssociatedDataTextAndExpecteDecryptedText), DynamicDataSourceType.Method)]
+        public void ShouldEncryptAndDecryptTextSucessfully_WithAndWithoutOffsetOptionsAndAssociatedDataText_InEncryptText_And_WithoutOffsetOptions_InDecryptText(AESGCMBase aesGcm, string inputPlainText, bool appendDataToOutput, OffsetOptions offsetOptions, string associatedDataText, string expectedDecryptedText)
         {
             AESGCMTextEncryptionResult aesGcmTextEncryptionResult;
             AESGCMTextDecryptionResult aesGcmTextDecryptionResult;
 
             using (aesGcm)
             {
-                aesGcmTextEncryptionResult = aesGcm.EncryptText(inputPlainText, offsetOptions, associatedDataText);
+                aesGcmTextEncryptionResult = aesGcm.EncryptText(
+                    inputPlainText,
+                    addMetadataToOutputEncryptedText: appendDataToOutput,
+                    offsetOptions,
+                    associatedDataText);
 
                 if (!aesGcmTextEncryptionResult.Success)
                 {
@@ -256,6 +268,7 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES.AEAD
 
                 aesGcmTextDecryptionResult = aesGcm.DecryptText(
                     aesGcmTextEncryptionResult.EncodedEncryptedText,
+                    hasMetadataInInputEncryptedText: appendDataToOutput,
                     aesGcmTextEncryptionResult.EncodedNonce,
                     aesGcmTextEncryptionResult.EncodedTag,
                     null,
@@ -271,8 +284,8 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES.AEAD
         }
 
         [TestMethod]
-        [DynamicData(nameof(GetAESAndAssociatedDataText), DynamicDataSourceType.Method)]
-        public void ShouldEncryptAndDecryptTextSucessfully_WithAndWithoutAssociatedDataText_And_WithOffsetOptions_InDecryptText_And_WithoutOffsetOptions_InEncryptText(AESGCMBase aesGcm, string associatedDataText)
+        [DynamicData(nameof(GetAESAppendInfoToOutputAndAssociatedDataText), DynamicDataSourceType.Method)]
+        public void ShouldEncryptAndDecryptTextSucessfully_WithAndWithoutAssociatedDataText_And_WithOffsetOptions_InDecryptText_And_WithoutOffsetOptions_InEncryptText(AESGCMBase aesGcm, bool metadataFlag, string associatedDataText)
         {
             AESGCMTextEncryptionResult aesGcmTextEncryptionResult;
             AESGCMTextDecryptionResult aesGcmTextDecryptionResult;
@@ -280,7 +293,11 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES.AEAD
 
             using (aesGcm)
             {
-                aesGcmTextEncryptionResult = aesGcm.EncryptText(text, null, associatedDataText);
+                aesGcmTextEncryptionResult = aesGcm.EncryptText(
+                    text,
+                    addMetadataToOutputEncryptedText: metadataFlag,
+                    null,
+                    associatedDataText);
 
                 if (!aesGcmTextEncryptionResult.Success)
                 {
@@ -292,7 +309,13 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES.AEAD
                 var additionalTextAtEndLenght = 10;
                 var additionalTextAtEnd = new string('z', additionalTextAtEndLenght);
                 var encryptedTextWithAdditionalText = $"{additionalTextAtBegin}{aesGcmTextEncryptionResult.EncodedEncryptedText}{additionalTextAtEnd}";
-                aesGcmTextDecryptionResult = aesGcm.DecryptText(encryptedTextWithAdditionalText, aesGcmTextEncryptionResult.EncodedNonce, aesGcmTextEncryptionResult.EncodedTag, new OffsetOptions(additionalTextAtBeginLenght, aesGcmTextEncryptionResult.EncodedEncryptedText.Length), associatedDataText);
+                aesGcmTextDecryptionResult = aesGcm.DecryptText(
+                    encryptedTextWithAdditionalText,
+                    hasMetadataInInputEncryptedText: metadataFlag,
+                    aesGcmTextEncryptionResult.EncodedNonce,
+                    aesGcmTextEncryptionResult.EncodedTag,
+                    new OffsetOptions(additionalTextAtBeginLenght, aesGcmTextEncryptionResult.EncodedEncryptedText.Length),
+                    associatedDataText);
             }
 
             if (!aesGcmTextDecryptionResult.Success)
@@ -586,7 +609,7 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES.AEAD
                 new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), Guid.NewGuid().ToString().ToUTF8Bytes() },
             };
 
-        private static IEnumerable<object[]> GetAESInputPlainTextOffsetOptionsAssociatedDataTextAndExpecteDecryptedText()
+        private static IEnumerable<object[]> GetAESInputPlainTextAppendInfoToOutputOffsetOptionsAssociatedDataTextAndExpecteDecryptedText()
         {
             var text = PlainTestString;
             var truncatedToBeginText = text.Substring(0, PlainTestString.Length / 2);
@@ -600,76 +623,136 @@ namespace CryptographyHelpers.Tests.Encryption.Symmetric.AES.AEAD
 
             return new List<object[]>()
             {
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), text, new OffsetOptions(), null, text },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), text, new OffsetOptions(0, truncatedToBeginText.Length), null, truncatedToBeginText },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), text, new OffsetOptions(truncatedToEndText.Length, truncatedToEndText.Length), null, truncatedToEndText },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), textWithAdditionalText, new OffsetOptions(additionalTextAtBeginLength, text.Length), null, text },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), text, new OffsetOptions(), string.Empty, text },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), text, new OffsetOptions(0, truncatedToBeginText.Length), string.Empty, truncatedToBeginText },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), text, new OffsetOptions(truncatedToEndText.Length, truncatedToEndText.Length), string.Empty, truncatedToEndText },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), textWithAdditionalText, new OffsetOptions(additionalTextAtBeginLength, text.Length), string.Empty, text },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), text, new OffsetOptions(), WhiteSpaceString, text },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), text, new OffsetOptions(0, truncatedToBeginText.Length), WhiteSpaceString, truncatedToBeginText },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), text, new OffsetOptions(truncatedToEndText.Length, truncatedToEndText.Length), WhiteSpaceString, truncatedToEndText },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), textWithAdditionalText, new OffsetOptions(additionalTextAtBeginLength, text.Length), WhiteSpaceString, text },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), text, new OffsetOptions(), associatedDataText, text },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), text, new OffsetOptions(0, truncatedToBeginText.Length), associatedDataText, truncatedToBeginText },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), text, new OffsetOptions(truncatedToEndText.Length, truncatedToEndText.Length), associatedDataText, truncatedToEndText },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), textWithAdditionalText, new OffsetOptions(additionalTextAtBeginLength, text.Length), associatedDataText, text },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), text, false, new OffsetOptions(), null, text },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), text, true, new OffsetOptions(), null, text },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), text, false, new OffsetOptions(0, truncatedToBeginText.Length), null, truncatedToBeginText },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), text, true, new OffsetOptions(0, truncatedToBeginText.Length), null, truncatedToBeginText },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), text, false, new OffsetOptions(truncatedToEndText.Length, truncatedToEndText.Length), null, truncatedToEndText },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), text, true, new OffsetOptions(truncatedToEndText.Length, truncatedToEndText.Length), null, truncatedToEndText },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), textWithAdditionalText, false, new OffsetOptions(additionalTextAtBeginLength, text.Length), null, text },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), textWithAdditionalText, true, new OffsetOptions(additionalTextAtBeginLength, text.Length), null, text },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), text, false, new OffsetOptions(), string.Empty, text },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), text, true, new OffsetOptions(), string.Empty, text },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), text, false, new OffsetOptions(0, truncatedToBeginText.Length), string.Empty, truncatedToBeginText },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), text, true, new OffsetOptions(0, truncatedToBeginText.Length), string.Empty, truncatedToBeginText },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), text, false, new OffsetOptions(truncatedToEndText.Length, truncatedToEndText.Length), string.Empty, truncatedToEndText },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), text, true, new OffsetOptions(truncatedToEndText.Length, truncatedToEndText.Length), string.Empty, truncatedToEndText },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), textWithAdditionalText, false, new OffsetOptions(additionalTextAtBeginLength, text.Length), string.Empty, text },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), textWithAdditionalText, true, new OffsetOptions(additionalTextAtBeginLength, text.Length), string.Empty, text },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), text, false, new OffsetOptions(), WhiteSpaceString, text },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), text, true, new OffsetOptions(), WhiteSpaceString, text },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), text, false, new OffsetOptions(0, truncatedToBeginText.Length), WhiteSpaceString, truncatedToBeginText },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), text, true, new OffsetOptions(0, truncatedToBeginText.Length), WhiteSpaceString, truncatedToBeginText },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), text, false, new OffsetOptions(truncatedToEndText.Length, truncatedToEndText.Length), WhiteSpaceString, truncatedToEndText },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), text, true, new OffsetOptions(truncatedToEndText.Length, truncatedToEndText.Length), WhiteSpaceString, truncatedToEndText },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), textWithAdditionalText, false, new OffsetOptions(additionalTextAtBeginLength, text.Length), WhiteSpaceString, text },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), textWithAdditionalText, true, new OffsetOptions(additionalTextAtBeginLength, text.Length), WhiteSpaceString, text },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), text, false, new OffsetOptions(), associatedDataText, text },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), text, true, new OffsetOptions(), associatedDataText, text },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), text, false, new OffsetOptions(0, truncatedToBeginText.Length), associatedDataText, truncatedToBeginText },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), text, true, new OffsetOptions(0, truncatedToBeginText.Length), associatedDataText, truncatedToBeginText },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), text, false, new OffsetOptions(truncatedToEndText.Length, truncatedToEndText.Length), associatedDataText, truncatedToEndText },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), text, true, new OffsetOptions(truncatedToEndText.Length, truncatedToEndText.Length), associatedDataText, truncatedToEndText },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), textWithAdditionalText, false, new OffsetOptions(additionalTextAtBeginLength, text.Length), associatedDataText, text },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), textWithAdditionalText, true, new OffsetOptions(additionalTextAtBeginLength, text.Length), associatedDataText, text },
 
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), text, new OffsetOptions(), null, text },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), text, new OffsetOptions(0, truncatedToBeginText.Length), null, truncatedToBeginText },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), text, new OffsetOptions(truncatedToEndText.Length, truncatedToEndText.Length), null, truncatedToEndText },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), textWithAdditionalText, new OffsetOptions(additionalTextAtBeginLength, text.Length), null, text },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), text, new OffsetOptions(), string.Empty, text },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), text, new OffsetOptions(0, truncatedToBeginText.Length), string.Empty, truncatedToBeginText },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), text, new OffsetOptions(truncatedToEndText.Length, truncatedToEndText.Length), string.Empty, truncatedToEndText },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), textWithAdditionalText, new OffsetOptions(additionalTextAtBeginLength, text.Length), string.Empty, text },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), text, new OffsetOptions(), WhiteSpaceString, text },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), text, new OffsetOptions(0, truncatedToBeginText.Length), WhiteSpaceString, truncatedToBeginText },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), text, new OffsetOptions(truncatedToEndText.Length, truncatedToEndText.Length), WhiteSpaceString, truncatedToEndText },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), textWithAdditionalText, new OffsetOptions(additionalTextAtBeginLength, text.Length), WhiteSpaceString, text },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), text, new OffsetOptions(), associatedDataText, text },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), text, new OffsetOptions(0, truncatedToBeginText.Length), associatedDataText, truncatedToBeginText },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), text, new OffsetOptions(truncatedToEndText.Length, truncatedToEndText.Length), associatedDataText, truncatedToEndText },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), textWithAdditionalText, new OffsetOptions(additionalTextAtBeginLength, text.Length), associatedDataText, text },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), text, false, new OffsetOptions(), null, text },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), text, true, new OffsetOptions(), null, text },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), text, false, new OffsetOptions(0, truncatedToBeginText.Length), null, truncatedToBeginText },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), text, true, new OffsetOptions(0, truncatedToBeginText.Length), null, truncatedToBeginText },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), text, false, new OffsetOptions(truncatedToEndText.Length, truncatedToEndText.Length), null, truncatedToEndText },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), text, true, new OffsetOptions(truncatedToEndText.Length, truncatedToEndText.Length), null, truncatedToEndText },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), textWithAdditionalText, false, new OffsetOptions(additionalTextAtBeginLength, text.Length), null, text },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), textWithAdditionalText, true, new OffsetOptions(additionalTextAtBeginLength, text.Length), null, text },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), text, false, new OffsetOptions(), string.Empty, text },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), text, true, new OffsetOptions(), string.Empty, text },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), text, false, new OffsetOptions(0, truncatedToBeginText.Length), string.Empty, truncatedToBeginText },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), text, true, new OffsetOptions(0, truncatedToBeginText.Length), string.Empty, truncatedToBeginText },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), text, false, new OffsetOptions(truncatedToEndText.Length, truncatedToEndText.Length), string.Empty, truncatedToEndText },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), text, true, new OffsetOptions(truncatedToEndText.Length, truncatedToEndText.Length), string.Empty, truncatedToEndText },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), textWithAdditionalText, false, new OffsetOptions(additionalTextAtBeginLength, text.Length), string.Empty, text },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), textWithAdditionalText, true, new OffsetOptions(additionalTextAtBeginLength, text.Length), string.Empty, text },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), text, false, new OffsetOptions(), WhiteSpaceString, text },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), text, true, new OffsetOptions(), WhiteSpaceString, text },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), text, false, new OffsetOptions(0, truncatedToBeginText.Length), WhiteSpaceString, truncatedToBeginText },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), text, true, new OffsetOptions(0, truncatedToBeginText.Length), WhiteSpaceString, truncatedToBeginText },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), text, false, new OffsetOptions(truncatedToEndText.Length, truncatedToEndText.Length), WhiteSpaceString, truncatedToEndText },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), text, true, new OffsetOptions(truncatedToEndText.Length, truncatedToEndText.Length), WhiteSpaceString, truncatedToEndText },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), textWithAdditionalText, false, new OffsetOptions(additionalTextAtBeginLength, text.Length), WhiteSpaceString, text },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), textWithAdditionalText, true, new OffsetOptions(additionalTextAtBeginLength, text.Length), WhiteSpaceString, text },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), text, false, new OffsetOptions(), associatedDataText, text },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), text, true, new OffsetOptions(), associatedDataText, text },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), text, false, new OffsetOptions(0, truncatedToBeginText.Length), associatedDataText, truncatedToBeginText },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), text, true, new OffsetOptions(0, truncatedToBeginText.Length), associatedDataText, truncatedToBeginText },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), text, false, new OffsetOptions(truncatedToEndText.Length, truncatedToEndText.Length), associatedDataText, truncatedToEndText },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), text, true, new OffsetOptions(truncatedToEndText.Length, truncatedToEndText.Length), associatedDataText, truncatedToEndText },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), textWithAdditionalText, false, new OffsetOptions(additionalTextAtBeginLength, text.Length), associatedDataText, text },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), textWithAdditionalText, true, new OffsetOptions(additionalTextAtBeginLength, text.Length), associatedDataText, text },
 
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), text, new OffsetOptions(), null, text },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), text, new OffsetOptions(0, truncatedToBeginText.Length), null, truncatedToBeginText },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), text, new OffsetOptions(truncatedToEndText.Length, truncatedToEndText.Length), null, truncatedToEndText },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), textWithAdditionalText, new OffsetOptions(additionalTextAtBeginLength, text.Length), null, text },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), text, new OffsetOptions(), string.Empty, text },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), text, new OffsetOptions(0, truncatedToBeginText.Length), string.Empty, truncatedToBeginText },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), text, new OffsetOptions(truncatedToEndText.Length, truncatedToEndText.Length), string.Empty, truncatedToEndText },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), textWithAdditionalText, new OffsetOptions(additionalTextAtBeginLength, text.Length), string.Empty, text },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), text, new OffsetOptions(), WhiteSpaceString, text },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), text, new OffsetOptions(0, truncatedToBeginText.Length), WhiteSpaceString, truncatedToBeginText },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), text, new OffsetOptions(truncatedToEndText.Length, truncatedToEndText.Length), WhiteSpaceString, truncatedToEndText },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), textWithAdditionalText, new OffsetOptions(additionalTextAtBeginLength, text.Length), WhiteSpaceString, text },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), text, new OffsetOptions(), associatedDataText, text },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), text, new OffsetOptions(0, truncatedToBeginText.Length), associatedDataText, truncatedToBeginText },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), text, new OffsetOptions(truncatedToEndText.Length, truncatedToEndText.Length), associatedDataText, truncatedToEndText },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), textWithAdditionalText, new OffsetOptions(additionalTextAtBeginLength, text.Length), associatedDataText, text },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), text, false, new OffsetOptions(), null, text },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), text, true, new OffsetOptions(), null, text },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), text, false, new OffsetOptions(0, truncatedToBeginText.Length), null, truncatedToBeginText },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), text, true, new OffsetOptions(0, truncatedToBeginText.Length), null, truncatedToBeginText },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), text, false, new OffsetOptions(truncatedToEndText.Length, truncatedToEndText.Length), null, truncatedToEndText },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), text, true, new OffsetOptions(truncatedToEndText.Length, truncatedToEndText.Length), null, truncatedToEndText },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), textWithAdditionalText, false, new OffsetOptions(additionalTextAtBeginLength, text.Length), null, text },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), textWithAdditionalText, true, new OffsetOptions(additionalTextAtBeginLength, text.Length), null, text },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), text, false, new OffsetOptions(), string.Empty, text },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), text, true, new OffsetOptions(), string.Empty, text },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), text, false, new OffsetOptions(0, truncatedToBeginText.Length), string.Empty, truncatedToBeginText },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), text, true, new OffsetOptions(0, truncatedToBeginText.Length), string.Empty, truncatedToBeginText },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), text, false, new OffsetOptions(truncatedToEndText.Length, truncatedToEndText.Length), string.Empty, truncatedToEndText },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), text, true, new OffsetOptions(truncatedToEndText.Length, truncatedToEndText.Length), string.Empty, truncatedToEndText },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), textWithAdditionalText, false, new OffsetOptions(additionalTextAtBeginLength, text.Length), string.Empty, text },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), textWithAdditionalText, true, new OffsetOptions(additionalTextAtBeginLength, text.Length), string.Empty, text },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), text, false, new OffsetOptions(), WhiteSpaceString, text },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), text, true, new OffsetOptions(), WhiteSpaceString, text },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), text, false, new OffsetOptions(0, truncatedToBeginText.Length), WhiteSpaceString, truncatedToBeginText },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), text, true, new OffsetOptions(0, truncatedToBeginText.Length), WhiteSpaceString, truncatedToBeginText },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), text, false, new OffsetOptions(truncatedToEndText.Length, truncatedToEndText.Length), WhiteSpaceString, truncatedToEndText },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), text, true, new OffsetOptions(truncatedToEndText.Length, truncatedToEndText.Length), WhiteSpaceString, truncatedToEndText },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), textWithAdditionalText, false, new OffsetOptions(additionalTextAtBeginLength, text.Length), WhiteSpaceString, text },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), textWithAdditionalText, true, new OffsetOptions(additionalTextAtBeginLength, text.Length), WhiteSpaceString, text },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), text, false, new OffsetOptions(), associatedDataText, text },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), text, true, new OffsetOptions(), associatedDataText, text },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), text, false, new OffsetOptions(0, truncatedToBeginText.Length), associatedDataText, truncatedToBeginText },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), text, true, new OffsetOptions(0, truncatedToBeginText.Length), associatedDataText, truncatedToBeginText },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), text, false, new OffsetOptions(truncatedToEndText.Length, truncatedToEndText.Length), associatedDataText, truncatedToEndText },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), text, true, new OffsetOptions(truncatedToEndText.Length, truncatedToEndText.Length), associatedDataText, truncatedToEndText },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), textWithAdditionalText, false, new OffsetOptions(additionalTextAtBeginLength, text.Length), associatedDataText, text },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), textWithAdditionalText, true, new OffsetOptions(additionalTextAtBeginLength, text.Length), associatedDataText, text },
             };
         }
 
-        private static IEnumerable<object[]> GetAESAndAssociatedDataText() =>
+        private static IEnumerable<object[]> GetAESAppendInfoToOutputAndAssociatedDataText() =>
             new List<object[]>()
             {
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), null },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), string.Empty },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), WhiteSpaceString },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), Guid.NewGuid().ToString() },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), false, null },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), true, null },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), false, string.Empty },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), true, string.Empty },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), false, WhiteSpaceString },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), true, WhiteSpaceString },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), false, Guid.NewGuid().ToString() },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize128Bits), true, Guid.NewGuid().ToString() },
 
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), null },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), string.Empty },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), WhiteSpaceString },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), Guid.NewGuid().ToString() },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), false, null },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), true, null },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), false, string.Empty },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), true, string.Empty },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), false, WhiteSpaceString },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), true, WhiteSpaceString },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), false, Guid.NewGuid().ToString() },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize192Bits), true, Guid.NewGuid().ToString() },
 
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), null },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), string.Empty },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), WhiteSpaceString },
-                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), Guid.NewGuid().ToString() },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), false, null },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), true, null },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), false, string.Empty },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), true, string.Empty },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), false, WhiteSpaceString },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), true, WhiteSpaceString },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), false, Guid.NewGuid().ToString() },
+                new object[]{ new AESGCMBase(AESKeySizes.KeySize256Bits), true, Guid.NewGuid().ToString() },
             };
     }
 }

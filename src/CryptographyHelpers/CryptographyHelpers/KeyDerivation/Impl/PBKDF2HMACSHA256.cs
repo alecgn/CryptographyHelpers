@@ -5,9 +5,10 @@ namespace CryptographyHelpers.KeyDerivation
 {
     public class PBKDF2HMACSHA256 : PBKDF2Base, IPBKDF2HMACSHA256
     {
-        /// <summary>
-        /// DefaultIterationCount value based on https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html#pbkdf2
-        /// </summary>
+        /// <remarks>
+        /// Iterations value based on Owasp Password Storage Cheat Sheet - 2021.
+        /// </remarks>
+        /// <see cref="https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html#pbkdf2"/>
         public const int Iterations = 310_000;
         public const KeyDerivationPrf PseudoRandomFunction = KeyDerivationPrf.HMACSHA256;
         private const EncodingType DefaultEncodingType = EncodingType.Hexadecimal;

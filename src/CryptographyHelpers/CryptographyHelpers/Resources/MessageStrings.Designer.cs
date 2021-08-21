@@ -133,6 +133,33 @@ namespace CryptographyHelpers.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid encoded encripted text format. Expected string format: &quot;&lt;ENCODED_ENCRYPTED_TEXT&gt;.&lt;ENCODED_NONCE&gt;.&lt;ENCODED_TAG&gt;&quot;..
+        /// </summary>
+        internal static string Decryption_InvalidEncodedEncryptedStringFormat {
+            get {
+                return ResourceManager.GetString("Decryption.InvalidEncodedEncryptedStringFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Nonce required..
+        /// </summary>
+        internal static string Decryption_NonceRequired {
+            get {
+                return ResourceManager.GetString("Decryption.NonceRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tag required..
+        /// </summary>
+        internal static string Decryption_TagRequired {
+            get {
+                return ResourceManager.GetString("Decryption.TagRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Input text to encode required..
         /// </summary>
         internal static string Encoding_InputTextRequired {
